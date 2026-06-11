@@ -44,6 +44,11 @@ export default function Footer() {
                   Login
                 </Link>
               </li>
+              <li>
+                <Link href="/admin/login" className="hover:text-white">
+                  Admin Portal
+                </Link>
+              </li>
             </ul>
           </div>
 

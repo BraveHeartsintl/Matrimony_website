@@ -1,0 +1,97 @@
+"use client";
+
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
+import { ADMIN_CREDENTIALS, adminLogin, isAdminLoggedIn } from "@/lib/admin-auth";
+import { SITE_NAME } from "@/lib/constants";
+import { Heart, Shield } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+export default function AdminLoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (isAdminLoggedIn()) router.replace("/admin");
+  }, [router]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminLogin(email, password)) {
+      router.push("/admin");
+    } else {
+      setError("Invalid admin credentials");
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen">
+      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-800 to-primary-dark p-12 text-white lg:flex">
+        <div className="flex items-center gap-2">
+          <Heart className="h-8 w-8 fill-accent text-accent" />
+          <span className="font-display text-2xl font-bold">{SITE_NAME}</span>
+        </div>
+        <div>
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
+            <Shield className="h-7 w-7 text-accent" />
+          </div>
+          <h1 className="font-display text-4xl font-bold leading-tight">
+            Admin Portal
+          </h1>
+          <p className="mt-4 max-w-md text-white/70">
+            Manage users, verify profiles, moderate content, and monitor subscriptions across the UK Matrimony platform.
+          </p>
+        </div>
+        <p className="text-sm text-white/40">&copy; {new Date().getFullYear()} {SITE_NAME}</p>
+      </div>
+
+      <div className="flex flex-1 items-center justify-center bg-slate-50 px-4 py-12">
+        <Card className="w-full max-w-md">
+          <h2 className="text-center font-display text-2xl font-bold">Admin Sign In</h2>
+          <p className="mt-2 text-center text-sm text-muted">Restricted access for administrators only</p>
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+            <Input
+              label="Admin Email"
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@ukmatrimony.co.uk"
+            />
+            <Input
+              label="Password"
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            {error && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+            )}
+            <Button type="submit" className="w-full">
+              Sign In to Admin
+            </Button>
+          </form>
+
+          <div className="mt-6 rounded-lg bg-background p-3 text-center text-xs text-muted">
+            <p className="font-medium text-foreground">Demo Admin</p>
+            <p className="mt-1">Email: {ADMIN_CREDENTIALS.email}</p>
+            <p>Password: {ADMIN_CREDENTIALS.password}</p>
+          </div>
+
+          <p className="mt-6 text-center text-sm text-muted">
+            <Link href="/" className="font-medium text-primary hover:underline">
+              &larr; Back to website
+            </Link>
+          </p>
+        </Card>
+      </div>
+    </div>
+  );
+}

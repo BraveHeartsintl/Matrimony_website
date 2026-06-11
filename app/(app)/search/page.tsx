@@ -30,9 +30,9 @@ export default function SearchPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold">Search Profiles</h1>
-        <p className="text-sm text-muted">Find compatible matches across the UK</p>
+      <div className="mb-8 rounded-2xl bg-gradient-to-r from-primary/5 via-card to-accent/5 p-6 border border-border">
+        <h1 className="font-display text-2xl font-bold sm:text-3xl">Search Profiles</h1>
+        <p className="mt-1 text-muted">Find compatible matches across the United Kingdom</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-4">
