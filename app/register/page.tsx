@@ -5,8 +5,9 @@ import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { useAuth } from "@/context/AuthContext";
-import { GENDERS, RELIGIONS, SITE_NAME, UK_LOCATIONS } from "@/lib/constants";
-import type { Gender } from "@/lib/types";
+import { GENDERS, MARITAL_STATUSES, RELIGIONS, SITE_NAME, UK_LOCATIONS, BODY_TYPES } from "@/lib/constants";
+import type { BodyType, Gender, MaritalStatus } from "@/lib/types";
+import { calculateAgeFromYearOfBirth } from "@/lib/utils";
 import { Check, Heart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -40,11 +41,15 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
   const [profile, setProfile] = useState({
-    age: "25",
+    yearOfBirth: String(new Date().getFullYear() - 25),
     gender: "other" as Gender,
     location: "London",
     religion: "No Religion",
     occupation: "",
+    maritalStatus: "never_married" as MaritalStatus,
+    heightCm: "",
+    weightKg: "",
+    bodyType: "average" as BodyType,
   });
   const [preferences, setPreferences] = useState({
     ageMin: "21",
@@ -98,8 +103,10 @@ export default function RegisterPage() {
     }
 
     if (step === 1) {
-      if (!profile.age || Number(profile.age) < 18) {
-        setError("Please enter a valid age (18+)");
+      const year = Number(profile.yearOfBirth);
+      const age = calculateAgeFromYearOfBirth(year);
+      if (!year || age < 18) {
+        setError("You must be at least 18 years old");
         return;
       }
       goToStep(2);
@@ -115,11 +122,16 @@ export default function RegisterPage() {
       email: account.email,
       password: account.password,
       profile: {
-        age: Number(profile.age),
+        yearOfBirth: Number(profile.yearOfBirth),
+        age: calculateAgeFromYearOfBirth(Number(profile.yearOfBirth)),
         gender: profile.gender,
         location: profile.location,
         religion: profile.religion,
         occupation: profile.occupation,
+        maritalStatus: profile.maritalStatus,
+        heightCm: Number(profile.heightCm) || 0,
+        weightKg: Number(profile.weightKg) || 0,
+        bodyType: profile.bodyType,
         preferences: {
           ageMin: Number(preferences.ageMin),
           ageMax: Number(preferences.ageMax),
@@ -269,12 +281,14 @@ export default function RegisterPage() {
               {step === 1 && (
                 <div className="space-y-4">
                   <Input
-                    label="Age"
+                    label="Year of Birth"
                     type="number"
-                    min={18}
-                    max={80}
-                    value={profile.age}
-                    onChange={(e) => setProfile((prev) => ({ ...prev, age: e.target.value }))}
+                    min={new Date().getFullYear() - 80}
+                    max={new Date().getFullYear() - 18}
+                    value={profile.yearOfBirth}
+                    onChange={(e) =>
+                      setProfile((prev) => ({ ...prev, yearOfBirth: e.target.value }))
+                    }
                   />
                   <Select
                     label="Gender"
@@ -283,6 +297,49 @@ export default function RegisterPage() {
                       setProfile((prev) => ({ ...prev, gender: e.target.value as Gender }))
                     }
                     options={GENDERS}
+                  />
+                  <Select
+                    label="Marital Status"
+                    value={profile.maritalStatus}
+                    onChange={(e) =>
+                      setProfile((prev) => ({
+                        ...prev,
+                        maritalStatus: e.target.value as MaritalStatus,
+                      }))
+                    }
+                    options={MARITAL_STATUSES}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="Height (cm)"
+                      type="number"
+                      min={120}
+                      max={230}
+                      placeholder="175"
+                      value={profile.heightCm}
+                      onChange={(e) =>
+                        setProfile((prev) => ({ ...prev, heightCm: e.target.value }))
+                      }
+                    />
+                    <Input
+                      label="Weight (kg)"
+                      type="number"
+                      min={40}
+                      max={200}
+                      placeholder="70"
+                      value={profile.weightKg}
+                      onChange={(e) =>
+                        setProfile((prev) => ({ ...prev, weightKg: e.target.value }))
+                      }
+                    />
+                  </div>
+                  <Select
+                    label="Body Type"
+                    value={profile.bodyType}
+                    onChange={(e) =>
+                      setProfile((prev) => ({ ...prev, bodyType: e.target.value as BodyType }))
+                    }
+                    options={BODY_TYPES}
                   />
                   <Select
                     label="Location"

@@ -54,10 +54,17 @@ export const EDUCATION_LEVELS = [
 ];
 
 export const MARITAL_STATUSES = [
-  { value: "never_married", label: "Never Married" },
+  { value: "never_married", label: "Single" },
   { value: "divorced", label: "Divorced" },
   { value: "widowed", label: "Widowed" },
   { value: "separated", label: "Separated" },
+];
+
+export const BODY_TYPES = [
+  { value: "slim", label: "Slim" },
+  { value: "average", label: "Average" },
+  { value: "athletic", label: "Athletic" },
+  { value: "plus_size", label: "Plus Size" },
 ];
 
 export const GENDERS = [

@@ -15,10 +15,16 @@ export interface PrivacySettings {
   hideProfile: boolean;
 }
 
+export type BodyType = "slim" | "average" | "athletic" | "plus_size";
+
 export interface Profile {
   userId: string;
   age: number;
+  yearOfBirth: number;
   gender: Gender;
+  heightCm: number;
+  weightKg: number;
+  bodyType: BodyType;
   location: string;
   religion: string;
   education: string;

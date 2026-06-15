@@ -10,21 +10,26 @@ import Textarea from "@/components/ui/Textarea";
 import Toggle from "@/components/ui/Toggle";
 import { useAuth } from "@/context/AuthContext";
 import {
+  BODY_TYPES,
   EDUCATION_LEVELS,
   GENDERS,
   MARITAL_STATUSES,
   RELIGIONS,
   UK_LOCATIONS,
 } from "@/lib/constants";
-import type { Gender, MaritalStatus } from "@/lib/types";
+import type { BodyType, Gender, MaritalStatus } from "@/lib/types";
+import { calculateAgeFromYearOfBirth } from "@/lib/utils";
 import { useState } from "react";
 
 const TABS = [
   { id: "personal", label: "Personal" },
+  { id: "physical", label: "Physical" },
   { id: "photos", label: "Photos" },
   { id: "preferences", label: "Preferences" },
   { id: "privacy", label: "Privacy" },
 ];
+
+const currentYear = new Date().getFullYear();
 
 export default function ProfilePage() {
   const { session, updateProfile } = useAuth();
@@ -37,6 +42,13 @@ export default function ProfilePage() {
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleYearOfBirthChange = (year: number) => {
+    updateProfile({
+      yearOfBirth: year,
+      age: calculateAgeFromYearOfBirth(year),
+    });
   };
 
   return (
@@ -59,20 +71,35 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
+                  label="Year of Birth"
+                  type="number"
+                  min={currentYear - 80}
+                  max={currentYear - 18}
+                  value={profile.yearOfBirth || ""}
+                  onChange={(e) => handleYearOfBirthChange(Number(e.target.value))}
+                />
+                <Input
                   label="Age"
                   type="number"
-                  min={18}
-                  max={80}
                   value={profile.age}
-                  onChange={(e) => updateProfile({ age: Number(e.target.value) })}
-                />
-                <Select
-                  label="Gender"
-                  value={profile.gender}
-                  onChange={(e) => updateProfile({ gender: e.target.value as Gender })}
-                  options={GENDERS}
+                  disabled
+                  className="bg-background text-muted"
                 />
               </div>
+              <Select
+                label="Gender"
+                value={profile.gender}
+                onChange={(e) => updateProfile({ gender: e.target.value as Gender })}
+                options={GENDERS}
+              />
+              <Select
+                label="Marital Status"
+                value={profile.maritalStatus}
+                onChange={(e) =>
+                  updateProfile({ maritalStatus: e.target.value as MaritalStatus })
+                }
+                options={MARITAL_STATUSES}
+              />
               <Select
                 label="Location"
                 value={profile.location}
@@ -91,14 +118,6 @@ export default function ProfilePage() {
                 onChange={(e) => updateProfile({ education: e.target.value })}
                 options={EDUCATION_LEVELS.map((e) => ({ value: e, label: e }))}
               />
-              <Select
-                label="Marital Status"
-                value={profile.maritalStatus}
-                onChange={(e) =>
-                  updateProfile({ maritalStatus: e.target.value as MaritalStatus })
-                }
-                options={MARITAL_STATUSES}
-              />
               <Input
                 label="Occupation"
                 value={profile.occupation}
@@ -111,6 +130,47 @@ export default function ProfilePage() {
                 onChange={(e) => updateProfile({ bio: e.target.value })}
                 placeholder="Tell potential matches about yourself..."
               />
+            </div>
+          )}
+
+          {activeTab === "physical" && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted">
+                Share your physical details to help others find compatible matches.
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Input
+                  label="Height (cm)"
+                  type="number"
+                  min={120}
+                  max={230}
+                  placeholder="e.g. 175"
+                  value={profile.heightCm || ""}
+                  onChange={(e) => updateProfile({ heightCm: Number(e.target.value) })}
+                />
+                <Input
+                  label="Weight (kg)"
+                  type="number"
+                  min={40}
+                  max={200}
+                  placeholder="e.g. 70"
+                  value={profile.weightKg || ""}
+                  onChange={(e) => updateProfile({ weightKg: Number(e.target.value) })}
+                />
+              </div>
+              <Select
+                label="Body Type"
+                value={profile.bodyType || "average"}
+                onChange={(e) => updateProfile({ bodyType: e.target.value as BodyType })}
+                options={BODY_TYPES}
+              />
+              {profile.heightCm > 0 && profile.weightKg > 0 && (
+                <div className="rounded-lg bg-primary/5 px-4 py-3 text-sm text-muted">
+                  <span className="font-medium text-foreground">Preview: </span>
+                  {profile.heightCm} cm &middot; {profile.weightKg} kg &middot;{" "}
+                  {BODY_TYPES.find((b) => b.value === profile.bodyType)?.label ?? "Average"}
+                </div>
+              )}
             </div>
           )}
 

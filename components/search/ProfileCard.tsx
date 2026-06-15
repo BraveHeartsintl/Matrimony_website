@@ -3,7 +3,8 @@
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import type { SearchProfile } from "@/lib/types";
-import { Heart, MapPin, ShieldCheck } from "lucide-react";
+import { formatBodyType, formatMaritalStatus } from "@/lib/utils";
+import { Heart, MapPin, Ruler, ShieldCheck, Weight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -44,11 +45,30 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
       <div className="p-4">
         <p className="text-xs text-muted">{profile.religion} &middot; {profile.education}</p>
+        {(profile.heightCm > 0 || profile.weightKg > 0) && (
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted">
+            {profile.heightCm > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Ruler className="h-3.5 w-3.5" />
+                {profile.heightCm} cm
+              </span>
+            )}
+            {profile.weightKg > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Weight className="h-3.5 w-3.5" />
+                {profile.weightKg} kg
+              </span>
+            )}
+            {profile.bodyType && (
+              <span>{formatBodyType(profile.bodyType)}</span>
+            )}
+          </div>
+        )}
         <p className="mt-2 line-clamp-2 text-sm text-muted">{profile.bio}</p>
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           <Badge>{profile.occupation}</Badge>
-          <Badge variant="accent">{profile.maritalStatus.replace("_", " ")}</Badge>
+          <Badge variant="accent">{formatMaritalStatus(profile.maritalStatus)}</Badge>
         </div>
 
         <Button

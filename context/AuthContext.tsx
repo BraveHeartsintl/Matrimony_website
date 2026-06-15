@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  calculateProfileCompletion,
   clearSession,
   createDefaultProfile,
   getSession,
   getSessionSnapshot,
   getStoredUsers,
+  normalizeProfile,
   saveStoredUsers,
   setSession,
   stripPassword,
@@ -57,11 +57,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       profile = {
         ...profile,
         age: 30,
+        yearOfBirth: 1996,
+        heightCm: 178,
+        weightKg: 75,
+        bodyType: "athletic",
         gender: "male",
         location: "London",
         religion: "Christian",
         education: "Bachelor's Degree",
         occupation: "IT Consultant",
+        maritalStatus: "never_married",
         bio: "Looking for a genuine connection with someone who shares similar values and interests.",
         photos: ["https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop"],
         profileCompletion: 75,
@@ -95,12 +100,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: new Date().toISOString(),
       };
 
-      const profile: Profile = {
+      const profile: Profile = normalizeProfile({
         ...createDefaultProfile(newUser.id),
         ...data.profile,
         profileCompletion: 0,
-      };
-      profile.profileCompletion = calculateProfileCompletion(profile);
+      });
 
       saveStoredUsers([...users, newUser]);
       const newSession: AuthSession = { user: stripPassword(newUser), profile };
@@ -117,13 +121,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = useCallback((updates: Partial<Profile>) => {
     const current = getSession();
     if (!current) return;
-    const updated: Profile = {
+    const updated: Profile = normalizeProfile({
       ...current.profile,
       ...updates,
       privacySettings: { ...current.profile.privacySettings, ...updates.privacySettings },
       preferences: { ...current.profile.preferences, ...updates.preferences },
-    };
-    updated.profileCompletion = calculateProfileCompletion(updated);
+    });
     const newSession: AuthSession = { ...current, profile: updated };
     setSession(newSession);
   }, []);

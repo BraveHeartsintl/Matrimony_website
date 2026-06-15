@@ -17,6 +17,31 @@ export function formatTime(dateStr: string): string {
   });
 }
 
+export function calculateAgeFromYearOfBirth(yearOfBirth: number): number {
+  const currentYear = new Date().getFullYear();
+  return Math.max(0, currentYear - yearOfBirth);
+}
+
+export function formatMaritalStatus(status: string): string {
+  const labels: Record<string, string> = {
+    never_married: "Single",
+    divorced: "Divorced",
+    widowed: "Widowed",
+    separated: "Separated",
+  };
+  return labels[status] ?? status.replace(/_/g, " ");
+}
+
+export function formatBodyType(bodyType: string): string {
+  const labels: Record<string, string> = {
+    slim: "Slim",
+    average: "Average",
+    athletic: "Athletic",
+    plus_size: "Plus Size",
+  };
+  return labels[bodyType] ?? bodyType;
+}
+
 export function formatRelativeTime(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();

@@ -1,4 +1,5 @@
 import type { AuthSession, Profile, User } from "./types";
+import { calculateAgeFromYearOfBirth } from "./utils";
 
 const SESSION_KEY = "uk_matrimony_session";
 const USERS_KEY = "uk_matrimony_users";
@@ -52,15 +53,24 @@ export function getSessionSnapshot(): AuthSession | null {
   }
 
   sessionSnapshotRaw = raw;
-  sessionSnapshot = raw ? (JSON.parse(raw) as AuthSession) : null;
+  sessionSnapshot = raw
+    ? (() => {
+        const session = JSON.parse(raw) as AuthSession;
+        return { ...session, profile: normalizeProfile(session.profile) };
+      })()
+    : null;
   return sessionSnapshot;
 }
 
 export function setSession(session: AuthSession): void {
-  const serialized = JSON.stringify(session);
+  const normalized: AuthSession = {
+    ...session,
+    profile: normalizeProfile(session.profile),
+  };
+  const serialized = JSON.stringify(normalized);
   localStorage.setItem(SESSION_KEY, serialized);
   sessionSnapshotRaw = serialized;
-  sessionSnapshot = session;
+  sessionSnapshot = normalized;
   notifyAuthChange();
 }
 
@@ -72,10 +82,15 @@ export function clearSession(): void {
 }
 
 export function createDefaultProfile(userId: string): Profile {
+  const yearOfBirth = 1999;
   return {
     userId,
-    age: 25,
+    age: calculateAgeFromYearOfBirth(yearOfBirth),
+    yearOfBirth,
     gender: "other",
+    heightCm: 0,
+    weightKg: 0,
+    bodyType: "average",
     location: "London",
     religion: "No Religion",
     education: "Bachelor's Degree",
@@ -99,15 +114,44 @@ export function createDefaultProfile(userId: string): Profile {
   };
 }
 
+export function normalizeProfile(profile: Profile): Profile {
+  const defaults = createDefaultProfile(profile.userId);
+  const merged = { ...defaults, ...profile };
+  const yearOfBirth =
+    merged.yearOfBirth > 0
+      ? merged.yearOfBirth
+      : merged.age > 0
+        ? new Date().getFullYear() - merged.age
+        : defaults.yearOfBirth;
+
+  const normalized = {
+    ...merged,
+    yearOfBirth,
+    age: calculateAgeFromYearOfBirth(yearOfBirth),
+    heightCm: merged.heightCm ?? 0,
+    weightKg: merged.weightKg ?? 0,
+    bodyType: merged.bodyType ?? "average",
+  };
+
+  return {
+    ...normalized,
+    profileCompletion: calculateProfileCompletion(normalized),
+  };
+}
+
 export function calculateProfileCompletion(profile: Profile): number {
   let score = 0;
   const checks = [
-    profile.age > 0,
+    profile.yearOfBirth > 0,
     profile.gender !== "other",
+    profile.heightCm > 0,
+    profile.weightKg > 0,
+    !!profile.bodyType,
     !!profile.location,
     !!profile.religion,
     !!profile.education,
     !!profile.occupation,
+    !!profile.maritalStatus,
     !!profile.bio && profile.bio.length > 20,
     profile.photos.length > 0,
     profile.preferences.religions.length > 0,
