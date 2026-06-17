@@ -5,85 +5,117 @@ import { cn } from "@/lib/utils";
 import { Heart, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../ui/Button";
 
 export default function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-card/95 shadow-sm backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <Heart className="h-7 w-7 fill-primary text-primary" />
-          <span className="font-display text-xl font-bold text-primary">{SITE_NAME}</span>
-        </Link>
+    <>
+      <header className="sticky top-0 z-40 border-b glass-nav">
+        <div className="container-site flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <Heart className="h-6 w-6 text-accent" />
+            <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
+          </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {PUBLIC_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname === item.href ? "text-primary" : "text-muted"
-              )}
-            >
-              {item.label}
+          <nav className="hidden items-center gap-8 md:flex">
+            {PUBLIC_NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "nav-link",
+                  pathname === item.href && "text-foreground"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="hidden items-center gap-3 md:flex">
+            <Link href="/login">
+              <Button variant="ghost" size="sm">
+                Log In
+              </Button>
             </Link>
-          ))}
-        </nav>
+            <Link href="/register">
+              <Button size="sm">Register Free</Button>
+            </Link>
+          </div>
 
-        <div className="hidden items-center gap-3 md:flex">
-          <Link href="/login">
-            <Button variant="ghost" size="sm">
-              Log In
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button size="sm">Register Free</Button>
-          </Link>
+          <button
+            className="p-2 text-foreground md:hidden"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
         </div>
-
-        <button
-          className="rounded-lg p-2 text-foreground md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
-      </div>
+      </header>
 
       {mobileOpen && (
-        <div className="border-t border-border bg-card px-4 py-4 md:hidden">
-          <nav className="flex flex-col gap-3">
+        <div className="fixed inset-0 z-50 flex flex-col glass-strong md:hidden">
+          <div className="container-site flex h-16 items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-center gap-2"
+              onClick={() => setMobileOpen(false)}
+            >
+              <Heart className="h-6 w-6 text-accent" />
+              <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
+            </Link>
+            <button
+              className="p-2 text-foreground"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Close menu"
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+
+          <nav className="flex flex-1 flex-col justify-center gap-6 px-6">
             {PUBLIC_NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium",
-                  pathname === item.href ? "bg-primary/10 text-primary" : "text-muted"
+                  "text-2xl font-display font-bold uppercase tracking-[0.08em] transition-colors",
+                  pathname === item.href ? "text-accent" : "text-foreground"
                 )}
               >
                 {item.label}
               </Link>
             ))}
-            <div className="mt-2 flex flex-col gap-2 border-t border-border pt-3">
-              <Link href="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full">
-                  Log In
-                </Button>
-              </Link>
-              <Link href="/register" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full">Register Free</Button>
-              </Link>
-            </div>
           </nav>
+
+          <div className="container-site flex flex-col gap-3 pb-10">
+            <Link href="/login" onClick={() => setMobileOpen(false)}>
+              <Button variant="outline" className="w-full">
+                Log In
+              </Button>
+            </Link>
+            <Link href="/register" onClick={() => setMobileOpen(false)}>
+              <Button className="w-full">Register Free</Button>
+            </Link>
+          </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

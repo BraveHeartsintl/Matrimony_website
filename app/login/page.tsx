@@ -38,36 +38,42 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-primary via-primary-dark to-[#3d0f1f] p-12 text-white lg:flex">
+    <div className="flex min-h-screen bg-background">
+      <div className="hidden w-1/2 flex-col justify-between glass-sidebar p-12 lg:flex">
         <Link href="/" className="flex items-center gap-2">
-          <Heart className="h-8 w-8 fill-accent text-accent" />
-          <span className="font-display text-2xl font-bold">{SITE_NAME}</span>
+          <Heart className="h-8 w-8 text-accent" />
+          <span className="font-display text-2xl font-bold text-foreground">{SITE_NAME}</span>
         </Link>
         <div>
-          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[6px] glass">
             <Shield className="h-7 w-7 text-accent" />
           </div>
-          <h1 className="font-display text-4xl font-bold leading-tight">Welcome Back</h1>
-          <p className="mt-4 max-w-md text-white/70">
+          <h1 className="font-display text-4xl font-bold leading-tight text-foreground">
+            Welcome Back
+          </h1>
+          <p className="mt-4 max-w-md text-muted">
             Log in to continue your journey. Search matches, send interests, and connect with
             people who share your values.
           </p>
         </div>
-        <p className="text-sm text-white/40">&copy; {new Date().getFullYear()} {SITE_NAME}</p>
+        <p className="text-sm text-muted-foreground">
+          &copy; {new Date().getFullYear()} {SITE_NAME}
+        </p>
       </div>
 
       <div className="flex flex-1 flex-col">
         <div className="flex h-16 items-center justify-between border-b border-border px-6 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-6 w-6 fill-primary text-primary" />
-            <span className="font-display font-bold text-primary">{SITE_NAME}</span>
+            <Heart className="h-6 w-6 text-accent" />
+            <span className="font-display font-bold text-foreground">{SITE_NAME}</span>
           </Link>
         </div>
 
         <div className="flex flex-1 items-center justify-center px-4 py-12">
-          <Card className="w-full max-w-md shadow-lg">
-            <h2 className="text-center font-display text-2xl font-bold">Sign In</h2>
+          <Card className="w-full max-w-md">
+            <h2 className="text-center font-display text-2xl font-bold text-foreground">
+              Sign In
+            </h2>
             <p className="mt-2 text-center text-sm text-muted">
               Log in to your UK Matrimony account
             </p>
@@ -97,23 +103,25 @@ export default function LoginPage() {
               />
 
               {error && (
-                <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+                <p className="feedback-error rounded-[6px] px-3 py-2 text-sm">
+                  {error}
+                </p>
               )}
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading} >
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
                 {loading ? "Logging in..." : "Log In"}
               </Button>
             </form>
 
-            <div className="mt-6 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 text-center text-xs">
-              <p className="font-semibold text-primary">Demo Account</p>
+            <div className="mt-6 rounded-[6px] glass-subtle border-dashed p-4 text-center text-xs">
+              <p className="font-semibold uppercase tracking-wider text-accent">Demo Account</p>
               <p className="mt-1 text-muted">Email: demo@example.com</p>
               <p className="text-muted">Password: password123</p>
             </div>
 
             <p className="mt-6 text-center text-sm text-muted">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="font-medium text-primary hover:underline">
+              <Link href="/register" className="text-foreground transition-colors hover:text-accent">
                 Register Free
               </Link>
             </p>

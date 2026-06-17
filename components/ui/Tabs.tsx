@@ -21,9 +21,9 @@ export default function Tabs({ tabs, activeTab, onChange }: TabsProps) {
           key={tab.id}
           onClick={() => onChange(tab.id)}
           className={cn(
-            "whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors",
+            "whitespace-nowrap px-4 py-2.5 text-xs font-medium uppercase tracking-[0.08em] transition-colors",
             activeTab === tab.id
-              ? "border-b-2 border-primary text-primary"
+              ? "border-b-2 border-accent text-accent"
               : "text-muted hover:text-foreground"
           )}
         >

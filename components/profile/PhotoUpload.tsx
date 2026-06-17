@@ -46,7 +46,7 @@ export default function PhotoUpload({ photos, onChange, maxPhotos = 5 }: PhotoUp
               <X className="h-4 w-4" />
             </button>
             {i === 0 && (
-              <span className="absolute bottom-1 left-1 rounded bg-primary px-2 py-0.5 text-xs text-white">
+              <span className="absolute bottom-1 left-1 rounded bg-accent px-2 py-0.5 text-xs text-white">
                 Primary
               </span>
             )}
@@ -57,7 +57,7 @@ export default function PhotoUpload({ photos, onChange, maxPhotos = 5 }: PhotoUp
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="flex aspect-square flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border text-muted transition-colors hover:border-primary hover:text-primary"
+            className="flex aspect-square flex-col items-center justify-center gap-2 rounded-[6px] border-2 border-dashed border-border text-muted transition-colors hover:border-border-hover hover:text-foreground"
           >
             <Camera className="h-8 w-8" />
             <span className="text-xs">Add Photo</span>

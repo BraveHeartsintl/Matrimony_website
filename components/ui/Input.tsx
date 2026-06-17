@@ -13,7 +13,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-foreground">
+          <label
+            htmlFor={inputId}
+            className="mb-1.5 block text-xs font-medium uppercase tracking-[0.1em] text-foreground"
+          >
             {label}
           </label>
         )}
@@ -21,13 +24,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
-            error && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+            "w-full rounded-[8px] glass-input px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/20",
+            error && "border-accent/50 focus:border-accent",
             className
           )}
           {...props}
         />
-        {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+        {error && <p className="mt-1 text-xs text-accent">{error}</p>}
       </div>
     );
   }

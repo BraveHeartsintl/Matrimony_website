@@ -16,27 +16,27 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   const [interested, setInterested] = useState(false);
 
   return (
-    <div className="card-hover overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <div className="glass glass-hover overflow-hidden rounded-[10px] transition-colors">
       <div className="relative h-48 overflow-hidden">
         <Image
           src={profile.photos[0]}
           alt={profile.name}
           fill
-          className="object-cover"
+          className="object-cover img-bw"
           sizes="(max-width: 640px) 100vw, 50vw"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         {profile.verified && (
-          <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-emerald-700">
+          <div className="glass absolute right-3 top-3 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium uppercase tracking-wider text-accent">
             <ShieldCheck className="h-3.5 w-3.5" />
             Verified
           </div>
         )}
-        <div className="absolute bottom-3 left-4 right-4 text-white">
-          <h3 className="font-display text-lg font-bold">
+        <div className="absolute bottom-3 left-4 right-4">
+          <h3 className="font-display text-lg font-bold text-foreground">
             {profile.name}, {profile.age}
           </h3>
-          <div className="mt-0.5 flex items-center gap-1 text-sm text-white/80">
+          <div className="mt-0.5 flex items-center gap-1 text-sm text-muted">
             <MapPin className="h-3.5 w-3.5" />
             {profile.location}
           </div>
@@ -44,7 +44,9 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       </div>
 
       <div className="p-4">
-        <p className="text-xs text-muted">{profile.religion} &middot; {profile.education}</p>
+        <p className="text-xs text-muted">
+          {profile.religion} &middot; {profile.education}
+        </p>
         {(profile.heightCm > 0 || profile.weightKg > 0) && (
           <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted">
             {profile.heightCm > 0 && (
@@ -59,9 +61,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
                 {profile.weightKg} kg
               </span>
             )}
-            {profile.bodyType && (
-              <span>{formatBodyType(profile.bodyType)}</span>
-            )}
+            {profile.bodyType && <span>{formatBodyType(profile.bodyType)}</span>}
           </div>
         )}
         <p className="mt-2 line-clamp-2 text-sm text-muted">{profile.bio}</p>

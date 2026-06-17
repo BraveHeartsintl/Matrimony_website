@@ -4,24 +4,36 @@ import ChatWindow from "@/components/messages/ChatWindow";
 import ConversationList from "@/components/messages/ConversationList";
 import Card from "@/components/ui/Card";
 import { useAuth } from "@/context/AuthContext";
+import { filterCompatibleConversations } from "@/lib/matchmaking";
 import { MOCK_CONVERSATIONS, MOCK_MESSAGES } from "@/lib/mock/messages";
+import { MOCK_PROFILES } from "@/lib/mock/profiles";
 import type { Message } from "@/lib/types";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+
+const profilesByUserId = new Map(MOCK_PROFILES.map((p) => [p.userId, p]));
 
 export default function MessagesPage() {
   const { session } = useAuth();
-  const [activeConvId, setActiveConvId] = useState<string | null>(
-    MOCK_CONVERSATIONS[0]?.id ?? null
-  );
+  const conversations = useMemo(() => {
+    if (!session) return MOCK_CONVERSATIONS;
+    return filterCompatibleConversations(
+      MOCK_CONVERSATIONS,
+      session.profile.gender,
+      profilesByUserId
+    );
+  }, [session]);
+
+  const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Record<string, Message[]>>(MOCK_MESSAGES);
 
   if (!session) return null;
 
-  const activeConv = MOCK_CONVERSATIONS.find((c) => c.id === activeConvId) ?? null;
-  const activeMessages = activeConvId ? messages[activeConvId] || [] : [];
+  const activeConvIdResolved = activeConvId ?? conversations[0]?.id ?? null;
+  const activeConv = conversations.find((c) => c.id === activeConvIdResolved) ?? null;
+  const activeMessages = activeConvIdResolved ? messages[activeConvIdResolved] || [] : [];
 
   const handleSend = (content: string) => {
-    if (!activeConvId) return;
+    if (!activeConvIdResolved) return;
     const newMsg: Message = {
       id: `msg-${Date.now()}`,
       fromUserId: session.user.id,
@@ -32,7 +44,7 @@ export default function MessagesPage() {
     };
     setMessages((prev) => ({
       ...prev,
-      [activeConvId]: [...(prev[activeConvId] || []), newMsg],
+      [activeConvIdResolved]: [...(prev[activeConvIdResolved] || []), newMsg],
     }));
   };
 
@@ -47,8 +59,8 @@ export default function MessagesPage() {
         <div className="grid h-[calc(100vh-12rem)] lg:grid-cols-3">
           <div className="border-r border-border lg:col-span-1">
             <ConversationList
-              conversations={MOCK_CONVERSATIONS}
-              activeId={activeConvId}
+              conversations={conversations}
+              activeId={activeConvIdResolved}
               onSelect={setActiveConvId}
             />
           </div>
@@ -64,12 +76,12 @@ export default function MessagesPage() {
       </Card>
 
       {/* Mobile chat overlay */}
-      {activeConvId && (
-        <div className="fixed inset-0 z-50 bg-card lg:hidden">
+      {activeConvIdResolved && (
+        <div className="fixed inset-0 z-50 glass lg:hidden">
           <div className="flex h-full flex-col">
             <button
               onClick={() => setActiveConvId(null)}
-              className="border-b border-border p-4 text-left text-sm font-medium text-primary"
+              className="border-b border-border p-4 text-left text-xs font-medium uppercase tracking-wider text-accent"
             >
               &larr; Back to conversations
             </button>

@@ -1,4 +1,5 @@
 import { MARITAL_STATUSES } from "@/lib/constants";
+import { partnerGenderFilterForProfile } from "@/lib/matchmaking";
 import type { Profile, SearchProfile } from "@/lib/types";
 
 export interface SearchFilters {
@@ -28,7 +29,7 @@ export function filtersFromPreferences(profile: Profile): SearchFilters {
   return {
     ageMin: preferences.ageMin || 18,
     ageMax: preferences.ageMax || 60,
-    gender: "",
+    gender: partnerGenderFilterForProfile(profile),
     location: preferences.locations.length === 1 ? preferences.locations[0] : "",
     religion: preferences.religions.length === 1 ? preferences.religions[0] : "",
     education: "",

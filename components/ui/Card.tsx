@@ -3,19 +3,27 @@ import { HTMLAttributes } from "react";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
   padding?: "sm" | "md" | "lg";
+  hover?: boolean;
 }
 
-export default function Card({ className, padding = "md", children, ...props }: CardProps) {
+export default function Card({
+  className,
+  padding = "md",
+  hover = false,
+  children,
+  ...props
+}: CardProps) {
   const paddings = {
     sm: "p-4",
-    md: "p-6",
+    md: "p-8",
     lg: "p-8",
   };
 
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card shadow-sm",
+        "rounded-[10px] glass glass-hover",
+        hover && "hover:border-accent/35",
         paddings[padding],
         className
       )}

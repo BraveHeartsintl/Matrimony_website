@@ -22,9 +22,9 @@ export const MOCK_INTERESTS: Interest[] = [
   {
     id: "int-3",
     fromUserId: "user-demo",
-    toUserId: "user-6",
-    toUserName: "Amandeep Singh",
-    toUserPhoto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop",
+    toUserId: "user-7",
+    toUserName: "Sarah O'Brien",
+    toUserPhoto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop",
     status: "pending",
     createdAt: "2025-06-04T11:20:00Z",
   },

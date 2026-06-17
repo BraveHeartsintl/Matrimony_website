@@ -1,5 +1,11 @@
 export const SITE_NAME = "UK Matrimony";
 
+export const SOCIAL_LINKS = {
+  email: "mailto:hello@ukmatrimony.co.uk",
+  whatsapp: "https://wa.me/447000000000",
+  linkedin: "https://linkedin.com/company/ukmatrimony",
+};
+
 export const PUBLIC_NAV = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About Us" },

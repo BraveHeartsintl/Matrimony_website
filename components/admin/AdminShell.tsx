@@ -5,6 +5,7 @@ import { SITE_NAME } from "@/lib/constants";
 import { adminLogout, isAdminLoggedIn } from "@/lib/admin-auth";
 import { cn } from "@/lib/utils";
 import {
+  AlertTriangle,
   BarChart3,
   CreditCard,
   Heart,
@@ -13,7 +14,6 @@ import {
   ShieldCheck,
   Users,
   X,
-  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -46,21 +46,29 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     router.push("/admin/login");
   };
 
+  const navLinkClass = (active: boolean) =>
+    cn(
+      "flex items-center gap-3 rounded-[4px] border-l-2 px-3 py-2.5 text-xs font-medium uppercase tracking-[0.08em] transition-colors",
+      active
+        ? "border-accent text-accent"
+        : "border-transparent text-muted hover:text-foreground"
+    );
+
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <aside className="hidden w-64 flex-col border-r border-slate-200 bg-slate-900 text-white lg:flex">
-        <div className="flex h-16 items-center gap-2 border-b border-white/10 px-6">
-          <Heart className="h-6 w-6 fill-accent text-accent" />
+    <div className="flex min-h-screen">
+      <aside className="glass-sidebar hidden w-64 flex-col border-r lg:flex">
+        <div className="flex h-16 items-center gap-2 border-b border-border px-6">
+          <Heart className="h-6 w-6 text-accent" />
           <div>
-            <span className="font-display text-lg font-bold">{SITE_NAME}</span>
+            <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
             <p className="text-[10px] uppercase tracking-widest text-accent">Admin Portal</p>
           </div>
         </div>
@@ -70,12 +78,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                pathname === item.href
-                  ? "bg-white/10 text-accent"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              )}
+              className={navLinkClass(pathname === item.href)}
             >
               <item.icon className="h-5 w-5" />
               {item.label}
@@ -83,16 +86,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           ))}
         </nav>
 
-        <div className="border-t border-white/10 p-4">
-          <Link href="/" className="mb-2 block text-xs text-white/50 hover:text-white">
+        <div className="border-t border-border p-4">
+          <Link
+            href="/"
+            className="mb-2 block text-xs uppercase tracking-wider text-muted transition-colors hover:text-foreground"
+          >
             &larr; Back to website
           </Link>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start text-white/70 hover:bg-white/10 hover:text-white"
-            onClick={handleLogout}
-          >
+          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
             Log Out
           </Button>
@@ -100,12 +101,14 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 lg:px-8">
+        <header className="glass-nav flex h-14 items-center justify-between border-b px-4 lg:px-8">
           <button onClick={() => setSidebarOpen(true)} className="lg:hidden" aria-label="Open menu">
-            <Menu className="h-6 w-6 text-slate-700" />
+            <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <p className="text-sm font-medium text-slate-600 lg:text-base">Administration Dashboard</p>
-          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+          <p className="text-xs font-medium uppercase tracking-[0.08em] text-muted lg:text-sm">
+            Administration Dashboard
+          </p>
+          <span className="glass-accent rounded px-3 py-1 text-xs font-medium uppercase tracking-wider text-accent">
             Static Demo
           </span>
         </header>
@@ -114,32 +117,26 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       </div>
 
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-slate-900 text-white">
-            <div className="flex h-14 items-center justify-between border-b border-white/10 px-4">
-              <span className="font-display font-bold">Admin</span>
-              <button onClick={() => setSidebarOpen(false)}>
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            <nav className="flex-1 space-y-1 p-4">
-              {ADMIN_NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium",
-                    pathname === item.href ? "bg-white/10 text-accent" : "text-white/70"
-                  )}
-                >
-                  <item.icon className="h-5 w-5" />
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
-          </aside>
+        <div className="glass-strong fixed inset-0 z-50 lg:hidden">
+          <div className="flex h-14 items-center justify-between border-b border-border px-4">
+            <span className="font-display font-bold text-foreground">Admin</span>
+            <button onClick={() => setSidebarOpen(false)}>
+              <X className="h-6 w-6 text-foreground" />
+            </button>
+          </div>
+          <nav className="flex-1 space-y-1 p-4">
+            {ADMIN_NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setSidebarOpen(false)}
+                className={navLinkClass(pathname === item.href)}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       )}
     </div>

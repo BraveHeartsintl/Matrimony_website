@@ -26,7 +26,7 @@ export default function ActiveFilters({ filters, onChange, onClearAll }: ActiveF
           key={chip.key}
           type="button"
           onClick={() => onChange(clearFilterKey(filters, chip.key))}
-          className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+          className="inline-flex items-center gap-1 rounded glass-subtle px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:border-border-hover hover:text-foreground"
         >
           {chip.label}
           <X className="h-3 w-3" />
@@ -35,7 +35,7 @@ export default function ActiveFilters({ filters, onChange, onClearAll }: ActiveF
       <button
         type="button"
         onClick={onClearAll}
-        className="text-xs font-medium text-muted underline-offset-2 hover:text-primary hover:underline"
+        className="text-xs font-medium uppercase tracking-wider text-muted transition-colors hover:text-accent"
       >
         Clear all
       </button>

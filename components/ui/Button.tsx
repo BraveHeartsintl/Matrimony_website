@@ -9,17 +9,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", type = "button", children, ...props }, ref) => {
     const variants = {
-      primary: "bg-primary text-white hover:bg-primary-dark shadow-sm",
-      secondary: "bg-foreground text-white hover:bg-foreground/90",
-      outline: "border-2 border-primary text-primary hover:bg-primary hover:text-white",
-      ghost: "text-primary hover:bg-primary/10",
-      accent: "bg-accent text-foreground hover:bg-accent-light shadow-sm",
+      primary:
+        "bg-accent text-[#0f0f0f] hover:bg-accent-hover uppercase tracking-[0.05em] font-semibold shadow-[0_0_24px_rgba(201,168,124,0.22)]",
+      secondary:
+        "glass text-foreground border border-white/10 hover:border-accent/35 glass-hover uppercase tracking-[0.05em] font-semibold",
+      outline:
+        "glass-subtle glass-btn-outline border border-accent/30 text-accent uppercase tracking-[0.05em] font-semibold",
+      ghost: "text-muted hover:text-accent uppercase tracking-[0.05em] font-medium",
+      accent:
+        "bg-accent text-[#0f0f0f] hover:bg-accent-hover uppercase tracking-[0.05em] font-semibold shadow-[0_0_24px_rgba(201,168,124,0.22)]",
     };
 
     const sizes = {
-      sm: "px-3 py-1.5 text-sm",
-      md: "px-5 py-2.5 text-sm",
-      lg: "px-7 py-3 text-base",
+      sm: "px-4 py-2 text-xs",
+      md: "px-7 py-3.5 text-sm",
+      lg: "px-7 py-3.5 text-sm",
     };
 
     return (
@@ -27,7 +31,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         type={type}
         className={cn(
-          "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          "inline-flex items-center justify-center gap-2 rounded-[4px] transition-all duration-200 hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50",
           variants[variant],
           sizes[size],
           className

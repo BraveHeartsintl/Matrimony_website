@@ -1,4 +1,7 @@
 import PublicLayout from "@/components/layout/PublicLayout";
+import Container from "@/components/ui/Container";
+import Section from "@/components/ui/Section";
+import SectionLabel from "@/components/ui/SectionLabel";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -51,12 +54,13 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <PublicLayout>
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="font-display text-4xl font-bold">Privacy Policy</h1>
-          <p className="mt-2 text-sm text-muted">Last updated: 1 January 2025</p>
+      <Section variant="surface">
+        <Container className="max-w-3xl">
+          <SectionLabel>Legal</SectionLabel>
+          <h1 className="font-display text-4xl font-bold text-foreground">Privacy Policy</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Last updated: 1 January 2025</p>
 
-          <p className="mt-6 text-muted leading-relaxed">
+          <p className="mt-6 leading-relaxed text-muted">
             UK Matrimony (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting your privacy.
             This policy explains how we collect, use, and safeguard your personal information in
             accordance with the UK General Data Protection Regulation (UK GDPR).
@@ -65,13 +69,13 @@ export default function PrivacyPage() {
           <div className="mt-10 space-y-8">
             {sections.map((section) => (
               <div key={section.title}>
-                <h2 className="text-lg font-semibold">{section.title}</h2>
-                <p className="mt-2 text-sm text-muted leading-relaxed">{section.content}</p>
+                <h2 className="text-lg font-semibold text-foreground">{section.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{section.content}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     </PublicLayout>
   );
 }

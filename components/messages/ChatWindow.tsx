@@ -42,7 +42,7 @@ export default function ChatWindow({
       <div className="flex items-center gap-3 border-b border-border p-4">
         <Avatar src={conversation.participantPhoto} name={conversation.participantName} />
         <div>
-          <h3 className="font-semibold">{conversation.participantName}</h3>
+          <h3 className="font-semibold text-foreground">{conversation.participantName}</h3>
           <p className="text-xs text-muted">Online</p>
         </div>
       </div>
@@ -54,19 +54,14 @@ export default function ChatWindow({
             <div key={msg.id} className={cn("flex", isMine ? "justify-end" : "justify-start")}>
               <div
                 className={cn(
-                  "max-w-[75%] rounded-2xl px-4 py-2 text-sm",
+                  "max-w-[75%] rounded-[6px] px-4 py-2 text-sm",
                   isMine
-                    ? "rounded-br-sm bg-primary text-white"
-                    : "rounded-bl-sm bg-border text-foreground"
+                    ? "glass-accent text-[#0f0f0f]"
+                    : "glass-bubble text-foreground"
                 )}
               >
                 <p>{msg.content}</p>
-                <p
-                  className={cn(
-                    "mt-1 text-xs",
-                    isMine ? "text-white/60" : "text-muted"
-                  )}
-                >
+                <p className={cn("mt-1 text-xs", isMine ? "text-white/60" : "text-muted")}>
                   {formatTime(msg.timestamp)}
                 </p>
               </div>
@@ -82,7 +77,7 @@ export default function ChatWindow({
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
           placeholder="Type a message..."
-          className="flex-1 rounded-lg border border-border bg-background px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="glass-input flex-1 rounded-[8px] px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
         />
         <Button onClick={handleSend} disabled={!text.trim()}>
           <Send className="h-4 w-4" />

@@ -1,6 +1,7 @@
 "use client";
 
 import Card from "@/components/ui/Card";
+import SectionLabel from "@/components/ui/SectionLabel";
 import { ADMIN_ANALYTICS, ADMIN_REPORTS, ADMIN_USERS } from "@/lib/mock/admin";
 import {
   CreditCard,
@@ -12,12 +13,12 @@ import {
 } from "lucide-react";
 
 const stats = [
-  { label: "Total Members", value: ADMIN_ANALYTICS.totalUsers.toLocaleString(), icon: Users, color: "from-primary to-primary-dark" },
-  { label: "Active Today", value: ADMIN_ANALYTICS.activeToday.toLocaleString(), icon: TrendingUp, color: "from-emerald-500 to-emerald-600" },
-  { label: "Verified Profiles", value: ADMIN_ANALYTICS.verifiedProfiles.toLocaleString(), icon: ShieldCheck, color: "from-blue-500 to-blue-600" },
-  { label: "Premium Members", value: ADMIN_ANALYTICS.premiumMembers.toLocaleString(), icon: CreditCard, color: "from-accent to-amber-500" },
-  { label: "Success Stories", value: ADMIN_ANALYTICS.successStories.toLocaleString(), icon: Heart, color: "from-rose-500 to-primary" },
-  { label: "Messages Sent", value: `${(ADMIN_ANALYTICS.messagesSent / 1000).toFixed(0)}K`, icon: MessageSquare, color: "from-violet-500 to-violet-600" },
+  { label: "Total Members", value: ADMIN_ANALYTICS.totalUsers.toLocaleString(), icon: Users },
+  { label: "Active Today", value: ADMIN_ANALYTICS.activeToday.toLocaleString(), icon: TrendingUp },
+  { label: "Verified Profiles", value: ADMIN_ANALYTICS.verifiedProfiles.toLocaleString(), icon: ShieldCheck },
+  { label: "Premium Members", value: ADMIN_ANALYTICS.premiumMembers.toLocaleString(), icon: CreditCard },
+  { label: "Success Stories", value: ADMIN_ANALYTICS.successStories.toLocaleString(), icon: Heart },
+  { label: "Messages Sent", value: `${(ADMIN_ANALYTICS.messagesSent / 1000).toFixed(0)}K`, icon: MessageSquare },
 ];
 
 export default function AdminDashboardPage() {
@@ -27,21 +28,21 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-display text-2xl font-bold text-slate-900">Platform Overview</h1>
-        <p className="text-sm text-slate-500">Real-time analytics and key metrics (static demo data)</p>
+        <SectionLabel>Admin</SectionLabel>
+        <h1 className="font-display text-2xl font-bold text-foreground">Platform Overview</h1>
+        <p className="text-sm text-muted">Real-time analytics and key metrics (static demo data)</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {stats.map((stat) => (
-          <Card key={stat.label} className="relative overflow-hidden">
-            <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br ${stat.color} opacity-10`} />
-            <div className="relative flex items-start justify-between">
+          <Card key={stat.label} hover>
+            <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-slate-500">{stat.label}</p>
-                <p className="mt-1 text-3xl font-bold text-slate-900">{stat.value}</p>
+                <p className="text-sm text-muted">{stat.label}</p>
+                <p className="mt-1 text-3xl font-bold text-foreground">{stat.value}</p>
               </div>
-              <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow-sm`}>
-                <stat.icon className="h-5 w-5" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-[6px] glass-subtle">
+                <stat.icon className="h-5 w-5 text-accent" />
               </div>
             </div>
           </Card>
@@ -49,54 +50,48 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <h2 className="font-display text-lg font-bold">Revenue Summary</h2>
+        <Card hover>
+          <h2 className="font-display text-lg font-bold text-foreground">Revenue Summary</h2>
           <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-500">Monthly Revenue</p>
-              <p className="mt-1 text-2xl font-bold text-primary">
+            <div className="rounded-[6px] glass-subtle p-4">
+              <p className="text-xs uppercase tracking-wider text-muted">Monthly Revenue</p>
+              <p className="mt-1 text-2xl font-bold text-accent">
                 £{ADMIN_ANALYTICS.monthlyRevenue.toLocaleString()}
               </p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-500">New This Week</p>
-              <p className="mt-1 text-2xl font-bold text-emerald-600">
+            <div className="rounded-[6px] glass-subtle p-4">
+              <p className="text-xs uppercase tracking-wider text-muted">New This Week</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">
                 +{ADMIN_ANALYTICS.newThisWeek}
               </p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-500">Pending Verification</p>
-              <p className="mt-1 text-2xl font-bold text-amber-600">
+            <div className="rounded-[6px] glass-subtle p-4">
+              <p className="text-xs uppercase tracking-wider text-muted">Pending Verification</p>
+              <p className="mt-1 text-2xl font-bold text-accent">
                 {ADMIN_ANALYTICS.pendingVerification}
               </p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-4">
-              <p className="text-xs text-slate-500">Open Reports</p>
-              <p className="mt-1 text-2xl font-bold text-red-600">
+            <div className="rounded-[6px] glass-subtle p-4">
+              <p className="text-xs uppercase tracking-wider text-muted">Open Reports</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">
                 {ADMIN_ANALYTICS.openReports}
               </p>
             </div>
           </div>
         </Card>
 
-        <Card>
-          <h2 className="font-display text-lg font-bold">Recent Registrations</h2>
-          <div className="mt-4 divide-y divide-slate-100">
+        <Card hover>
+          <h2 className="font-display text-lg font-bold text-foreground">Recent Registrations</h2>
+          <div className="mt-4 divide-y divide-border">
             {recentUsers.map((user) => (
               <div key={user.id} className="flex items-center justify-between py-3">
                 <div>
-                  <p className="font-medium text-slate-900">{user.name}</p>
-                  <p className="text-xs text-slate-500">{user.location} &middot; {user.religion}</p>
+                  <p className="font-medium text-foreground">{user.name}</p>
+                  <p className="text-xs text-muted">
+                    {user.location} &middot; {user.religion}
+                  </p>
                 </div>
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    user.status === "active"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : user.status === "pending"
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-red-100 text-red-700"
-                  }`}
-                >
+                <span className="rounded glass-subtle px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider text-muted">
                   {user.status}
                 </span>
               </div>
@@ -105,12 +100,12 @@ export default function AdminDashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <h2 className="font-display text-lg font-bold">Open Reports</h2>
+      <Card hover>
+        <h2 className="font-display text-lg font-bold text-foreground">Open Reports</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-100 text-xs uppercase text-slate-500">
+              <tr className="border-b border-border text-xs uppercase tracking-wider text-muted">
                 <th className="pb-3 pr-4">Reporter</th>
                 <th className="pb-3 pr-4">Reported</th>
                 <th className="pb-3 pr-4">Reason</th>
@@ -119,12 +114,12 @@ export default function AdminDashboardPage() {
             </thead>
             <tbody>
               {openReports.map((report) => (
-                <tr key={report.id} className="border-b border-slate-50">
-                  <td className="py-3 pr-4 font-medium">{report.reporterName}</td>
-                  <td className="py-3 pr-4 text-slate-600">{report.reportedName}</td>
-                  <td className="py-3 pr-4 text-slate-600">{report.reason}</td>
+                <tr key={report.id} className="border-b border-border">
+                  <td className="py-3 pr-4 font-medium text-foreground">{report.reporterName}</td>
+                  <td className="py-3 pr-4 text-muted">{report.reportedName}</td>
+                  <td className="py-3 pr-4 text-muted">{report.reason}</td>
                   <td className="py-3">
-                    <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                    <span className="rounded border border-accent/20 bg-accent/10 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wider text-accent">
                       {report.status}
                     </span>
                   </td>

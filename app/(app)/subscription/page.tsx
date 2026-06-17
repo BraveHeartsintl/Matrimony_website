@@ -23,11 +23,11 @@ export default function SubscriptionPage() {
         <h1 className="font-display text-2xl font-bold sm:text-3xl">Choose Your Plan</h1>
         <p className="mt-2 text-muted">Unlock premium features to find your match faster</p>
 
-        <div className="mt-6 inline-flex rounded-lg border border-border bg-card p-1">
+        <div className="mt-6 inline-flex rounded-lg glass p-1">
           <button
             onClick={() => setBilling("monthly")}
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              billing === "monthly" ? "bg-primary text-white" : "text-muted"
+              billing === "monthly" ? "bg-accent text-white" : "text-muted"
             }`}
           >
             Monthly
@@ -35,7 +35,7 @@ export default function SubscriptionPage() {
           <button
             onClick={() => setBilling("yearly")}
             className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-              billing === "yearly" ? "bg-primary text-white" : "text-muted"
+              billing === "yearly" ? "bg-accent text-white" : "text-muted"
             }`}
           >
             Yearly
@@ -53,7 +53,7 @@ export default function SubscriptionPage() {
             <Card
               key={plan.id}
               className={`relative flex flex-col ${
-                plan.popular ? "border-primary ring-2 ring-primary/20" : ""
+                plan.popular ? "border-accent" : ""
               }`}
             >
               {plan.popular && (
@@ -64,7 +64,7 @@ export default function SubscriptionPage() {
 
               <h3 className="text-lg font-semibold">{plan.name}</h3>
               <div className="mt-2">
-                <span className="text-3xl font-bold text-primary">
+                <span className="text-3xl font-bold text-accent">
                   {price === 0 ? "Free" : `£${price.toFixed(2)}`}
                 </span>
                 {price > 0 && <span className="text-sm text-muted">{period}</span>}
@@ -73,7 +73,7 @@ export default function SubscriptionPage() {
               <ul className="mt-6 flex-1 space-y-3">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
                     {feature}
                   </li>
                 ))}

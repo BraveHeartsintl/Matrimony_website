@@ -35,13 +35,13 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-slate-900">User Management</h1>
-        <p className="text-sm text-slate-500">View, search, and manage registered members</p>
+        <h1 className="font-display text-2xl font-bold text-foreground">User Management</h1>
+        <p className="text-sm text-muted">View, search, and manage registered members</p>
       </div>
 
       <Card>
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by name, email, or location..."
             value={query}
@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
         <div className="mt-6 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-100 text-xs uppercase text-slate-500">
+              <tr className="border-b border-border text-xs uppercase text-muted">
                 <th className="pb-3 pr-4">Member</th>
                 <th className="pb-3 pr-4">Location</th>
                 <th className="pb-3 pr-4">Plan</th>
@@ -64,12 +64,12 @@ export default function AdminUsersPage() {
             </thead>
             <tbody>
               {filtered.map((user) => (
-                <tr key={user.id} className="border-b border-slate-50">
+                <tr key={user.id} className="border-b border-border">
                   <td className="py-4 pr-4">
-                    <p className="font-medium text-slate-900">{user.name}</p>
-                    <p className="text-xs text-slate-500">{user.email}</p>
+                    <p className="font-medium text-foreground">{user.name}</p>
+                    <p className="text-xs text-muted">{user.email}</p>
                   </td>
-                  <td className="py-4 pr-4 text-slate-600">{user.location}</td>
+                  <td className="py-4 pr-4 text-muted">{user.location}</td>
                   <td className="py-4 pr-4">
                     <Badge variant={user.plan === "gold" ? "accent" : "default"}>
                       {user.plan}
@@ -90,9 +90,9 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="py-4 pr-4">
                     {user.verified ? (
-                      <span className="text-emerald-600">Yes</span>
+                      <span className="text-accent">Yes</span>
                     ) : (
-                      <span className="text-amber-600">Pending</span>
+                      <span className="text-muted">Pending</span>
                     )}
                   </td>
                   <td className="py-4">

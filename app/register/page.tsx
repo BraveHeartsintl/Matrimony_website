@@ -159,16 +159,16 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <div className="hidden w-2/5 flex-col justify-between bg-gradient-to-br from-primary via-primary-dark to-[#3d0f1f] p-12 text-white lg:flex">
+    <div className="flex min-h-screen bg-background">
+      <div className="hidden w-2/5 flex-col justify-between glass-sidebar p-12 lg:flex">
         <Link href="/" className="flex items-center gap-2">
-          <Heart className="h-8 w-8 fill-accent text-accent" />
-          <span className="font-display text-2xl font-bold">{SITE_NAME}</span>
+          <Heart className="h-8 w-8 text-accent" />
+          <span className="font-display text-2xl font-bold text-foreground">{SITE_NAME}</span>
         </Link>
 
         <div>
-          <h1 className="font-display text-3xl font-bold">Start Your Journey</h1>
-          <p className="mt-4 text-white/70">
+          <h1 className="font-display text-3xl font-bold text-foreground">Start Your Journey</h1>
+          <p className="mt-4 text-muted">
             Create your free account in three simple steps and join thousands of UK singles.
           </p>
           <div className="mt-10 space-y-4">
@@ -176,33 +176,33 @@ export default function RegisterPage() {
               <div key={s} className="flex items-center gap-3">
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
-                    i <= step ? "bg-accent text-foreground" : "bg-white/10 text-white/50"
+                    i <= step ? "bg-accent text-white" : "glass-subtle text-muted-foreground"
                   }`}
                 >
                   {i < step ? <Check className="h-4 w-4" /> : i + 1}
                 </div>
-                <span className={i <= step ? "font-medium" : "text-white/50"}>{s}</span>
+                <span className={i <= step ? "font-medium text-foreground" : "text-muted-foreground"}>
+                  {s}
+                </span>
               </div>
             ))}
           </div>
         </div>
 
-        <p className="text-sm text-white/40">Free to join. No credit card required.</p>
+        <p className="text-sm text-muted-foreground">Free to join. No credit card required.</p>
       </div>
 
       <div className="flex flex-1 flex-col">
         <div className="flex h-16 items-center border-b border-border px-6 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-6 w-6 fill-primary text-primary" />
-            <span className="font-display font-bold text-primary">{SITE_NAME}</span>
+            <Heart className="h-6 w-6 text-accent" />
+            <span className="font-display font-bold text-foreground">{SITE_NAME}</span>
           </Link>
         </div>
 
         <div className="flex flex-1 items-center justify-center px-4 py-12">
-          <Card className="w-full max-w-lg shadow-lg">
-            <p className="text-center text-xs font-medium uppercase tracking-widest text-accent">
-              Step {step + 1} of {STEPS.length}
-            </p>
+          <Card className="w-full max-w-lg">
+            <p className="section-label text-center">Step {step + 1} of {STEPS.length}</p>
             <h2 className="mt-2 text-center font-display text-2xl font-bold">
               {step === 0 ? "Create Your Account" : step === 1 ? "Your Profile" : "Partner Preferences"}
             </h2>
@@ -217,13 +217,13 @@ export default function RegisterPage() {
                 <div key={s} className="flex items-center gap-2">
                   <div
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium ${
-                      i <= step ? "bg-primary text-white" : "bg-border text-muted"
+                      i <= step ? "bg-accent text-white" : "glass-subtle text-muted-foreground"
                     }`}
                   >
                     {i + 1}
                   </div>
                   {i < STEPS.length - 1 && (
-                    <div className={`mx-1 h-px w-6 ${i < step ? "bg-primary" : "bg-border"}`} />
+                    <div className={`mx-1 h-px w-6 ${i < step ? "bg-accent" : "bg-border"}`} />
                   )}
                 </div>
               ))}
@@ -397,10 +397,10 @@ export default function RegisterPage() {
                           key={r}
                           type="button"
                           onClick={() => toggleReligion(r)}
-                          className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                          className={`rounded px-3 py-1.5 text-xs font-medium uppercase tracking-wider transition-colors ${
                             preferences.religions.includes(r)
-                              ? "bg-primary text-white"
-                              : "bg-border text-muted hover:bg-primary/10"
+                              ? "bg-accent text-white"
+                              : "glass-subtle text-muted hover:border-border-hover"
                           }`}
                         >
                           {r}
@@ -414,7 +414,7 @@ export default function RegisterPage() {
               {error && (
                 <p
                   role="alert"
-                  className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-600"
+                  className="feedback-error mt-4 rounded-[6px] px-3 py-2 text-sm font-medium"
                 >
                   {error}
                 </p>
@@ -451,7 +451,7 @@ export default function RegisterPage() {
 
             <p className="mt-6 text-center text-sm text-muted">
               Already have an account?{" "}
-              <Link href="/login" className="font-medium text-primary hover:underline">
+              <Link href="/login" className="text-foreground transition-colors hover:text-accent">
                 Log In
               </Link>
             </p>

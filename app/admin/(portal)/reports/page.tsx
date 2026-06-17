@@ -16,15 +16,15 @@ export default function AdminReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-slate-900">Content Moderation</h1>
-        <p className="text-sm text-slate-500">Review member reports and take action</p>
+        <h1 className="font-display text-2xl font-bold text-foreground">Content Moderation</h1>
+        <p className="text-sm text-muted">Review member reports and take action</p>
       </div>
 
       <Card>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-slate-100 text-xs uppercase text-slate-500">
+              <tr className="border-b border-border text-xs uppercase text-muted">
                 <th className="pb-3 pr-4">Date</th>
                 <th className="pb-3 pr-4">Reporter</th>
                 <th className="pb-3 pr-4">Reported User</th>
@@ -35,11 +35,11 @@ export default function AdminReportsPage() {
             </thead>
             <tbody>
               {reports.map((report) => (
-                <tr key={report.id} className="border-b border-slate-50">
-                  <td className="py-4 pr-4 text-slate-500">{report.createdAt}</td>
+                <tr key={report.id} className="border-b border-border">
+                  <td className="py-4 pr-4 text-muted">{report.createdAt}</td>
                   <td className="py-4 pr-4 font-medium">{report.reporterName}</td>
                   <td className="py-4 pr-4">{report.reportedName}</td>
-                  <td className="py-4 pr-4 text-slate-600">{report.reason}</td>
+                  <td className="py-4 pr-4 text-muted">{report.reason}</td>
                   <td className="py-4 pr-4">
                     <Badge
                       variant={

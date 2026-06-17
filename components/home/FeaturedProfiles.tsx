@@ -1,5 +1,9 @@
 import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
+import Container from "@/components/ui/Container";
+import Section from "@/components/ui/Section";
+import SectionLabel from "@/components/ui/SectionLabel";
+import SplitHeadline from "@/components/ui/SplitHeadline";
+import TextCTA from "@/components/ui/TextCTA";
 import { MOCK_PROFILES } from "@/lib/mock/profiles";
 import { MapPin, ShieldCheck } from "lucide-react";
 import Image from "next/image";
@@ -9,40 +13,38 @@ const featured = MOCK_PROFILES.slice(0, 4);
 
 export default function FeaturedProfiles() {
   return (
-    <section id="featured-profiles" className="scroll-mt-20 bg-card px-4 py-20 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        <div className="text-center">
-          <p className="text-sm font-medium uppercase tracking-widest text-accent">Discover</p>
-          <h2 className="mt-2 font-display text-3xl font-bold sm:text-4xl">Featured Profiles</h2>
-          <p className="mt-3 text-muted">Verified members from across the United Kingdom</p>
-        </div>
+    <Section id="featured-profiles" variant="base" className="scroll-mt-20">
+      <Container>
+        <SectionLabel>Discover</SectionLabel>
+        <SplitHeadline primary="Featured Profiles" muted="from across the UK" />
+        <p className="mt-4 text-muted">Verified members from across the United Kingdom</p>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((profile) => (
             <div
               key={profile.id}
-              className="card-hover group overflow-hidden rounded-2xl border border-border bg-background shadow-sm"
+              className="group overflow-hidden rounded-[6px] glass glass-hover transition-all duration-200 hover:border-accent/40 hover:bg-accent-soft/20"
             >
               <div className="relative aspect-[4/5] overflow-hidden">
                 <Image
                   src={profile.photos[0]}
                   alt={profile.name}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover img-bw"
                   sizes="(max-width: 640px) 100vw, 25vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                 {profile.verified && (
-                  <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-emerald-700">
+                  <div className="absolute right-3 top-3 flex items-center gap-1 rounded glass/90 px-2 py-1 text-xs font-medium uppercase tracking-wider text-accent">
                     <ShieldCheck className="h-3.5 w-3.5" />
                     Verified
                   </div>
                 )}
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="font-display text-lg font-bold">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="font-display text-lg font-bold text-foreground">
                     {profile.name}, {profile.age}
                   </h3>
-                  <div className="mt-1 flex items-center gap-1 text-sm text-white/80">
+                  <div className="mt-1 flex items-center gap-1 text-sm text-muted">
                     <MapPin className="h-3.5 w-3.5" />
                     {profile.location}
                   </div>
@@ -59,20 +61,16 @@ export default function FeaturedProfiles() {
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <Link href="/register">
-            <Button size="lg" variant="primary">
-              Register to View All Profiles
-            </Button>
-          </Link>
-          <p className="mt-3 text-sm text-muted">
+        <div className="mt-12 flex flex-col items-center gap-4">
+          <TextCTA href="/register">Register to View All Profiles</TextCTA>
+          <p className="text-sm text-muted">
             Already a member?{" "}
-            <Link href="/login" className="font-medium text-primary hover:underline">
+            <Link href="/login" className="text-foreground transition-colors hover:text-accent">
               Log in
             </Link>
           </p>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

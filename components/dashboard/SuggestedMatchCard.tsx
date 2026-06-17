@@ -11,22 +11,18 @@ interface SuggestedMatchCardProps {
 
 export default function SuggestedMatchCard({ profile }: SuggestedMatchCardProps) {
   return (
-    <div className="group flex min-w-[220px] flex-col rounded-2xl border border-border bg-card p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg sm:min-w-[240px]">
+    <div className="group flex min-w-[220px] flex-col rounded-[6px] glass p-4 transition-colors hover:border-border-hover sm:min-w-[240px]">
       <div className="relative mx-auto">
-        <div className="rounded-full bg-gradient-to-br from-primary to-accent p-0.5">
-          <div className="rounded-full bg-card p-0.5">
-            <Avatar src={profile.photos[0]} name={profile.name} size="xl" />
-          </div>
-        </div>
+        <Avatar src={profile.photos[0]} name={profile.name} size="xl" />
         {profile.verified && (
-          <div className="absolute -bottom-1 -right-1 rounded-full bg-card p-0.5">
-            <ShieldCheck className="h-5 w-5 text-emerald-500" />
+          <div className="absolute -bottom-1 -right-1 rounded-full glass p-0.5">
+            <ShieldCheck className="h-5 w-5 text-accent" />
           </div>
         )}
       </div>
 
       <div className="mt-4 text-center">
-        <h4 className="font-semibold">
+        <h4 className="font-semibold text-foreground">
           {profile.name}, {profile.age}
         </h4>
         <div className="mt-1 flex items-center justify-center gap-1 text-xs text-muted">
@@ -39,7 +35,7 @@ export default function SuggestedMatchCard({ profile }: SuggestedMatchCardProps)
       </div>
 
       <Link href="/search" className="mt-4">
-        <Button size="sm" variant="outline" className="w-full group-hover:bg-primary group-hover:text-white">
+        <Button size="sm" variant="outline" className="w-full">
           <Heart className="h-3.5 w-3.5" />
           View Profile
         </Button>

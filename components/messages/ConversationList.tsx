@@ -31,14 +31,16 @@ export default function ConversationList({
           key={conv.id}
           onClick={() => onSelect(conv.id)}
           className={cn(
-            "flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-background",
-            activeId === conv.id && "bg-primary/5"
+            "glass-list-hover flex w-full items-center gap-3 p-4 text-left transition-colors",
+            activeId === conv.id && "border-l-2 border-accent glass-subtle"
           )}
         >
           <Avatar src={conv.participantPhoto} name={conv.participantName} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between">
-              <span className="truncate text-sm font-medium">{conv.participantName}</span>
+              <span className="truncate text-sm font-medium text-foreground">
+                {conv.participantName}
+              </span>
               <span className="shrink-0 text-xs text-muted">
                 {formatRelativeTime(conv.lastMessageAt)}
               </span>
@@ -46,7 +48,7 @@ export default function ConversationList({
             <p className="truncate text-xs text-muted">{conv.lastMessage}</p>
           </div>
           {conv.unreadCount > 0 && (
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-xs text-white">
               {conv.unreadCount}
             </span>
           )}

@@ -1,7 +1,7 @@
 import Providers from "@/components/providers/Providers";
 import { SITE_NAME } from "@/lib/constants";
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Space_Grotesk, Syne } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -9,9 +9,16 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
+  weight: ["700"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -29,8 +36,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans">
+    <html
+      lang="en"
+      className={`${inter.variable} ${syne.variable} ${spaceGrotesk.variable} h-full antialiased`}
+    >
+      <body className="site-ambient min-h-full flex flex-col font-sans bg-background text-muted">
         <Providers>{children}</Providers>
       </body>
     </html>

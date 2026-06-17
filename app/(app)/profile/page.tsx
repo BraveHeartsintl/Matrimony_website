@@ -59,7 +59,7 @@ export default function ProfilePage() {
           <p className="text-sm text-muted">Manage your profile information and privacy</p>
         </div>
         {saved && (
-          <span className="rounded-lg bg-green-100 px-3 py-1 text-sm text-green-700">Saved!</span>
+          <span className="feedback-success rounded-[6px] px-3 py-1 text-sm">Saved!</span>
         )}
       </div>
 
@@ -165,7 +165,7 @@ export default function ProfilePage() {
                 options={BODY_TYPES}
               />
               {profile.heightCm > 0 && profile.weightKg > 0 && (
-                <div className="rounded-lg bg-primary/5 px-4 py-3 text-sm text-muted">
+                <div className="rounded-[6px] glass-subtle px-4 py-3 text-sm text-muted">
                   <span className="font-medium text-foreground">Preview: </span>
                   {profile.heightCm} cm &middot; {profile.weightKg} kg &middot;{" "}
                   {BODY_TYPES.find((b) => b.value === profile.bodyType)?.label ?? "Average"}
@@ -223,10 +223,10 @@ export default function ProfilePage() {
                           preferences: { ...profile.preferences, religions: updated },
                         });
                       }}
-                      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                      className={`rounded px-3 py-1 text-xs font-medium uppercase tracking-wider transition-colors ${
                         profile.preferences.religions.includes(r)
-                          ? "bg-primary text-white"
-                          : "bg-border text-muted hover:bg-primary/10"
+                          ? "bg-accent text-white"
+                          : "glass-subtle text-muted hover:border-border-hover"
                       }`}
                     >
                       {r}
@@ -250,10 +250,10 @@ export default function ProfilePage() {
                           preferences: { ...profile.preferences, locations: updated },
                         });
                       }}
-                      className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                      className={`rounded px-3 py-1 text-xs font-medium uppercase tracking-wider transition-colors ${
                         profile.preferences.locations.includes(l)
-                          ? "bg-primary text-white"
-                          : "bg-border text-muted hover:bg-primary/10"
+                          ? "bg-accent text-white"
+                          : "glass-subtle text-muted hover:border-border-hover"
                       }`}
                     >
                       {l}

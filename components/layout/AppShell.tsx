@@ -42,8 +42,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
       </div>
     );
   }
@@ -55,13 +55,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     router.push("/");
   };
 
+  const navLinkClass = (active: boolean) =>
+    cn(
+      "flex items-center gap-3 rounded-[4px] border-l-2 px-3 py-2.5 text-xs font-medium uppercase tracking-[0.08em] transition-colors",
+      active
+        ? "border-accent text-accent"
+        : "border-transparent text-muted hover:text-foreground"
+    );
+
   return (
     <div className="flex min-h-screen">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-64 flex-col border-r border-border bg-card lg:flex">
+      <aside className="glass-sidebar hidden w-64 flex-col border-r lg:flex">
         <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-          <Heart className="h-6 w-6 fill-primary text-primary" />
-          <span className="font-display text-lg font-bold text-primary">{SITE_NAME}</span>
+          <Heart className="h-6 w-6 text-accent" />
+          <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
         </div>
 
         <nav className="flex-1 space-y-1 p-4">
@@ -71,12 +78,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                  pathname === item.href
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted hover:bg-border hover:text-foreground"
-                )}
+                className={navLinkClass(pathname === item.href)}
               >
                 <Icon className="h-5 w-5" />
                 {item.label}
@@ -87,13 +89,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="border-t border-border p-4">
           <div className="mb-3 flex items-center gap-3">
-            <Avatar
-              src={session.profile.photos[0]}
-              name={session.user.name}
-              size="sm"
-            />
+            <Avatar src={session.profile.photos[0]} name={session.user.name} size="sm" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{session.user.name}</p>
+              <p className="truncate text-sm font-medium text-foreground">{session.user.name}</p>
               <p className="truncate text-xs text-muted">{session.user.email}</p>
             </div>
           </div>
@@ -104,20 +102,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Mobile header */}
       <div className="flex flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b border-border bg-card px-4 lg:hidden">
+        <header className="glass-nav flex h-14 items-center justify-between border-b px-4 lg:hidden">
           <button onClick={() => setSidebarOpen(true)} aria-label="Open menu">
-            <Menu className="h-6 w-6" />
+            <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <span className="font-display text-lg font-bold text-primary">{SITE_NAME}</span>
+          <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
           <Avatar src={session.profile.photos[0]} name={session.user.name} size="sm" />
         </header>
 
         <main className="flex-1 overflow-auto p-4 pb-20 lg:p-8 lg:pb-8">{children}</main>
 
-        {/* Mobile bottom nav */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t border-border bg-card lg:hidden">
+        <nav className="glass-nav fixed bottom-0 left-0 right-0 z-40 flex border-t lg:hidden">
           {APP_NAV.map((item) => {
             const Icon = iconMap[item.icon];
             return (
@@ -125,8 +121,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-0.5 py-2 text-xs",
-                  pathname === item.href ? "text-primary" : "text-muted"
+                  "flex flex-1 flex-col items-center gap-0.5 py-2 text-[0.65rem] uppercase tracking-wider",
+                  pathname === item.href ? "text-accent" : "text-muted"
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -137,45 +133,36 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
       </div>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-card">
-            <div className="flex h-14 items-center justify-between border-b border-border px-4">
-              <span className="font-display text-lg font-bold text-primary">{SITE_NAME}</span>
-              <button onClick={() => setSidebarOpen(false)}>
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            <nav className="flex-1 space-y-1 p-4">
-              {APP_NAV.map((item) => {
-                const Icon = iconMap[item.icon];
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setSidebarOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium",
-                      pathname === item.href
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted hover:bg-border"
-                    )}
-                  >
-                    <Icon className="h-5 w-5" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div className="border-t border-border p-4">
-              <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
-                <LogOut className="h-4 w-4" />
-                Log Out
-              </Button>
-            </div>
-          </aside>
+        <div className="glass-strong fixed inset-0 z-50 lg:hidden">
+          <div className="flex h-14 items-center justify-between border-b border-border px-4">
+            <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
+            <button onClick={() => setSidebarOpen(false)}>
+              <X className="h-6 w-6 text-foreground" />
+            </button>
+          </div>
+          <nav className="flex flex-1 flex-col gap-2 p-4">
+            {APP_NAV.map((item) => {
+              const Icon = iconMap[item.icon];
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={navLinkClass(pathname === item.href)}
+                >
+                  <Icon className="h-5 w-5" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="border-t border-border p-4">
+            <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
+              Log Out
+            </Button>
+          </div>
         </div>
       )}
     </div>

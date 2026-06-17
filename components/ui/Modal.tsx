@@ -28,18 +28,18 @@ export default function Modal({ open, onClose, title, children, className }: Mod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div className="absolute inset-0 glass-overlay" onClick={onClose} />
       <div
         className={cn(
-          "relative z-10 w-full max-w-md rounded-xl bg-card p-6 shadow-xl",
+          "relative z-10 w-full max-w-md rounded-[12px] glass-strong p-6",
           className
         )}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{title}</h2>
+          <h2 className="text-xl font-semibold text-foreground">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-muted hover:bg-border hover:text-foreground"
+            className="rounded p-1 text-muted hover:text-foreground"
           >
             <X className="h-5 w-5" />
           </button>

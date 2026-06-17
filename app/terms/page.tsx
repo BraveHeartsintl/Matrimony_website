@@ -1,4 +1,7 @@
 import PublicLayout from "@/components/layout/PublicLayout";
+import Container from "@/components/ui/Container";
+import Section from "@/components/ui/Section";
+import SectionLabel from "@/components/ui/SectionLabel";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -51,12 +54,13 @@ const sections = [
 export default function TermsPage() {
   return (
     <PublicLayout>
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="font-display text-4xl font-bold">Terms & Conditions</h1>
-          <p className="mt-2 text-sm text-muted">Last updated: 1 January 2025</p>
+      <Section variant="surface">
+        <Container className="max-w-3xl">
+          <SectionLabel>Legal</SectionLabel>
+          <h1 className="font-display text-4xl font-bold text-foreground">Terms & Conditions</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Last updated: 1 January 2025</p>
 
-          <p className="mt-6 text-muted leading-relaxed">
+          <p className="mt-6 leading-relaxed text-muted">
             Please read these Terms and Conditions carefully before using UK Matrimony. These terms
             constitute a legally binding agreement between you and UK Matrimony Ltd.
           </p>
@@ -64,13 +68,13 @@ export default function TermsPage() {
           <div className="mt-10 space-y-8">
             {sections.map((section) => (
               <div key={section.title}>
-                <h2 className="text-lg font-semibold">{section.title}</h2>
-                <p className="mt-2 text-sm text-muted leading-relaxed">{section.content}</p>
+                <h2 className="text-lg font-semibold text-foreground">{section.title}</h2>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{section.content}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     </PublicLayout>
   );
 }

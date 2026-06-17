@@ -46,7 +46,7 @@ export default function FilterPanel({
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold">Search Filters</h3>
         {hasPendingChanges && (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+              <span className="rounded bg-accent/20 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-accent">
             Unapplied
           </span>
         )}

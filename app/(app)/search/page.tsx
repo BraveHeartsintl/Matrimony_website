@@ -47,8 +47,9 @@ export default function SearchPage() {
   };
 
   const resetFilters = () => {
-    setDraft(DEFAULT_SEARCH_FILTERS);
-    setApplied(DEFAULT_SEARCH_FILTERS);
+    const resetTo = session ? filtersFromPreferences(session.profile) : DEFAULT_SEARCH_FILTERS;
+    setDraft(resetTo);
+    setApplied(resetTo);
     setMobileFiltersOpen(false);
   };
 
@@ -59,7 +60,7 @@ export default function SearchPage() {
 
   return (
     <div className="mx-auto max-w-7xl">
-      <div className="mb-8 rounded-2xl border border-border bg-gradient-to-r from-primary/5 via-card to-accent/5 p-6">
+      <div className="mb-8 rounded-[6px] glass p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-bold sm:text-3xl">Search Profiles</h1>
@@ -74,7 +75,7 @@ export default function SearchPage() {
             <SlidersHorizontal className="h-4 w-4" />
             Filters
             {hasPendingChanges && (
-              <span className="ml-1 rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] text-white">
+              <span className="ml-1 rounded-full bg-accent px-1.5 py-0.5 text-[10px] text-white">
                 !
               </span>
             )}
@@ -103,13 +104,13 @@ export default function SearchPage() {
           />
 
           {session && initialized && !filtersEqual(applied, DEFAULT_SEARCH_FILTERS) && (
-            <p className="mb-4 rounded-lg bg-primary/5 px-3 py-2 text-xs text-primary">
+            <p className="mb-4 rounded-[6px] glass-subtle px-3 py-2 text-xs text-accent">
               Filters pre-filled from your partner preferences. Adjust and click Apply Filters.
             </p>
           )}
 
           {results.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
+            <div className="flex flex-col items-center justify-center rounded-xl glass py-16 text-center">
               <p className="text-lg font-medium">No profiles found</p>
               <p className="mt-1 text-sm text-muted">Try adjusting your search filters</p>
               <Button variant="outline" size="sm" className="mt-4" onClick={resetFilters}>
@@ -138,7 +139,7 @@ export default function SearchPage() {
             className="absolute inset-0 bg-black/50"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto rounded-t-2xl bg-card p-4 shadow-xl">
+          <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto rounded-t-[6px] border-t border-border glass p-4">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-display text-lg font-bold">Search Filters</h3>
               <button

@@ -1,5 +1,10 @@
 import PublicLayout from "@/components/layout/PublicLayout";
 import Card from "@/components/ui/Card";
+import Container from "@/components/ui/Container";
+import Section from "@/components/ui/Section";
+import SectionLabel from "@/components/ui/SectionLabel";
+import SplitHeadline from "@/components/ui/SplitHeadline";
+import StatBlock from "@/components/ui/StatBlock";
 import { Heart, Shield, Target, Users } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -37,70 +42,67 @@ const values = [
 export default function AboutPage() {
   return (
     <PublicLayout>
-      <section className="bg-gradient-to-br from-primary to-primary-dark px-4 py-16 text-white sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="font-display text-4xl font-bold">About UK Matrimony</h1>
-          <p className="mt-4 text-lg text-white/80">
+      <Section variant="deepest" className="!py-24">
+        <Container className="max-w-3xl text-center">
+          <SectionLabel>About Us</SectionLabel>
+          <SplitHeadline primary="About UK Matrimony" muted="since 2020" />
+          <p className="mt-6 text-lg text-muted">
             Helping UK singles find their perfect life partner since 2020.
           </p>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-2xl font-bold">Our Mission</h2>
-          <p className="mt-4 text-muted leading-relaxed">
+      <Section variant="base">
+        <Container className="max-w-3xl">
+          <SectionLabel>Our Mission</SectionLabel>
+          <h2 className="font-display text-2xl font-bold text-foreground">Our Mission</h2>
+          <p className="mt-4 leading-relaxed text-muted">
             UK Matrimony was founded with a simple mission: to provide a safe, respectful, and
             effective platform where British singles can find meaningful, lifelong partnerships. We
             understand that finding a life partner is one of the most important decisions you will
             ever make, and we are committed to supporting you every step of the way.
           </p>
-          <p className="mt-4 text-muted leading-relaxed">
+          <p className="mt-4 leading-relaxed text-muted">
             Our platform combines modern technology with traditional values, offering advanced search
             filters, profile verification, privacy controls, and a dedicated support team — all
             designed with the UK community in mind.
           </p>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="bg-card px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="text-center font-display text-2xl font-bold">Our Values</h2>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2">
+      <Section variant="surface">
+        <Container>
+          <div className="text-center">
+            <SectionLabel>Our Values</SectionLabel>
+            <SplitHeadline primary="What We" muted="Stand For" />
+          </div>
+          <div className="mt-16 grid gap-8 sm:grid-cols-2">
             {values.map((v) => (
-              <Card key={v.title}>
-                <v.icon className="h-8 w-8 text-primary" />
-                <h3 className="mt-3 text-lg font-semibold">{v.title}</h3>
+              <Card key={v.title} hover>
+                <v.icon className="h-8 w-8 text-accent" />
+                <h3 className="mt-3 text-lg font-semibold text-foreground">{v.title}</h3>
                 <p className="mt-2 text-sm text-muted">{v.description}</p>
               </Card>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="font-display text-2xl font-bold">Trusted by Thousands</h2>
+      <Section variant="base">
+        <Container className="max-w-3xl text-center">
+          <SectionLabel>By The Numbers</SectionLabel>
+          <SplitHeadline primary="Trusted by" muted="Thousands" />
           <p className="mt-4 text-muted">
             With over 50,000 registered members and thousands of successful matches, UK Matrimony
             is one of the fastest-growing matrimony platforms in the United Kingdom.
           </p>
-          <div className="mt-8 grid grid-cols-3 gap-6">
-            <div>
-              <p className="text-3xl font-bold text-primary">50K+</p>
-              <p className="text-sm text-muted">Members</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-primary">5K+</p>
-              <p className="text-sm text-muted">Success Stories</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-primary">98%</p>
-              <p className="text-sm text-muted">Satisfaction Rate</p>
-            </div>
+          <div className="mt-12 flex flex-col items-center gap-7 sm:flex-row sm:justify-center">
+            <StatBlock value="50K+" label="Members" description="Registered UK singles" />
+            <StatBlock value="5K+" label="Stories" description="Successful matches" />
+            <StatBlock value="98%" label="Satisfaction" description="Member satisfaction rate" />
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     </PublicLayout>
   );
 }

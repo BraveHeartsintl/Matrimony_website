@@ -14,12 +14,12 @@ export default function ProgressBar({ value, className, showLabel = true }: Prog
       {showLabel && (
         <div className="mb-1 flex justify-between text-sm">
           <span className="text-muted">Profile completion</span>
-          <span className="font-medium text-primary">{clamped}%</span>
+          <span className="font-medium text-accent">{clamped}%</span>
         </div>
       )}
-      <div className="h-2 overflow-hidden rounded-full bg-border">
+      <div className="h-2 overflow-hidden rounded-full glass-subtle">
         <div
-          className="h-full rounded-full bg-primary transition-all duration-500"
+          className="h-full rounded-full bg-accent transition-all duration-500"
           style={{ width: `${clamped}%` }}
         />
       </div>

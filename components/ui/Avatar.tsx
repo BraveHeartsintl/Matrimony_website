@@ -27,7 +27,7 @@ export default function Avatar({ src, name, size = "md", className }: AvatarProp
 
   if (src) {
     return (
-      <div className={cn("relative overflow-hidden rounded-full", sizes[size], className)}>
+      <div className={cn("relative overflow-hidden rounded-full img-bw", sizes[size], className)}>
         <Image
           src={src}
           alt={name}
@@ -42,7 +42,7 @@ export default function Avatar({ src, name, size = "md", className }: AvatarProp
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full bg-primary/10 font-medium text-primary",
+        "flex items-center justify-center rounded-full glass-subtle font-medium text-muted",
         sizes[size],
         className
       )}
