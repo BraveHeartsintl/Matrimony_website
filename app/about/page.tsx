@@ -5,11 +5,14 @@ import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import StatBlock from "@/components/ui/StatBlock";
+import { SITE_STATS, SITE_TAGLINE } from "@/lib/constants";
 import { Heart, Shield, Target, Users } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About Us",
+  description:
+    "Learn about UK Matrimony — the UK's trusted matchmaking platform for Brit Asian singles seeking meaningful, lifelong partnerships.",
 };
 
 const values = [
@@ -17,25 +20,25 @@ const values = [
     icon: Heart,
     title: "Meaningful Connections",
     description:
-      "We believe every person deserves a genuine, lasting relationship built on trust, respect, and shared values.",
+      "We believe every Brit Asian deserves a genuine, lasting relationship built on trust, respect, shared culture, and family values.",
   },
   {
     icon: Shield,
-    title: "Safety First",
+    title: "Safety & Privacy First",
     description:
-      "Your privacy and security are paramount. We are fully GDPR compliant with robust verification and moderation.",
+      "Fully GDPR compliant with ICO registration, manual profile verification, and robust privacy controls — your data stays in the UK.",
   },
   {
     icon: Users,
-    title: "UK Community",
+    title: "Brit Asian Community",
     description:
-      "Built specifically for the UK market, connecting singles across England, Scotland, Wales, and Northern Ireland.",
+      "Built specifically for British Asian singles across England, Scotland, Wales, and Northern Ireland — understanding both heritage and modern British life.",
   },
   {
     icon: Target,
-    title: "Purpose-Driven",
+    title: "Purpose-Driven Matchmaking",
     description:
-      "Unlike casual dating apps, we focus exclusively on matrimony — helping you find a life partner, not just a date.",
+      "Unlike casual dating apps, we focus exclusively on matrimony — helping you find a life partner with family involvement and cultural respect.",
   },
 ];
 
@@ -45,10 +48,8 @@ export default function AboutPage() {
       <Section variant="deepest" className="!py-24">
         <Container className="max-w-3xl text-center">
           <SectionLabel>About Us</SectionLabel>
-          <SplitHeadline primary="About UK Matrimony" muted="since 2020" />
-          <p className="mt-6 text-lg text-muted">
-            Helping UK singles find their perfect life partner since 2020.
-          </p>
+          <SplitHeadline primary="About UK Matrimony" muted="Brit Asian Matchmaking" />
+          <p className="mt-6 text-lg text-muted">{SITE_TAGLINE} since 2020.</p>
         </Container>
       </Section>
 
@@ -57,15 +58,17 @@ export default function AboutPage() {
           <SectionLabel>Our Mission</SectionLabel>
           <h2 className="font-display text-2xl font-bold text-foreground">Our Mission</h2>
           <p className="mt-4 leading-relaxed text-muted">
-            UK Matrimony was founded with a simple mission: to provide a safe, respectful, and
-            effective platform where British singles can find meaningful, lifelong partnerships. We
-            understand that finding a life partner is one of the most important decisions you will
-            ever make, and we are committed to supporting you every step of the way.
+            UK Matrimony was founded with a clear mission: to provide a safe, respectful, and
+            effective platform where British Asian singles and their families can find meaningful,
+            lifelong partnerships. We understand that finding a life partner is one of the most
+            important decisions you will ever make — and we are committed to supporting you every
+            step of the way.
           </p>
           <p className="mt-4 leading-relaxed text-muted">
-            Our platform combines modern technology with traditional values, offering advanced search
-            filters, profile verification, privacy controls, and a dedicated support team — all
-            designed with the UK community in mind.
+            Our platform combines modern technology with traditional values, offering advanced
+            search filters by faith, city, education, and profession, alongside profile verification,
+            privacy controls, and a dedicated UK-based support team. Whether you are Hindu, Sikh,
+            Muslim, or Christian — we help Brit Asian families connect with confidence.
           </p>
         </Container>
       </Section>
@@ -93,13 +96,26 @@ export default function AboutPage() {
           <SectionLabel>By The Numbers</SectionLabel>
           <SplitHeadline primary="Trusted by" muted="Thousands" />
           <p className="mt-4 text-muted">
-            With over 50,000 registered members and thousands of successful matches, UK Matrimony
-            is one of the fastest-growing matrimony platforms in the United Kingdom.
+            With over {SITE_STATS.members} registered Brit Asian members and {SITE_STATS.matches}{" "}
+            successful matches, UK Matrimony is one of the fastest-growing matrimony platforms in
+            the United Kingdom.
           </p>
           <div className="mt-12 flex flex-col items-center gap-7 sm:flex-row sm:justify-center">
-            <StatBlock value="50K+" label="Members" description="Registered UK singles" />
-            <StatBlock value="5K+" label="Stories" description="Successful matches" />
-            <StatBlock value="98%" label="Satisfaction" description="Member satisfaction rate" />
+            <StatBlock
+              value={SITE_STATS.members}
+              label="Members"
+              description="Brit Asian singles in the UK"
+            />
+            <StatBlock
+              value={SITE_STATS.matches}
+              label="Matches"
+              description="Successful connections"
+            />
+            <StatBlock
+              value={SITE_STATS.verified}
+              label="Verified"
+              description="Profile authenticity rate"
+            />
           </div>
         </Container>
       </Section>

@@ -39,24 +39,24 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <div className="hidden w-1/2 flex-col justify-between glass-sidebar p-12 lg:flex">
+      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-deepest via-[#5c1a38] to-deepest p-12 lg:flex">
         <Link href="/" className="flex items-center gap-2">
-          <Heart className="h-8 w-8 text-accent" />
-          <span className="font-display text-2xl font-bold text-foreground">{SITE_NAME}</span>
+          <Heart className="h-8 w-8 text-gold" />
+          <span className="font-display text-2xl font-bold text-white">{SITE_NAME}</span>
         </Link>
         <div>
-          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[6px] glass">
-            <Shield className="h-7 w-7 text-accent" />
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[10px] bg-white/10 backdrop-blur-sm">
+            <Shield className="h-7 w-7 text-gold" />
           </div>
-          <h1 className="font-display text-4xl font-bold leading-tight text-foreground">
+          <h1 className="font-display text-4xl font-bold leading-tight text-white">
             Welcome Back
           </h1>
-          <p className="mt-4 max-w-md text-muted">
-            Log in to continue your journey. Search matches, send interests, and connect with
-            people who share your values.
+          <p className="mt-4 max-w-md text-white/75">
+            Log in to continue your journey. Sign up in under 60 seconds, browse matches
+            immediately, then complete your profile and verify when you&apos;re ready to connect.
           </p>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-white/45">
           &copy; {new Date().getFullYear()} {SITE_NAME}
         </p>
       </div>

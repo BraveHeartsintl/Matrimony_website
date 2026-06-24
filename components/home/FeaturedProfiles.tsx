@@ -17,23 +17,25 @@ export default function FeaturedProfiles() {
       <Container>
         <SectionLabel>Discover</SectionLabel>
         <SplitHeadline primary="Featured Profiles" muted="from across the UK" />
-        <p className="mt-4 text-muted">Verified members from across the United Kingdom</p>
+        <p className="mt-4 text-muted">
+          Verified Brit Asian members from London, Birmingham, Manchester, Leicester and beyond
+        </p>
 
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((profile) => (
             <div
               key={profile.id}
-              className="group overflow-hidden rounded-[6px] glass glass-hover transition-all duration-200 hover:border-accent/40 hover:bg-accent-soft/20"
+              className="group overflow-hidden rounded-[14px] glass glass-hover shadow-sm transition-all duration-300 hover:border-accent/30 hover:shadow-md"
             >
               <div className="relative aspect-[4/5] overflow-hidden">
                 <Image
                   src={profile.photos[0]}
                   alt={profile.name}
                   fill
-                  className="object-cover img-bw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 640px) 100vw, 25vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#3d1228]/75 via-[#3d1228]/20 to-transparent" />
                 {profile.verified && (
                   <div className="absolute right-3 top-3 flex items-center gap-1 rounded glass/90 px-2 py-1 text-xs font-medium uppercase tracking-wider text-accent">
                     <ShieldCheck className="h-3.5 w-3.5" />
@@ -41,10 +43,10 @@ export default function FeaturedProfiles() {
                   </div>
                 )}
                 <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 className="font-display text-lg font-bold text-foreground">
+                  <h3 className="font-display text-lg font-bold text-white">
                     {profile.name}, {profile.age}
                   </h3>
-                  <div className="mt-1 flex items-center gap-1 text-sm text-muted">
+                  <div className="mt-1 flex items-center gap-1 text-sm text-white/75">
                     <MapPin className="h-3.5 w-3.5" />
                     {profile.location}
                   </div>

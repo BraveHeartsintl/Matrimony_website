@@ -8,10 +8,10 @@ interface BadgeProps {
 
 export default function Badge({ children, variant = "default", className }: BadgeProps) {
   const variants = {
-    default: "glass-subtle text-muted border border-white/8",
-    success: "glass-accent text-accent",
-    warning: "glass-accent text-accent-hover",
-    accent: "glass-accent text-accent",
+    default: "bg-surface text-muted border border-accent/10",
+    success: "bg-accent-soft text-accent border border-accent/15",
+    warning: "bg-gold-soft text-accent-deep border border-gold/30",
+    accent: "bg-accent text-accent-foreground border border-accent/20",
   };
 
   return (

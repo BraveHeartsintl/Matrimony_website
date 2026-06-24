@@ -1,6 +1,9 @@
 import type { SearchProfile } from "../types";
 
-export const MOCK_PROFILES: SearchProfile[] = [
+const RAW_MOCK_PROFILES: Omit<
+  SearchProfile,
+  "birthMonth" | "lookingFor" | "matrimony" | "verification" | "onboardingStatus"
+>[] = [
   {
     id: "profile-1",
     userId: "user-1",
@@ -232,3 +235,12 @@ export const MOCK_PROFILES: SearchProfile[] = [
     verified: true,
   },
 ];
+
+export const MOCK_PROFILES: SearchProfile[] = RAW_MOCK_PROFILES.map((p) => ({
+  ...p,
+  birthMonth: 6,
+  lookingFor: p.gender === "female" ? ("groom" as const) : ("bride" as const),
+  matrimony: {},
+  verification: { phoneVerified: p.verified, emailVerified: p.verified },
+  onboardingStatus: p.verified ? ("verified" as const) : ("profile_completed" as const),
+}));

@@ -9,6 +9,7 @@ import Tabs from "@/components/ui/Tabs";
 import Textarea from "@/components/ui/Textarea";
 import Toggle from "@/components/ui/Toggle";
 import { useAuth } from "@/context/AuthContext";
+import { getNextOnboardingRoute } from "@/lib/onboarding/access";
 import {
   BODY_TYPES,
   EDUCATION_LEVELS,
@@ -19,6 +20,7 @@ import {
 } from "@/lib/constants";
 import type { BodyType, Gender, MaritalStatus } from "@/lib/types";
 import { calculateAgeFromYearOfBirth } from "@/lib/utils";
+import Link from "next/link";
 import { useState } from "react";
 
 const TABS = [
@@ -38,6 +40,7 @@ export default function ProfilePage() {
 
   if (!session) return null;
   const { profile } = session;
+  const onboardingRoute = getNextOnboardingRoute(profile.onboardingStatus);
 
   const handleSave = () => {
     setSaved(true);
@@ -57,6 +60,14 @@ export default function ProfilePage() {
         <div>
           <h1 className="font-display text-2xl font-bold">My Profile</h1>
           <p className="text-sm text-muted">Manage your profile information and privacy</p>
+          {onboardingRoute === "/onboarding/profile" && (
+            <Link
+              href="/onboarding/profile"
+              className="mt-2 inline-block text-sm font-medium text-accent hover:underline"
+            >
+              Continue guided profile setup →
+            </Link>
+          )}
         </div>
         {saved && (
           <span className="feedback-success rounded-[6px] px-3 py-1 text-sm">Saved!</span>

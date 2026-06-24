@@ -8,22 +8,25 @@ import Image from "next/image";
 
 const testimonials = [
   {
-    name: "Sarah & David",
+    name: "Priya & Arjun",
     location: "London",
+    community: "Hindu",
     image: "/images/success-stories/success-sarah-david-london.png",
-    text: "We found each other on UK Matrimony after just three months. The verification process gave us confidence, and the matching filters helped us connect on shared values.",
+    text: "We both grew up in London with Indian heritage and wanted someone who understood our culture and British upbringing. UK Matrimony made that possible — we matched within two months and married last summer.",
   },
   {
-    name: "Anita & Raj",
-    location: "Manchester",
+    name: "Simran & Harpreet",
+    location: "Leicester",
+    community: "Sikh",
     image: "/images/success-stories/success-anita-raj-manchester.png",
-    text: "As professionals living in the UK, we wanted a platform that understood our cultural background. UK Matrimony made it easy to find someone who truly gets us.",
+    text: "Our families were involved from the start, which mattered to us. The platform's verification and privacy controls gave both families confidence. We couldn't be happier with our Anand Karaj.",
   },
   {
-    name: "Emma & James",
+    name: "Fatima & Omar",
     location: "Birmingham",
+    community: "Muslim",
     image: "/images/success-stories/success-emma-james-birmingham.png",
-    text: "The privacy controls and secure messaging made us feel safe throughout our journey. We're now happily married and recommend this platform to everyone.",
+    text: "As British Muslims, we needed a halal platform that respected our values. UK Matrimony connected us with serious, like-minded people. Alhamdulillah, we found each other here.",
   },
 ];
 
@@ -32,9 +35,9 @@ export default function Testimonials() {
     <Section variant="base">
       <Container>
         <SectionLabel>Success Stories</SectionLabel>
-        <SplitHeadline primary="Real Couples" muted="Real Love" />
+        <SplitHeadline primary="Real Couples" muted="Real Weddings" />
         <p className="mt-4 text-muted">
-          Hear from members who found their life partner with us
+          Hear from Brit Asian couples who found their life partner through UK Matrimony
         </p>
 
         <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -45,17 +48,20 @@ export default function Testimonials() {
                   src={t.image}
                   alt={`${t.name} — UK Matrimony success story from ${t.location}`}
                   fill
-                  className="object-cover img-bw transition-all duration-300 group-hover:grayscale-0"
+                  className="object-cover transition-all duration-500 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1e1e1e] via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#3d1228]/80 via-transparent to-transparent" />
+                <span className="absolute left-4 top-4 rounded-full bg-gold px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white">
+                  {t.community}
+                </span>
               </div>
               <div className="p-8">
                 <Quote className="h-8 w-8 text-muted-foreground" />
                 <p className="mt-4 text-sm leading-relaxed text-muted">&ldquo;{t.text}&rdquo;</p>
                 <div className="mt-6 border-t border-border pt-4">
                   <p className="font-semibold text-accent">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.location}</p>
+                  <p className="text-xs text-muted-foreground">{t.location}, UK</p>
                 </div>
               </div>
             </Card>

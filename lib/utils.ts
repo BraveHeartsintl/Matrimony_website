@@ -42,6 +42,15 @@ export function formatBodyType(bodyType: string): string {
   return labels[bodyType] ?? bodyType;
 }
 
+export function formatGender(gender: string): string {
+  const labels: Record<string, string> = {
+    male: "Male",
+    female: "Female",
+    other: "Other",
+  };
+  return labels[gender] ?? gender;
+}
+
 export function formatRelativeTime(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();

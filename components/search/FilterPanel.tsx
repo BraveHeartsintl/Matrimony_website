@@ -21,6 +21,7 @@ interface FilterPanelProps {
   previewCount: number;
   appliedCount: number;
   hasPendingChanges: boolean;
+  filterMode?: "none" | "limited" | "full";
 }
 
 export default function FilterPanel({
@@ -31,6 +32,7 @@ export default function FilterPanel({
   previewCount,
   appliedCount,
   hasPendingChanges,
+  filterMode = "full",
 }: FilterPanelProps) {
   const update = (key: keyof SearchFilters, value: string | number | boolean) => {
     onDraftChange({ ...draft, [key]: value });
@@ -53,27 +55,31 @@ export default function FilterPanel({
       </div>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <Select
-            label="Min Age"
-            value={String(draft.ageMin)}
-            onChange={(e) => update("ageMin", Number(e.target.value))}
-            options={ageOptions}
-          />
-          <Select
-            label="Max Age"
-            value={String(draft.ageMax)}
-            onChange={(e) => update("ageMax", Number(e.target.value))}
-            options={ageOptions}
-          />
-        </div>
+        {filterMode === "full" && (
+          <div className="grid grid-cols-2 gap-3">
+            <Select
+              label="Min Age"
+              value={String(draft.ageMin)}
+              onChange={(e) => update("ageMin", Number(e.target.value))}
+              options={ageOptions}
+            />
+            <Select
+              label="Max Age"
+              value={String(draft.ageMax)}
+              onChange={(e) => update("ageMax", Number(e.target.value))}
+              options={ageOptions}
+            />
+          </div>
+        )}
 
-        <Select
-          label="Gender"
-          value={draft.gender}
-          onChange={(e) => update("gender", e.target.value)}
-          options={[{ value: "", label: "All Genders" }, ...GENDERS]}
-        />
+        {filterMode === "full" && (
+          <Select
+            label="Gender"
+            value={draft.gender}
+            onChange={(e) => update("gender", e.target.value)}
+            options={[{ value: "", label: "All Genders" }, ...GENDERS]}
+          />
+        )}
 
         <Select
           label="Location"
@@ -95,32 +101,42 @@ export default function FilterPanel({
           ]}
         />
 
-        <Select
-          label="Education"
-          value={draft.education}
-          onChange={(e) => update("education", e.target.value)}
-          options={[
-            { value: "", label: "All Education Levels" },
-            ...EDUCATION_LEVELS.map((e) => ({ value: e, label: e })),
-          ]}
-        />
+        {filterMode === "full" && (
+          <>
+            <Select
+              label="Education"
+              value={draft.education}
+              onChange={(e) => update("education", e.target.value)}
+              options={[
+                { value: "", label: "All Education Levels" },
+                ...EDUCATION_LEVELS.map((e) => ({ value: e, label: e })),
+              ]}
+            />
 
-        <Select
-          label="Marital Status"
-          value={draft.maritalStatus}
-          onChange={(e) => update("maritalStatus", e.target.value)}
-          options={[
-            { value: "", label: "All Statuses" },
-            ...MARITAL_STATUSES.map((s) => ({ value: s.value, label: s.label })),
-          ]}
-        />
+            <Select
+              label="Marital Status"
+              value={draft.maritalStatus}
+              onChange={(e) => update("maritalStatus", e.target.value)}
+              options={[
+                { value: "", label: "All Statuses" },
+                ...MARITAL_STATUSES.map((s) => ({ value: s.value, label: s.label })),
+              ]}
+            />
 
-        <Toggle
-          label="Verified profiles only"
-          description="Show only manually verified members"
-          checked={draft.verifiedOnly}
-          onChange={(checked) => update("verifiedOnly", checked)}
-        />
+            <Toggle
+              label="Verified profiles only"
+              description="Show only manually verified members"
+              checked={draft.verifiedOnly}
+              onChange={(checked) => update("verifiedOnly", checked)}
+            />
+          </>
+        )}
+
+        {filterMode === "limited" && (
+          <p className="text-xs text-muted">
+            Complete verification to unlock age, gender, education, and verified-only filters.
+          </p>
+        )}
       </div>
 
       <div className="mt-6 space-y-3 border-t border-border pt-4">

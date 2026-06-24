@@ -3,28 +3,28 @@ import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
-import { Lock, ShieldCheck, Star, Users } from "lucide-react";
+import { Heart, Lock, ShieldCheck, Sparkles } from "lucide-react";
 
 const badges = [
   {
     icon: ShieldCheck,
     title: "Verified Profiles",
-    desc: "Manual profile verification for authenticity",
+    desc: "Every profile is manually reviewed and ID-verified for authenticity",
   },
   {
     icon: Lock,
-    title: "Privacy Controls",
-    desc: "You control who sees your photos and contact info",
+    title: "100% Privacy",
+    desc: "You control who sees your photos, contact details, and personal information",
   },
   {
-    icon: Users,
-    title: "UK Community",
-    desc: "Members from England, Scotland, Wales & NI",
+    icon: Sparkles,
+    title: "Best Matches",
+    desc: "Smart filters and compatibility scoring to surface the most suitable partners",
   },
   {
-    icon: Star,
-    title: "Premium Support",
-    desc: "Dedicated customer support for all members",
+    icon: Heart,
+    title: "Trusted by Thousands",
+    desc: "50,000+ Brit Asian members across England, Scotland, Wales & Northern Ireland",
   },
 ];
 
@@ -32,8 +32,8 @@ export default function TrustBadges() {
   return (
     <Section variant="surface">
       <Container>
-        <SectionLabel>Why Choose Us</SectionLabel>
-        <SplitHeadline primary="Built on Trust" muted="& Safety" />
+        <SectionLabel>Why UK Matrimony</SectionLabel>
+        <SplitHeadline primary="Built on Trust" muted="Privacy & Safety" />
 
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {badges.map((badge) => (

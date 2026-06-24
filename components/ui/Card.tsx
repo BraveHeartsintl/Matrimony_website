@@ -22,7 +22,7 @@ export default function Card({
   return (
     <div
       className={cn(
-        "rounded-[10px] glass glass-hover",
+        "rounded-[14px] glass glass-hover shadow-sm",
         hover && "hover:border-accent/35",
         paddings[padding],
         className

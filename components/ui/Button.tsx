@@ -10,14 +10,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", type = "button", children, ...props }, ref) => {
     const variants = {
       primary:
-        "bg-accent text-[#0f0f0f] hover:bg-accent-hover uppercase tracking-[0.05em] font-semibold shadow-[0_0_24px_rgba(201,168,124,0.22)]",
+        "bg-accent text-accent-foreground hover:bg-accent-hover uppercase tracking-[0.06em] font-semibold shadow-[0_4px_24px_rgba(155,45,92,0.28)]",
       secondary:
-        "glass text-foreground border border-white/10 hover:border-accent/35 glass-hover uppercase tracking-[0.05em] font-semibold",
+        "glass text-foreground border border-accent/15 hover:border-accent/35 glass-hover uppercase tracking-[0.06em] font-semibold",
       outline:
-        "glass-subtle glass-btn-outline border border-accent/30 text-accent uppercase tracking-[0.05em] font-semibold",
-      ghost: "text-muted hover:text-accent uppercase tracking-[0.05em] font-medium",
+        "glass-subtle glass-btn-outline border border-accent/30 text-accent uppercase tracking-[0.06em] font-semibold",
+      ghost: "text-muted hover:text-accent uppercase tracking-[0.06em] font-medium",
       accent:
-        "bg-accent text-[#0f0f0f] hover:bg-accent-hover uppercase tracking-[0.05em] font-semibold shadow-[0_0_24px_rgba(201,168,124,0.22)]",
+        "bg-gold text-white hover:bg-gold-hover uppercase tracking-[0.06em] font-semibold shadow-[0_4px_20px_rgba(201,149,108,0.35)]",
     };
 
     const sizes = {

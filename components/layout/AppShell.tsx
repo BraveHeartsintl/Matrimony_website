@@ -1,6 +1,8 @@
 "use client";
 
+import PhaseBanner from "@/components/onboarding/PhaseBanner";
 import { useAuth } from "@/context/AuthContext";
+import { canAccess, getOnboardingStatusLabel } from "@/lib/onboarding/access";
 import { APP_NAV, SITE_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
@@ -50,6 +52,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   if (!session) return null;
 
+  const status = session.profile.onboardingStatus;
+  const messagesLocked = !canAccess(status, "direct_chat");
+
   const handleLogout = () => {
     logout();
     router.push("/");
@@ -74,11 +79,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 space-y-1 p-4">
           {APP_NAV.map((item) => {
             const Icon = iconMap[item.icon];
+            const locked = item.href === "/messages" && messagesLocked;
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={navLinkClass(pathname === item.href)}
+                className={cn(
+                  navLinkClass(pathname === item.href),
+                  locked && "opacity-60"
+                )}
               >
                 <Icon className="h-5 w-5" />
                 {item.label}
@@ -93,6 +102,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-foreground">{session.user.name}</p>
               <p className="truncate text-xs text-muted">{session.user.email}</p>
+              <p className="truncate text-[10px] font-medium uppercase tracking-wider text-accent">
+                {getOnboardingStatusLabel(status)}
+              </p>
             </div>
           </div>
           <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
@@ -111,7 +123,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Avatar src={session.profile.photos[0]} name={session.user.name} size="sm" />
         </header>
 
-        <main className="flex-1 overflow-auto p-4 pb-20 lg:p-8 lg:pb-8">{children}</main>
+        <main className="flex-1 overflow-auto p-4 pb-20 lg:p-8 lg:pb-8">
+          <PhaseBanner status={status} />
+          {children}
+        </main>
 
         <nav className="glass-nav fixed bottom-0 left-0 right-0 z-40 flex border-t lg:hidden">
           {APP_NAV.map((item) => {

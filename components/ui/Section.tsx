@@ -8,7 +8,7 @@ interface SectionProps extends HTMLAttributes<HTMLElement> {
 const variants = {
   base: "",
   surface: "glass-section",
-  deepest: "",
+  deepest: "section-deepest",
   elevated: "glass-section",
 };
 

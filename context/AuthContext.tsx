@@ -1,19 +1,24 @@
 "use client";
 
 import {
+  addPendingVerification,
+  approveVerification,
   clearSession,
+  completeProfileOnboarding,
   createDefaultProfile,
   getSession,
   getSessionSnapshot,
   getStoredUsers,
   normalizeProfile,
+  rejectVerification,
   saveStoredUsers,
   setSession,
   stripPassword,
+  submitVerification,
   subscribeAuth,
 } from "@/lib/auth";
 import { DEMO_USER } from "@/lib/mock/users";
-import type { AuthSession, Profile } from "@/lib/types";
+import type { AuthSession, MatrimonyDetails, Profile, VerificationData } from "@/lib/types";
 import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
 
 interface AuthContextType {
@@ -28,6 +33,12 @@ interface AuthContextType {
   }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateProfile: (updates: Partial<Profile>) => void;
+  updateMatrimony: (updates: Partial<MatrimonyDetails>) => void;
+  updateVerification: (updates: Partial<VerificationData>) => void;
+  completeOnboardingProfile: (updates: Partial<Profile>) => void;
+  submitVerificationRequest: () => void;
+  simulateVerificationApproval: () => void;
+  simulateVerificationRejection: (reason: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -54,30 +65,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     let profile = createDefaultProfile(user.id);
     if (user.id === DEMO_USER.id) {
-      profile = {
+      profile = normalizeProfile({
         ...profile,
         age: 30,
         yearOfBirth: 1996,
+        birthMonth: 6,
         heightCm: 178,
         weightKg: 75,
         bodyType: "athletic",
         gender: "male",
+        lookingFor: "bride",
         location: "London",
+        country: "England",
         religion: "Christian",
         education: "Bachelor's Degree",
         occupation: "IT Consultant",
         maritalStatus: "never_married",
         bio: "Looking for a genuine connection with someone who shares similar values and interests.",
         photos: ["https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop"],
-        profileCompletion: 75,
+        onboardingStatus: "verified",
         verified: true,
+        verification: {
+          phone: "+44 7700 900123",
+          phoneVerified: true,
+          emailVerified: true,
+          idDocumentType: "passport",
+          submittedAt: "2025-01-20T10:00:00Z",
+        },
         preferences: {
           ageMin: 25,
           ageMax: 35,
           religions: ["Christian", "Hindu"],
           locations: ["London", "Manchester"],
         },
-      };
+        matrimony: {
+          aboutMe: "IT professional based in London.",
+          partnerExpectations: "Someone kind and family-oriented.",
+          familyBackground: "Close-knit family.",
+          fatherOccupation: "Retired",
+          motherOccupation: "Teacher",
+          siblings: "1 sister",
+          diet: "Non-Vegetarian",
+          smoking: "No",
+          drinking: "Socially",
+          hobbies: ["Travel", "Reading"],
+          community: "Christian",
+          willingToRelocate: true,
+          languages: ["English"],
+        },
+      });
     }
 
     const newSession: AuthSession = { user: stripPassword(user), profile };
@@ -103,7 +139,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const profile: Profile = normalizeProfile({
         ...createDefaultProfile(newUser.id),
         ...data.profile,
-        profileCompletion: 0,
+        onboardingStatus: "basic_registered",
+        verified: false,
       });
 
       saveStoredUsers([...users, newUser]);
@@ -126,13 +163,77 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       ...updates,
       privacySettings: { ...current.profile.privacySettings, ...updates.privacySettings },
       preferences: { ...current.profile.preferences, ...updates.preferences },
+      matrimony: { ...current.profile.matrimony, ...updates.matrimony },
+      verification: { ...current.profile.verification, ...updates.verification },
     });
     const newSession: AuthSession = { ...current, profile: updated };
     setSession(newSession);
   }, []);
 
+  const updateMatrimony = useCallback((updates: Partial<MatrimonyDetails>) => {
+    const current = getSession();
+    if (!current) return;
+    updateProfile({ matrimony: { ...current.profile.matrimony, ...updates } });
+  }, [updateProfile]);
+
+  const updateVerification = useCallback((updates: Partial<VerificationData>) => {
+    const current = getSession();
+    if (!current) return;
+    updateProfile({ verification: { ...current.profile.verification, ...updates } });
+  }, [updateProfile]);
+
+  const completeOnboardingProfile = useCallback((updates: Partial<Profile>) => {
+    const current = getSession();
+    if (!current) return;
+    const updated = completeProfileOnboarding(current.profile, updates);
+    setSession({ ...current, profile: updated });
+  }, []);
+
+  const submitVerificationRequest = useCallback(() => {
+    const current = getSession();
+    if (!current) return;
+    const updated = submitVerification(current.profile);
+    addPendingVerification({
+      userId: current.user.id,
+      name: current.user.name,
+      email: current.user.email,
+      submittedAt: updated.verification.submittedAt ?? new Date().toISOString(),
+      idDocumentType: updated.verification.idDocumentType,
+    });
+    setSession({ ...current, profile: updated });
+  }, []);
+
+  const simulateVerificationApproval = useCallback(() => {
+    const current = getSession();
+    if (!current) return;
+    const updated = approveVerification(current.profile);
+    setSession({ ...current, profile: updated });
+  }, []);
+
+  const simulateVerificationRejection = useCallback((reason: string) => {
+    const current = getSession();
+    if (!current) return;
+    const updated = rejectVerification(current.profile, reason);
+    setSession({ ...current, profile: updated });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ session, isLoading, login, register, logout, updateProfile }}>
+    <AuthContext.Provider
+      value={{
+        session,
+        isLoading,
+        login,
+        register,
+        logout,
+        updateProfile,
+        updateMatrimony,
+        updateVerification,
+        completeOnboardingProfile,
+        submitVerificationRequest,
+        simulateVerificationApproval,
+        simulateVerificationRejection,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

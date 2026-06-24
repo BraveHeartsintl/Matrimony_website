@@ -1,6 +1,7 @@
 "use client";
 
 import SuggestedMatchCard from "@/components/dashboard/SuggestedMatchCard";
+import OnboardingProgressCard from "@/components/onboarding/OnboardingProgressCard";
 import StatCard from "@/components/dashboard/StatCard";
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/Badge";
@@ -9,6 +10,8 @@ import Card from "@/components/ui/Card";
 import ProgressBar from "@/components/ui/ProgressBar";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useAuth } from "@/context/AuthContext";
+import { canAccess } from "@/lib/onboarding/access";
+import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
 import { filterCompatibleConversations, filterCompatibleProfiles, isCompatibleMatch } from "@/lib/matchmaking";
 import { MOCK_INTERESTS } from "@/lib/mock/interests";
 import { MOCK_CONVERSATIONS } from "@/lib/mock/messages";
@@ -58,6 +61,8 @@ export default function DashboardPage() {
 
   const { user, profile } = session;
   const firstName = user.name.split(" ")[0];
+  const canSeeMatchScore = canAccess(profile.onboardingStatus, "ai_compatibility_score");
+  const isLimitedBrowse = profile.onboardingStatus === "basic_registered";
 
   const conversations = filterCompatibleConversations(
     MOCK_CONVERSATIONS,
@@ -74,7 +79,12 @@ export default function DashboardPage() {
   });
   const receivedInterests = interests.filter((i) => i.toUserId === user.id).length;
   const unreadMessages = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
-  const suggestedMatches = filterCompatibleProfiles(MOCK_PROFILES, profile.gender).slice(0, 4);
+  const suggestedMatches = filterCompatibleProfiles(MOCK_PROFILES, profile.gender)
+    .slice(0, isLimitedBrowse ? 3 : 4)
+    .map((match) => ({
+      profile: match,
+      matchResult: canSeeMatchScore ? calculateMatchScore(profile, match) : undefined,
+    }));
 
   const quickActions = [
     { href: "/search", icon: Search, label: "Discover Matches", desc: "Browse compatible profiles" },
@@ -139,6 +149,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </section>
+
+      <OnboardingProgressCard status={profile.onboardingStatus} />
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Profile Views" value="128" icon={Eye} trend="+12 this week" accent="accent" />
@@ -243,8 +255,8 @@ export default function DashboardPage() {
           </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
-          {suggestedMatches.map((match) => (
-            <SuggestedMatchCard key={match.id} profile={match} />
+          {suggestedMatches.map(({ profile: match, matchResult }) => (
+            <SuggestedMatchCard key={match.id} profile={match} matchResult={matchResult} />
           ))}
         </div>
       </section>

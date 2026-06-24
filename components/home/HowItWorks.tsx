@@ -3,26 +3,29 @@ import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
-import { Heart, Search, UserPlus } from "lucide-react";
+import { Crown, MessageCircle, UserPlus } from "lucide-react";
 
 const steps = [
   {
     icon: UserPlus,
-    title: "Create Your Profile",
+    title: "Sign Up",
+    subtitle: "Create your matrimony profile",
     description:
-      "Register for free and build a detailed profile with photos, preferences, and personal details.",
+      "Register for free and build a detailed profile with photos, family background, preferences, and what you are looking for in a life partner.",
   },
   {
-    icon: Search,
-    title: "Search & Connect",
+    icon: MessageCircle,
+    title: "Connect",
+    subtitle: "Select & connect with matches",
     description:
-      "Use advanced filters to find compatible matches across the UK and send interests to profiles you like.",
+      "Browse verified Brit Asian profiles across the UK. Use advanced filters by city, faith, education, and profession — then send interests to profiles you like.",
   },
   {
-    icon: Heart,
-    title: "Start Your Journey",
+    icon: Crown,
+    title: "Interact",
+    subtitle: "Start meaningful conversations",
     description:
-      "Chat with mutual matches, get to know each other, and take the next step towards a lifelong partnership.",
+      "Become a premium member to unlock messaging, view contact details, and start conversations with mutual matches who share your values.",
   },
 ];
 
@@ -30,10 +33,11 @@ export default function HowItWorks() {
   return (
     <Section variant="surface">
       <Container>
-        <SectionLabel>Simple Process</SectionLabel>
-        <SplitHeadline primary="How It Works" muted="in three simple steps" />
+        <SectionLabel>How It Works</SectionLabel>
+        <SplitHeadline primary="Three Simple Steps" muted="to find your life partner" />
         <p className="mt-4 max-w-xl text-muted">
-          Three simple steps to find your life partner
+          From profile creation to your first conversation — we make Brit Asian matchmaking
+          straightforward, secure, and respectful.
         </p>
 
         <div className="mt-16 grid gap-8 md:grid-cols-3">
@@ -46,7 +50,8 @@ export default function HowItWorks() {
                 Step {i + 1}
               </span>
               <h3 className="mt-3 text-lg font-semibold text-foreground">{step.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{step.description}</p>
+              <p className="mt-1 text-sm font-medium text-accent/80">{step.subtitle}</p>
+              <p className="mt-3 text-sm leading-relaxed text-muted">{step.description}</p>
             </Card>
           ))}
         </div>

@@ -56,7 +56,7 @@ export default function ChatWindow({
                 className={cn(
                   "max-w-[75%] rounded-[6px] px-4 py-2 text-sm",
                   isMine
-                    ? "glass-accent text-[#0f0f0f]"
+                    ? "bg-accent text-accent-foreground"
                     : "glass-bubble text-foreground"
                 )}
               >
