@@ -220,9 +220,58 @@ export const FITNESS_INTERESTS = [
 ] as const;
 
 export const ONBOARDING_PHASES = [
-  { id: 1, label: "Quick Sign Up", route: "/register" },
-  { id: 2, label: "Complete Profile", route: "/onboarding/profile" },
-  { id: 3, label: "Verify Identity", route: "/onboarding/verify" },
+  {
+    id: 1,
+    label: "Quick Sign Up",
+    route: "/register",
+    subtitle: "Join in under 60 seconds",
+    description:
+      "Register with just the essentials — your name, gender, who you are looking for, date of birth, and location. We create your profile instantly so you can start browsing matches right away.",
+    unlocks: [
+      "Browse match suggestions",
+      "View basic profile information",
+      "Explore limited profiles across the UK",
+    ],
+    locked: [
+      "Contact details & messaging",
+      "Advanced search filters",
+      "Full profile information",
+    ],
+  },
+  {
+    id: 2,
+    label: "Complete Profile",
+    route: "/onboarding/profile",
+    subtitle: "Unlock smarter matching",
+    description:
+      "Add personal details, education, career, family background, lifestyle preferences, and partner expectations. Our compatibility engine uses this to surface better matches for you.",
+    unlocks: [
+      "AI compatibility scores",
+      "View detailed profiles",
+      "Send interests & save favourites",
+      "Limited advanced search",
+    ],
+    locked: [
+      "Contact details & direct chat",
+      "Voice & video calls",
+      "Verification badge visibility",
+    ],
+  },
+  {
+    id: 3,
+    label: "Verify Identity",
+    route: "/onboarding/verify",
+    subtitle: "Build trust, unlock everything",
+    description:
+      "Confirm your mobile number and email, upload a government ID, and complete a quick selfie check. Verified members get full platform access and higher visibility in search.",
+    unlocks: [
+      "View contact details",
+      "Direct messaging & calls",
+      "Full advanced search filters",
+      "Verification badge & profile boost",
+    ],
+    locked: [] as string[],
+  },
 ] as const;
 
 export const MOCK_OTP_CODE = "123456";

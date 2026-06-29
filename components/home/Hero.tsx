@@ -63,8 +63,8 @@ export default function Hero() {
           <div className="lg:col-span-3">
             <SplitHeadline
               as="h1"
-              primary="Find Your Special Someone"
-              muted="among Brit Asian singles"
+              primary="Find Your Perfect Match"
+              muted="in the UK's Indian Community"
             />
 
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">

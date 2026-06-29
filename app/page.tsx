@@ -2,7 +2,7 @@ import Communities from "@/components/home/Communities";
 import CTA from "@/components/home/CTA";
 import FeaturedProfiles from "@/components/home/FeaturedProfiles";
 import Hero from "@/components/home/Hero";
-import HowItWorks from "@/components/home/HowItWorks";
+import OnboardingPhases from "@/components/home/OnboardingPhases";
 import MatchStats from "@/components/home/MatchStats";
 import QuickStart from "@/components/home/QuickStart";
 import Testimonials from "@/components/home/Testimonials";
@@ -15,7 +15,7 @@ export default function HomePage() {
     <PublicLayout>
       <Hero />
       <QuickStart />
-      <HowItWorks />
+      <OnboardingPhases />
       <FeaturedProfiles />
       <MatchStats />
       <Communities />
