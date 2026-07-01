@@ -142,7 +142,7 @@ export default function RegisterPage() {
         </header>
 
         <div className="flex flex-1 items-start justify-center p-4 py-8 lg:p-8">
-          <Card className="w-full max-w-lg" padding="lg">
+          <Card className="animate-scale-in w-full max-w-lg" padding="lg" style={{ animationDelay: "0.15s" }}>
             <p className="section-label">Quick Registration</p>
             <h1 className="mt-1 font-display text-2xl font-bold">Create your account</h1>
             <p className="mt-2 text-sm text-muted">

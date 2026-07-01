@@ -69,7 +69,7 @@ export default function Header() {
       </header>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col glass-strong md:hidden">
+        <div className="fixed inset-0 z-50 flex flex-col glass-strong mobile-menu-enter md:hidden">
           <div className="container-site flex h-16 items-center justify-between">
             <Link
               href="/"

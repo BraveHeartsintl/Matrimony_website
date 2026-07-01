@@ -3,13 +3,28 @@
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 
+type FadeDirection = "up" | "left" | "right" | "scale";
+
 interface FadeInProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
+  direction?: FadeDirection;
 }
 
-export default function FadeIn({ children, className, delay = 0 }: FadeInProps) {
+const hiddenClasses: Record<FadeDirection, string> = {
+  up: "fade-in-hidden-up",
+  left: "fade-in-hidden-left",
+  right: "fade-in-hidden-right",
+  scale: "fade-in-hidden-scale",
+};
+
+export default function FadeIn({
+  children,
+  className,
+  delay = 0,
+  direction = "up",
+}: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
@@ -24,7 +39,7 @@ export default function FadeIn({ children, className, delay = 0 }: FadeInProps) 
           observer.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
     );
 
     observer.observe(el);
@@ -35,8 +50,8 @@ export default function FadeIn({ children, className, delay = 0 }: FadeInProps) 
     <div
       ref={ref}
       className={cn(
-        "transition-all duration-600 ease-out",
-        visible ? "fade-in-visible opacity-100 translate-y-0" : "fade-in-hidden opacity-0 translate-y-4",
+        "transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        visible ? "fade-in-visible" : cn("fade-in-hidden", hiddenClasses[direction]),
         className
       )}
       style={{ transitionDelay: `${delay}ms` }}

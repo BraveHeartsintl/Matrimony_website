@@ -45,7 +45,7 @@ export default function LoginPage() {
           <span className="font-display text-2xl font-bold text-white">{SITE_NAME}</span>
         </Link>
         <div>
-          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[10px] bg-white/10 backdrop-blur-sm">
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-[10px] glass-dark">
             <Shield className="h-7 w-7 text-gold" />
           </div>
           <h1 className="font-display text-4xl font-bold leading-tight text-white">
@@ -70,7 +70,7 @@ export default function LoginPage() {
         </div>
 
         <div className="flex flex-1 items-center justify-center px-4 py-12">
-          <Card className="w-full max-w-md">
+          <Card className="animate-scale-in w-full max-w-md" style={{ animationDelay: "0.15s" }}>
             <h2 className="text-center font-display text-2xl font-bold text-foreground">
               Sign In
             </h2>

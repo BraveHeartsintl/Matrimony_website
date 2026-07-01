@@ -28,10 +28,10 @@ export default function Modal({ open, onClose, title, children, className }: Mod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 glass-overlay" onClick={onClose} />
+      <div className="absolute inset-0 glass-overlay modal-overlay-enter" onClick={onClose} />
       <div
         className={cn(
-          "relative z-10 w-full max-w-md rounded-[12px] glass-strong p-6",
+          "relative z-10 w-full max-w-md rounded-[14px] glass-floating p-6 modal-enter",
           className
         )}
       >

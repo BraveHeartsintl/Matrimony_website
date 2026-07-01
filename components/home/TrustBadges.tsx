@@ -1,5 +1,6 @@
 import Card from "@/components/ui/Card";
 import Container from "@/components/ui/Container";
+import FadeIn from "@/components/ui/FadeIn";
 import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
@@ -32,18 +33,22 @@ export default function TrustBadges() {
   return (
     <Section variant="surface">
       <Container>
-        <SectionLabel>Why UK Matrimony</SectionLabel>
-        <SplitHeadline primary="Built on Trust" muted="Privacy & Safety" />
+        <FadeIn>
+          <SectionLabel>Why UK Matrimony</SectionLabel>
+          <SplitHeadline primary="Built on Trust" muted="Privacy & Safety" />
+        </FadeIn>
 
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {badges.map((badge) => (
-            <Card key={badge.title} hover>
-              <div className="flex h-12 w-12 items-center justify-center rounded-[6px] glass-subtle">
-                <badge.icon className="h-6 w-6 text-foreground" />
-              </div>
-              <h3 className="mt-4 font-semibold text-foreground">{badge.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{badge.desc}</p>
-            </Card>
+          {badges.map((badge, i) => (
+            <FadeIn key={badge.title} delay={i * 100} direction="up">
+              <Card hover className="h-full">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[8px] glass-accent">
+                  <badge.icon className="h-6 w-6 text-accent" />
+                </div>
+                <h3 className="mt-4 font-semibold text-foreground">{badge.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{badge.desc}</p>
+              </Card>
+            </FadeIn>
           ))}
         </div>
       </Container>
