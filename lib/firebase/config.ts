@@ -14,6 +14,13 @@ const firebaseConfig = {
 };
 
 function assertFirebaseConfig(): void {
+  const missing = getMissingFirebaseEnvKeys();
+  if (missing.length > 0) {
+    throw new Error(`Missing Firebase environment variables: ${missing.join(", ")}`);
+  }
+}
+
+export function getMissingFirebaseEnvKeys(): string[] {
   const checks: [string, string | undefined][] = [
     ["NEXT_PUBLIC_FIREBASE_API_KEY", firebaseConfig.apiKey],
     ["NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN", firebaseConfig.authDomain],
@@ -23,10 +30,11 @@ function assertFirebaseConfig(): void {
     ["NEXT_PUBLIC_FIREBASE_APP_ID", firebaseConfig.appId],
   ];
 
-  const missing = checks.filter(([, value]) => !value).map(([key]) => key);
-  if (missing.length > 0) {
-    throw new Error(`Missing Firebase environment variables: ${missing.join(", ")}`);
-  }
+  return checks.filter(([, value]) => !value).map(([key]) => key);
+}
+
+export function isFirebaseConfigured(): boolean {
+  return getMissingFirebaseEnvKeys().length === 0;
 }
 
 let app: FirebaseApp | undefined;

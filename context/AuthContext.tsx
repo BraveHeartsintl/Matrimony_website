@@ -18,6 +18,7 @@ import {
   touchLastActive,
   updateProfile as updateProfileInFirestore,
 } from "@/lib/firebase/services/profile.service";
+import { isFirebaseConfigured } from "@/lib/firebase/config";
 import type { AuthSession, MatrimonyDetails, Profile, VerificationData } from "@/lib/types";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
@@ -59,6 +60,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [session]);
 
   useEffect(() => {
+    if (!isFirebaseConfigured()) {
+      setSession(null);
+      setIsLoading(false);
+      return;
+    }
+
     const unsubscribe = subscribeAuthState(async (firebaseUser) => {
       if (!firebaseUser) {
         setSession(null);
@@ -106,12 +113,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
+    if (!isFirebaseConfigured()) {
+      return {
+        success: false,
+        error: "Firebase is not configured on this deployment. Add environment variables in Vercel.",
+      };
+    }
     const result = await signInWithEmail(email, password);
     return result;
   }, []);
 
   const register = useCallback(
     async (data: { name: string; email: string; password: string; profile: Partial<Profile> }) => {
+      if (!isFirebaseConfigured()) {
+        return {
+          success: false,
+          error: "Firebase is not configured on this deployment. Add environment variables in Vercel.",
+        };
+      }
       return registerWithEmail(data.name, data.email, data.password, data.profile);
     },
     []
