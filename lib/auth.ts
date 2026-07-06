@@ -1,26 +1,10 @@
 import type {
-  AuthSession,
   MatrimonyDetails,
   OnboardingStatus,
   Profile,
-  User,
   VerificationData,
 } from "./types";
 import { calculateAgeFromYearOfBirth } from "./utils";
-
-const SESSION_KEY = "uk_matrimony_session";
-const USERS_KEY = "uk_matrimony_users";
-const PENDING_VERIFICATIONS_KEY = "uk_matrimony_pending_verifications";
-
-const DEMO_SEED: User[] = [
-  {
-    id: "user-demo",
-    email: "demo@example.com",
-    password: "password123",
-    name: "Alex Thompson",
-    createdAt: "2025-01-15T10:00:00Z",
-  },
-];
 
 export function createDefaultVerification(): VerificationData {
   return {
@@ -46,73 +30,6 @@ export function createDefaultMatrimony(): Partial<MatrimonyDetails> {
     hobbies: [],
     fitnessInterests: [],
   };
-}
-
-function ensureSeedUsers(): void {
-  if (typeof window === "undefined") return;
-  const raw = localStorage.getItem(USERS_KEY);
-  if (!raw) {
-    localStorage.setItem(USERS_KEY, JSON.stringify(DEMO_SEED));
-  }
-}
-
-export function getStoredUsers(): User[] {
-  if (typeof window === "undefined") return [];
-  ensureSeedUsers();
-  const raw = localStorage.getItem(USERS_KEY);
-  return raw ? (JSON.parse(raw) as User[]) : [];
-}
-
-export function saveStoredUsers(users: User[]): void {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-let sessionSnapshot: AuthSession | null = null;
-let sessionSnapshotRaw: string | null | undefined;
-
-export function getSession(): AuthSession | null {
-  if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(SESSION_KEY);
-  return raw ? (JSON.parse(raw) as AuthSession) : null;
-}
-
-/** Stable snapshot for useSyncExternalStore — returns same reference until session changes. */
-export function getSessionSnapshot(): AuthSession | null {
-  if (typeof window === "undefined") return null;
-  ensureSeedUsers();
-
-  const raw = localStorage.getItem(SESSION_KEY);
-  if (sessionSnapshotRaw !== undefined && sessionSnapshotRaw === raw) {
-    return sessionSnapshot;
-  }
-
-  sessionSnapshotRaw = raw;
-  sessionSnapshot = raw
-    ? (() => {
-        const session = JSON.parse(raw) as AuthSession;
-        return { ...session, profile: normalizeProfile(session.profile) };
-      })()
-    : null;
-  return sessionSnapshot;
-}
-
-export function setSession(session: AuthSession): void {
-  const normalized: AuthSession = {
-    ...session,
-    profile: normalizeProfile(session.profile),
-  };
-  const serialized = JSON.stringify(normalized);
-  localStorage.setItem(SESSION_KEY, serialized);
-  sessionSnapshotRaw = serialized;
-  sessionSnapshot = normalized;
-  notifyAuthChange();
-}
-
-export function clearSession(): void {
-  localStorage.removeItem(SESSION_KEY);
-  sessionSnapshotRaw = null;
-  sessionSnapshot = null;
-  notifyAuthChange();
 }
 
 export function createDefaultProfile(userId: string): Profile {
@@ -291,40 +208,4 @@ export interface PendingVerificationSubmission {
   email: string;
   submittedAt: string;
   idDocumentType?: string;
-}
-
-export function getPendingVerifications(): PendingVerificationSubmission[] {
-  if (typeof window === "undefined") return [];
-  const raw = localStorage.getItem(PENDING_VERIFICATIONS_KEY);
-  return raw ? (JSON.parse(raw) as PendingVerificationSubmission[]) : [];
-}
-
-export function addPendingVerification(submission: PendingVerificationSubmission): void {
-  const existing = getPendingVerifications().filter((s) => s.userId !== submission.userId);
-  localStorage.setItem(
-    PENDING_VERIFICATIONS_KEY,
-    JSON.stringify([...existing, submission])
-  );
-}
-
-export function removePendingVerification(userId: string): void {
-  const next = getPendingVerifications().filter((s) => s.userId !== userId);
-  localStorage.setItem(PENDING_VERIFICATIONS_KEY, JSON.stringify(next));
-}
-
-export function stripPassword(user: User): Omit<User, "password"> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password, ...rest } = user;
-  return rest;
-}
-
-const authListeners = new Set<() => void>();
-
-export function subscribeAuth(listener: () => void): () => void {
-  authListeners.add(listener);
-  return () => authListeners.delete(listener);
-}
-
-export function notifyAuthChange(): void {
-  authListeners.forEach((listener) => listener());
 }

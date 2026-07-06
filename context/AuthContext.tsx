@@ -1,25 +1,25 @@
 "use client";
 
 import {
-  addPendingVerification,
   approveVerification,
-  clearSession,
   completeProfileOnboarding,
-  createDefaultProfile,
-  getSession,
-  getSessionSnapshot,
-  getStoredUsers,
-  normalizeProfile,
   rejectVerification,
-  saveStoredUsers,
-  setSession,
-  stripPassword,
   submitVerification,
-  subscribeAuth,
 } from "@/lib/auth";
-import { DEMO_USER } from "@/lib/mock/users";
+import {
+  registerWithEmail,
+  signInWithEmail,
+  signOutUser,
+  subscribeAuthState,
+} from "@/lib/firebase/services/auth.service";
+import {
+  createVerificationRequest,
+  ensureUserAndProfile,
+  touchLastActive,
+  updateProfile as updateProfileInFirestore,
+} from "@/lib/firebase/services/profile.service";
 import type { AuthSession, MatrimonyDetails, Profile, VerificationData } from "@/lib/types";
-import { createContext, useCallback, useContext, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
 interface AuthContextType {
   session: AuthSession | null;
@@ -34,8 +34,8 @@ interface AuthContextType {
   logout: () => void;
   updateProfile: (updates: Partial<Profile>) => void;
   updateMatrimony: (updates: Partial<MatrimonyDetails>) => void;
-  updateVerification: (updates: Partial<VerificationData>) => void;
-  completeOnboardingProfile: (updates: Partial<Profile>) => void;
+  updateVerification: (updates: Partial<VerificationData>) => Promise<void>;
+  completeOnboardingProfile: (updates: Partial<Profile>) => Promise<void>;
   submitVerificationRequest: () => void;
   simulateVerificationApproval: () => void;
   simulateVerificationRejection: (reason: string) => void;
@@ -43,179 +43,182 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-function subscribeNoop(): () => void {
-  return () => {};
+async function buildSession(uid: string, email: string, displayName?: string | null): Promise<AuthSession> {
+  const { user, profile } = await ensureUserAndProfile(uid, email, displayName ?? undefined);
+  void touchLastActive(uid);
+  return { user, profile };
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const session = useSyncExternalStore(subscribeAuth, getSessionSnapshot, () => null);
-  const isLoading = useSyncExternalStore(
-    subscribeNoop,
-    () => false,
-    () => true
-  );
+  const [session, setSession] = useState<AuthSession | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const sessionRef = useRef<AuthSession | null>(null);
+
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeAuthState(async (firebaseUser) => {
+      if (!firebaseUser) {
+        setSession(null);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const nextSession = await buildSession(
+          firebaseUser.uid,
+          firebaseUser.email ?? "",
+          firebaseUser.displayName
+        );
+        setSession(nextSession);
+      } catch {
+        setSession(null);
+        await signOutUser();
+      } finally {
+        setIsLoading(false);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const persistProfile = useCallback(async (profileOverride?: Profile) => {
+    const current = sessionRef.current;
+    if (!current) return;
+    const profileToSave = profileOverride ?? sessionRef.current?.profile ?? current.profile;
+    const saved = await updateProfileInFirestore(current.user.id, current.user, profileToSave);
+    const latest = sessionRef.current;
+    if (latest) {
+      const merged: Profile = {
+        ...latest.profile,
+        ...saved,
+        verification: { ...latest.profile.verification, ...saved.verification },
+        matrimony: { ...latest.profile.matrimony, ...saved.matrimony },
+        preferences: { ...latest.profile.preferences, ...saved.preferences },
+        privacySettings: { ...latest.profile.privacySettings, ...saved.privacySettings },
+      };
+      const nextSession = { ...latest, profile: merged };
+      setSession(nextSession);
+      sessionRef.current = nextSession;
+    }
+  }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const users = getStoredUsers();
-    const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-
-    if (!user || user.password !== password) {
-      return { success: false, error: "Invalid email or password" };
-    }
-
-    let profile = createDefaultProfile(user.id);
-    if (user.id === DEMO_USER.id) {
-      profile = normalizeProfile({
-        ...profile,
-        age: 30,
-        yearOfBirth: 1996,
-        birthMonth: 6,
-        heightCm: 178,
-        weightKg: 75,
-        bodyType: "athletic",
-        gender: "male",
-        lookingFor: "bride",
-        location: "London",
-        country: "England",
-        religion: "Christian",
-        education: "Bachelor's Degree",
-        occupation: "IT Consultant",
-        maritalStatus: "never_married",
-        bio: "Looking for a genuine connection with someone who shares similar values and interests.",
-        photos: ["https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop"],
-        onboardingStatus: "verified",
-        verified: true,
-        verification: {
-          phone: "+44 7700 900123",
-          phoneVerified: true,
-          emailVerified: true,
-          idDocumentType: "passport",
-          submittedAt: "2025-01-20T10:00:00Z",
-        },
-        preferences: {
-          ageMin: 25,
-          ageMax: 35,
-          religions: ["Christian", "Hindu"],
-          locations: ["London", "Manchester"],
-        },
-        matrimony: {
-          aboutMe: "IT professional based in London.",
-          partnerExpectations: "Someone kind and family-oriented.",
-          familyBackground: "Close-knit family.",
-          fatherOccupation: "Retired",
-          motherOccupation: "Teacher",
-          siblings: "1 sister",
-          diet: "Non-Vegetarian",
-          smoking: "No",
-          drinking: "Socially",
-          hobbies: ["Travel", "Reading"],
-          community: "Christian",
-          willingToRelocate: true,
-          languages: ["English"],
-        },
-      });
-    }
-
-    const newSession: AuthSession = { user: stripPassword(user), profile };
-    setSession(newSession);
-    return { success: true };
+    const result = await signInWithEmail(email, password);
+    return result;
   }, []);
 
   const register = useCallback(
     async (data: { name: string; email: string; password: string; profile: Partial<Profile> }) => {
-      const users = getStoredUsers();
-      if (users.some((u) => u.email.toLowerCase() === data.email.toLowerCase())) {
-        return { success: false, error: "An account with this email already exists" };
-      }
-
-      const newUser = {
-        id: `user-${Date.now()}`,
-        email: data.email,
-        password: data.password,
-        name: data.name,
-        createdAt: new Date().toISOString(),
-      };
-
-      const profile: Profile = normalizeProfile({
-        ...createDefaultProfile(newUser.id),
-        ...data.profile,
-        onboardingStatus: "basic_registered",
-        verified: false,
-      });
-
-      saveStoredUsers([...users, newUser]);
-      const newSession: AuthSession = { user: stripPassword(newUser), profile };
-      setSession(newSession);
-      return { success: true };
+      return registerWithEmail(data.name, data.email, data.password, data.profile);
     },
     []
   );
 
   const logout = useCallback(() => {
-    clearSession();
+    void signOutUser();
   }, []);
 
-  const updateProfile = useCallback((updates: Partial<Profile>) => {
-    const current = getSession();
-    if (!current) return;
-    const updated: Profile = normalizeProfile({
-      ...current.profile,
-      ...updates,
-      privacySettings: { ...current.profile.privacySettings, ...updates.privacySettings },
-      preferences: { ...current.profile.preferences, ...updates.preferences },
-      matrimony: { ...current.profile.matrimony, ...updates.matrimony },
-      verification: { ...current.profile.verification, ...updates.verification },
-    });
-    const newSession: AuthSession = { ...current, profile: updated };
-    setSession(newSession);
-  }, []);
+  const updateProfile = useCallback(
+    (updates: Partial<Profile>) => {
+      const current = sessionRef.current;
+      if (!current) return;
 
-  const updateMatrimony = useCallback((updates: Partial<MatrimonyDetails>) => {
-    const current = getSession();
-    if (!current) return;
-    updateProfile({ matrimony: { ...current.profile.matrimony, ...updates } });
-  }, [updateProfile]);
+      const updatedProfile: Profile = {
+        ...current.profile,
+        ...updates,
+        privacySettings: { ...current.profile.privacySettings, ...updates.privacySettings },
+        preferences: { ...current.profile.preferences, ...updates.preferences },
+        matrimony: { ...current.profile.matrimony, ...updates.matrimony },
+        verification: { ...current.profile.verification, ...updates.verification },
+      };
 
-  const updateVerification = useCallback((updates: Partial<VerificationData>) => {
-    const current = getSession();
-    if (!current) return;
-    updateProfile({ verification: { ...current.profile.verification, ...updates } });
-  }, [updateProfile]);
+      const nextSession = { ...current, profile: updatedProfile };
+      setSession(nextSession);
+      sessionRef.current = nextSession;
 
-  const completeOnboardingProfile = useCallback((updates: Partial<Profile>) => {
-    const current = getSession();
-    if (!current) return;
-    const updated = completeProfileOnboarding(current.profile, updates);
-    setSession({ ...current, profile: updated });
-  }, []);
+      void persistProfile(updatedProfile);
+    },
+    [persistProfile]
+  );
+
+  const updateMatrimony = useCallback(
+    (updates: Partial<MatrimonyDetails>) => {
+      const current = sessionRef.current;
+      if (!current) return;
+      updateProfile({ matrimony: { ...current.profile.matrimony, ...updates } });
+    },
+    [updateProfile]
+  );
+
+  const updateVerification = useCallback(
+    async (updates: Partial<VerificationData>) => {
+      const current = sessionRef.current;
+      if (!current) return;
+
+      const updatedProfile: Profile = {
+        ...current.profile,
+        verification: { ...current.profile.verification, ...updates },
+      };
+
+      const nextSession = { ...current, profile: updatedProfile };
+      setSession(nextSession);
+      sessionRef.current = nextSession;
+
+      await persistProfile(updatedProfile);
+    },
+    [persistProfile]
+  );
+
+  const completeOnboardingProfile = useCallback(
+    async (updates: Partial<Profile>) => {
+      const current = sessionRef.current;
+      if (!current) return;
+
+      const updated = completeProfileOnboarding(current.profile, updates);
+      setSession({ ...current, profile: updated });
+
+      const saved = await updateProfileInFirestore(current.user.id, current.user, updated);
+      setSession({ ...current, profile: saved });
+    },
+    []
+  );
 
   const submitVerificationRequest = useCallback(() => {
-    const current = getSession();
+    const current = sessionRef.current;
     if (!current) return;
+
     const updated = submitVerification(current.profile);
-    addPendingVerification({
-      userId: current.user.id,
-      name: current.user.name,
-      email: current.user.email,
-      submittedAt: updated.verification.submittedAt ?? new Date().toISOString(),
-      idDocumentType: updated.verification.idDocumentType,
-    });
-    setSession({ ...current, profile: updated });
-  }, []);
+    void (async () => {
+      await persistProfile(updated);
+      await createVerificationRequest({
+        userId: current.user.id,
+        name: current.user.name,
+        email: current.user.email,
+        submittedAt: updated.verification.submittedAt ?? new Date().toISOString(),
+        idDocumentType: updated.verification.idDocumentType,
+      });
+    })();
+  }, [persistProfile]);
 
   const simulateVerificationApproval = useCallback(() => {
-    const current = getSession();
+    const current = sessionRef.current;
     if (!current) return;
     const updated = approveVerification(current.profile);
-    setSession({ ...current, profile: updated });
-  }, []);
+    void persistProfile(updated);
+  }, [persistProfile]);
 
-  const simulateVerificationRejection = useCallback((reason: string) => {
-    const current = getSession();
-    if (!current) return;
-    const updated = rejectVerification(current.profile, reason);
-    setSession({ ...current, profile: updated });
-  }, []);
+  const simulateVerificationRejection = useCallback(
+    (reason: string) => {
+      const current = sessionRef.current;
+      if (!current) return;
+      const updated = rejectVerification(current.profile, reason);
+      void persistProfile(updated);
+    },
+    [persistProfile]
+  );
 
   return (
     <AuthContext.Provider

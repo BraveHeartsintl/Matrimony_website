@@ -25,9 +25,9 @@ export interface VerificationData {
 export interface User {
   id: string;
   email: string;
-  password: string;
   name: string;
   createdAt: string;
+  role?: "member" | "admin";
 }
 
 export interface PrivacySettings {
@@ -148,6 +148,8 @@ export interface Interest {
   id: string;
   fromUserId: string;
   toUserId: string;
+  fromUserName?: string;
+  fromUserPhoto?: string;
   toUserName: string;
   toUserPhoto: string;
   status: "pending" | "accepted" | "declined";
@@ -155,6 +157,6 @@ export interface Interest {
 }
 
 export interface AuthSession {
-  user: Omit<User, "password">;
+  user: User;
   profile: Profile;
 }

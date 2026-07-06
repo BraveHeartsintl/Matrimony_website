@@ -1,21 +1,14 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import StatBlock from "@/components/ui/StatBlock";
 import TextCTA from "@/components/ui/TextCTA";
-import { SITE_STATS, SITE_TAGLINE } from "@/lib/constants";
-import { Shield, ShieldCheck, Lock, Award } from "lucide-react";
-import Image from "next/image";
+import { usePlatformContent } from "@/hooks/usePlatformContent";
+import { SITE_TAGLINE } from "@/lib/constants";
+import { Award, Lock, Shield, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-
-const HERO_IMAGE =
-  "https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&h=1080&fit=crop";
-
-const heroStats = [
-  { value: SITE_STATS.members, label: "Members", description: "Brit Asian singles in the UK" },
-  { value: SITE_STATS.matches, label: "Matches", description: "Successful connections made" },
-  { value: SITE_STATS.verified, label: "Verified", description: "Profile authenticity rate" },
-];
 
 const trustBadges = [
   { icon: ShieldCheck, label: "GDPR" },
@@ -32,20 +25,18 @@ const partnerLogos = [
 ];
 
 export default function Hero() {
+  const { stats } = usePlatformContent();
+
+  const heroStats = [
+    { value: stats.members, label: "Members", description: "Brit Asian singles in the UK" },
+    { value: stats.matches, label: "Matches", description: "Successful connections made" },
+    { value: stats.verified, label: "Verified", description: "Profile authenticity rate" },
+  ];
+
   return (
     <section className="hero-section relative min-h-screen overflow-hidden accent-glow">
-      <div className="absolute inset-0">
-        <Image
-          src={HERO_IMAGE}
-          alt=""
-          fill
-          className="object-cover"
-          priority
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#3d1228]/88 via-[#5c1a38]/78 to-[#3d1228]/94" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#3d1228]/40 via-transparent to-[#c9956c]/10" />
-      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-deepest via-navy-royal to-deepest" />
+      <div className="absolute inset-0 bg-gradient-to-r from-deepest/60 via-transparent to-gold/10" />
 
       <div className="hero-orb hero-orb-1" aria-hidden="true" />
       <div className="hero-orb hero-orb-2" aria-hidden="true" />
@@ -77,10 +68,9 @@ export default function Hero() {
               muted="in the UK's Indian Community"
             />
 
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
-              {SITE_TAGLINE}. Join {SITE_STATS.members} verified members from London to
-              Leicester, Manchester to Birmingham — and start your journey to a lifelong
-              partnership today.
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/85">
+              {SITE_TAGLINE}. Join {stats.members} verified members from London to Leicester,
+              Manchester to Birmingham — and start your journey to a lifelong partnership today.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center gap-6">
@@ -90,7 +80,7 @@ export default function Hero() {
               <TextCTA href="#featured-profiles">Browse Profiles</TextCTA>
             </div>
 
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-white/60">
               Free registration · No credit card required · Cancel anytime
             </p>
           </div>

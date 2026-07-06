@@ -38,7 +38,7 @@ export default function SuggestedMatchCard({ profile, matchResult }: SuggestedMa
         {matchResult && <MatchScoreDisplay result={matchResult} className="mt-3 text-left" />}
       </div>
 
-      <Link href={`/search/${profile.id}`} className="mt-4">
+      <Link href={`/search/profile?id=${profile.id}`} className="mt-4">
         <Button size="sm" variant="outline" className="w-full">
           <Heart className="h-3.5 w-3.5" />
           View Profile

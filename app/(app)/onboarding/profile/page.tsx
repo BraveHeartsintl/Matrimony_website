@@ -134,63 +134,69 @@ export default function OnboardingProfilePage() {
     else handleSubmit();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setLoading(true);
+    setError("");
     const hobbies = form.hobbies
       .split(",")
       .map((h) => h.trim())
       .filter(Boolean);
 
-    completeOnboardingProfile({
-      birthDay: Number(form.birthDay),
-      heightCm: Number(form.heightCm),
-      maritalStatus: form.maritalStatus,
-      motherTongue: form.motherTongue,
-      religion: form.religion,
-      caste: form.caste || undefined,
-      country: form.country,
-      state: form.state,
-      city: form.city,
-      location: form.city || profile?.location,
-      education: form.education,
-      college: form.college,
-      occupation: form.occupation,
-      company: form.company,
-      annualIncome: form.annualIncome,
-      bio: form.bio || `Looking for a meaningful connection.`,
-      preferences: {
-        ageMin: Number(form.ageMin),
-        ageMax: Number(form.ageMax),
-        religions: form.prefReligions,
-        locations: form.prefLocations.length > 0 ? form.prefLocations : [form.city],
-        heightMinCm: Number(form.prefHeightMin),
-        heightMaxCm: Number(form.prefHeightMax),
-        education: form.prefEducation ? [form.prefEducation] : [],
-        professions: form.prefProfession ? [form.prefProfession] : [],
-        lifestyle: form.prefLifestyle ? [form.prefLifestyle] : [],
-      },
-      matrimony: {
-        fatherOccupation: form.fatherOccupation,
-        motherOccupation: form.motherOccupation,
-        familyType: form.familyType,
-        familyValues: form.familyValues,
-        familyBackground: form.familyBackground || "Family-oriented background.",
-        diet: form.diet,
-        smoking: form.smoking,
-        drinking: form.drinking,
-        fitnessInterests: form.fitnessInterests,
-        hobbies,
-        aboutMe: form.bio || "Looking for a meaningful connection.",
-        partnerExpectations: "Seeking a compatible life partner.",
-        community: form.religion,
-        willingToRelocate: form.prefLocations.length > 1,
-        languages: [form.motherTongue, "English"].filter(
-          (v, i, a) => a.indexOf(v) === i
-        ),
-      },
-    });
-    setLoading(false);
-    router.push("/dashboard");
+    try {
+      await completeOnboardingProfile({
+        birthDay: Number(form.birthDay),
+        heightCm: Number(form.heightCm),
+        maritalStatus: form.maritalStatus,
+        motherTongue: form.motherTongue,
+        religion: form.religion,
+        caste: form.caste || undefined,
+        country: form.country,
+        state: form.state,
+        city: form.city,
+        location: form.city || profile?.location,
+        education: form.education,
+        college: form.college,
+        occupation: form.occupation,
+        company: form.company,
+        annualIncome: form.annualIncome,
+        bio: form.bio || `Looking for a meaningful connection.`,
+        preferences: {
+          ageMin: Number(form.ageMin),
+          ageMax: Number(form.ageMax),
+          religions: form.prefReligions,
+          locations: form.prefLocations.length > 0 ? form.prefLocations : [form.city],
+          heightMinCm: Number(form.prefHeightMin),
+          heightMaxCm: Number(form.prefHeightMax),
+          education: form.prefEducation ? [form.prefEducation] : [],
+          professions: form.prefProfession ? [form.prefProfession] : [],
+          lifestyle: form.prefLifestyle ? [form.prefLifestyle] : [],
+        },
+        matrimony: {
+          fatherOccupation: form.fatherOccupation,
+          motherOccupation: form.motherOccupation,
+          familyType: form.familyType,
+          familyValues: form.familyValues,
+          familyBackground: form.familyBackground || "Family-oriented background.",
+          diet: form.diet,
+          smoking: form.smoking,
+          drinking: form.drinking,
+          fitnessInterests: form.fitnessInterests,
+          hobbies,
+          aboutMe: form.bio || "Looking for a meaningful connection.",
+          partnerExpectations: "Seeking a compatible life partner.",
+          community: form.religion,
+          willingToRelocate: form.prefLocations.length > 1,
+          languages: [form.motherTongue, "English"].filter(
+            (v, i, a) => a.indexOf(v) === i
+          ),
+        },
+      });
+      router.push("/onboarding/verify");
+    } catch {
+      setError("Failed to save your profile. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!session) return null;

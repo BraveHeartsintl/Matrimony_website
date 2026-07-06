@@ -18,7 +18,7 @@ export default function OnboardingStepIndicator({
 }: OnboardingStepIndicatorProps) {
   return (
     <>
-      <div className="hidden w-80 flex-col justify-between bg-gradient-to-br from-deepest via-[#5c1a38] to-deepest p-8 text-white lg:flex">
+      <div className="hidden w-80 flex-col justify-between bg-gradient-to-br from-deepest via-navy-royal to-deepest p-8 text-white lg:flex">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold/80">
             {title}
@@ -31,7 +31,7 @@ export default function OnboardingStepIndicator({
                   className={cn(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold",
                     i < currentStep
-                      ? "border-gold bg-gold text-deepest"
+                      ? "border-accent bg-accent text-accent-foreground"
                       : i === currentStep
                         ? "border-gold bg-transparent text-gold"
                         : "border-white/30 text-white/50"

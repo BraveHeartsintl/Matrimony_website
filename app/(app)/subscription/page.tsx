@@ -3,19 +3,58 @@
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Modal from "@/components/ui/Modal";
-import { SUBSCRIPTION_PLANS } from "@/lib/mock/plans";
-import { Check } from "lucide-react";
-import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import {
+  SUBSCRIPTION_PLANS,
+  getUserSubscription,
+  updateUserSubscriptionPlan,
+} from "@/lib/firebase/services/subscription.service";
+import { Check, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function SubscriptionPage() {
+  const { session } = useAuth();
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
+  const [currentPlanId, setCurrentPlanId] = useState("free");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!session) return;
+    void (async () => {
+      setLoading(true);
+      const sub = await getUserSubscription(session.user.id);
+      setCurrentPlanId(sub?.planId ?? "free");
+      setLoading(false);
+    })();
+  }, [session]);
 
   const handleSubscribe = (planId: string) => {
     setSelectedPlan(planId);
     setModalOpen(true);
   };
+
+  const confirmPlan = async () => {
+    if (!session || !selectedPlan) return;
+    setSaving(true);
+    try {
+      await updateUserSubscriptionPlan(session.user.id, selectedPlan, billing);
+      setCurrentPlanId(selectedPlan);
+      setModalOpen(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -48,13 +87,12 @@ export default function SubscriptionPage() {
         {SUBSCRIPTION_PLANS.map((plan) => {
           const price = billing === "monthly" ? plan.priceMonthly : plan.priceYearly;
           const period = billing === "monthly" ? "/month" : "/year";
+          const isCurrent = currentPlanId === plan.id;
 
           return (
             <Card
               key={plan.id}
-              className={`relative flex flex-col ${
-                plan.popular ? "border-accent" : ""
-              }`}
+              className={`relative flex flex-col ${plan.popular ? "border-accent" : ""}`}
             >
               {plan.popular && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-accent px-3 py-0.5 text-xs font-medium text-foreground">
@@ -83,23 +121,23 @@ export default function SubscriptionPage() {
                 className="mt-6 w-full"
                 variant={plan.popular ? "primary" : "outline"}
                 onClick={() => handleSubscribe(plan.id)}
-                disabled={plan.id === "free"}
+                disabled={isCurrent || plan.id === "free"}
               >
-                {plan.id === "free" ? "Current Plan" : "Subscribe"}
+                {isCurrent ? "Current Plan" : plan.id === "free" ? "Free Tier" : "Subscribe"}
               </Button>
             </Card>
           );
         })}
       </div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Payment Coming Soon">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Confirm Plan Change">
         <p className="text-sm text-muted">
-          Stripe payment integration will be available in Phase 2. You selected the{" "}
-          <strong>{SUBSCRIPTION_PLANS.find((p) => p.id === selectedPlan)?.name}</strong> plan (
-          {billing} billing).
+          Update your Firestore subscription to{" "}
+          <strong>{SUBSCRIPTION_PLANS.find((p) => p.id === selectedPlan)?.name}</strong> (
+          {billing} billing). Payment processing will be added in a future release.
         </p>
-        <Button className="mt-4 w-full" onClick={() => setModalOpen(false)}>
-          Got it
+        <Button className="mt-4 w-full" onClick={() => void confirmPlan()} disabled={saving}>
+          {saving ? "Saving…" : "Confirm"}
         </Button>
       </Modal>
     </div>

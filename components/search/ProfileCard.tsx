@@ -4,8 +4,12 @@ import MatchScoreDisplay from "@/components/matchmaking/MatchScoreDisplay";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
+import { useFavorites } from "@/hooks/useFavorites";
+import { useInterests } from "@/hooks/useInterests";
+import { toggleFavoriteRemote } from "@/lib/firebase/services/favorite.service";
+import { sendInterest } from "@/lib/firebase/services/interest.service";
 import { canAccess } from "@/lib/onboarding/access";
-import { getFavorites, toggleFavorite } from "@/lib/onboarding/favorites";
+import { DEFAULT_PROFILE_PHOTO } from "@/lib/constants";
 import type { MatchScoreResult } from "@/lib/matchmaking/calculateMatchScore";
 import type { OnboardingStatus, SearchProfile } from "@/lib/types";
 import { formatBodyType, formatMaritalStatus } from "@/lib/utils";
@@ -26,33 +30,54 @@ export default function ProfileCard({
   onboardingStatus = "basic_registered",
 }: ProfileCardProps) {
   const { session } = useAuth();
-  const [interested, setInterested] = useState(false);
-  const [favorited, setFavorited] = useState(() =>
-    session ? getFavorites(session.user.id).includes(profile.id) : false
-  );
+  const { favoriteIds } = useFavorites(session?.user.id);
+  const { sentTo } = useInterests(session?.user.id);
+  const [busy, setBusy] = useState(false);
+
+  const favorited = favoriteIds.includes(profile.id);
+  const interested = sentTo(profile.id);
 
   const canSendInterest = canAccess(onboardingStatus, "send_interest");
   const canSaveFavorites = canAccess(onboardingStatus, "save_favorites");
   const showMatchScore = canAccess(onboardingStatus, "ai_compatibility_score") && matchResult;
 
-  const handleFavorite = () => {
-    if (!session || !canSaveFavorites) return;
-    const next = toggleFavorite(session.user.id, profile.id);
-    setFavorited(next.includes(profile.id));
+  const handleFavorite = async () => {
+    if (!session || !canSaveFavorites || busy) return;
+    setBusy(true);
+    try {
+      await toggleFavoriteRemote(session.user.id, profile.id, favoriteIds);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleInterest = async () => {
+    if (!session || !canSendInterest || interested || busy) return;
+    setBusy(true);
+    try {
+      await sendInterest(session.user.id, profile.id, {
+        toUserName: profile.name,
+        toUserPhoto: profile.photos[0],
+        fromUserName: session.user.name,
+        fromUserPhoto: session.profile.photos[0],
+      });
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
     <div className="glass glass-hover overflow-hidden rounded-[14px] shadow-sm transition-all hover:shadow-md">
-      <Link href={`/search/${profile.id}`} className="group block">
+      <Link href={`/search/profile?id=${profile.id}`} className="group block">
         <div className="relative h-48 overflow-hidden">
           <Image
-            src={profile.photos[0]}
+            src={profile.photos[0] || DEFAULT_PROFILE_PHOTO}
             alt={profile.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, 50vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#3d1228]/80 via-[#3d1228]/25 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-deepest/80 via-deepest/25 to-transparent" />
           {showMatchScore && <MatchScoreDisplay result={matchResult} overlay />}
           {profile.verified && (
             <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-xs font-semibold uppercase tracking-wider text-accent">
@@ -117,7 +142,8 @@ export default function ProfileCard({
             <Button
               size="sm"
               variant={favorited ? "secondary" : "outline"}
-              onClick={handleFavorite}
+              onClick={() => void handleFavorite()}
+              disabled={busy}
               className="shrink-0"
             >
               <Bookmark className={`h-4 w-4 ${favorited ? "fill-current" : ""}`} />
@@ -127,8 +153,8 @@ export default function ProfileCard({
             size="sm"
             variant={interested ? "secondary" : "primary"}
             className="flex-1"
-            disabled={!canSendInterest}
-            onClick={() => canSendInterest && setInterested(!interested)}
+            disabled={!canSendInterest || busy}
+            onClick={() => void handleInterest()}
           >
             <Heart className={`h-4 w-4 ${interested ? "fill-current" : ""}`} />
             {!canSendInterest

@@ -1,7 +1,8 @@
 "use client";
 
+import { DEFAULT_PROFILE_PHOTO } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -11,24 +12,33 @@ interface ProfileGalleryProps {
 }
 
 export default function ProfileGallery({ photos, name }: ProfileGalleryProps) {
+  const displayPhotos = photos.length > 0 ? photos : [DEFAULT_PROFILE_PHOTO];
   const [activeIndex, setActiveIndex] = useState(0);
-  const hasMultiple = photos.length > 1;
+  const hasMultiple = displayPhotos.length > 1;
+  const isPlaceholder = photos.length === 0;
 
   const goTo = (index: number) => {
-    setActiveIndex((index + photos.length) % photos.length);
+    setActiveIndex((index + displayPhotos.length) % displayPhotos.length);
   };
 
   return (
     <div className="space-y-4">
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[16px] border border-accent/10 bg-surface shadow-[0_12px_40px_rgba(61,18,40,0.1)] sm:aspect-[3/4]">
-        <Image
-          src={photos[activeIndex]}
-          alt={`${name} — photo ${activeIndex + 1}`}
-          fill
-          className="object-cover transition-opacity duration-300"
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          priority
-        />
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[16px] border border-accent/10 bg-surface shadow-[0_12px_40px_rgba(37,42,66,0.1)] sm:aspect-[3/4]">
+        {isPlaceholder ? (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-surface text-muted">
+            <User className="h-16 w-16 opacity-40" />
+            <span className="text-sm">No photo uploaded</span>
+          </div>
+        ) : (
+          <Image
+            src={displayPhotos[activeIndex]}
+            alt={`${name} — photo ${activeIndex + 1}`}
+            fill
+            className="object-cover transition-opacity duration-300"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority
+          />
+        )}
 
         {hasMultiple && (
           <>
@@ -49,14 +59,14 @@ export default function ProfileGallery({ photos, name }: ProfileGalleryProps) {
               <ChevronRight className="h-5 w-5" />
             </button>
             <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5">
-              {photos.map((_, index) => (
+              {displayPhotos.map((_, index) => (
                 <button
                   key={index}
                   type="button"
                   onClick={() => setActiveIndex(index)}
                   className={cn(
                     "h-2 rounded-full transition-all",
-                    index === activeIndex ? "w-6 bg-gold" : "w-2 bg-white/70"
+                    index === activeIndex ? "w-6 bg-accent" : "w-2 bg-white/70"
                   )}
                   aria-label={`View photo ${index + 1}`}
                 />
@@ -68,9 +78,9 @@ export default function ProfileGallery({ photos, name }: ProfileGalleryProps) {
 
       {hasMultiple && (
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
-          {photos.map((photo, index) => (
+          {displayPhotos.map((photo, index) => (
             <button
-              key={photo}
+              key={`${photo}-${index}`}
               type="button"
               onClick={() => setActiveIndex(index)}
               className={cn(

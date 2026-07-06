@@ -30,7 +30,7 @@ const ACCESS_MATRIX: Record<OnboardingFeature, OnboardingStatus[]> = {
   save_favorites: ["profile_completed", "verification_pending", "verified"],
   view_full_profile: ["profile_completed", "verification_pending", "verified"],
   view_contact_details: ["verified"],
-  direct_chat: ["verified"],
+  direct_chat: ["profile_completed", "verification_pending", "verified"],
   voice_video_call: ["verified"],
   verification_badge: ["verified"],
 };
@@ -40,9 +40,16 @@ export function canAccess(status: OnboardingStatus, feature: OnboardingFeature):
 }
 
 export function getOnboardingPhase(status: OnboardingStatus): 1 | 2 | 3 {
-  if (status === "basic_registered") return 1;
-  if (status === "profile_completed" || status === "rejected") return 2;
-  return 3;
+  if (status === "basic_registered") return 2;
+  if (
+    status === "profile_completed" ||
+    status === "rejected" ||
+    status === "verification_pending" ||
+    status === "verified"
+  ) {
+    return 3;
+  }
+  return 1;
 }
 
 export function getNextOnboardingRoute(status: OnboardingStatus): string | null {

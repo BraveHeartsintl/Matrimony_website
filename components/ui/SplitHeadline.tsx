@@ -15,7 +15,7 @@ export default function SplitHeadline({
 }: SplitHeadlineProps) {
   return (
     <Tag className={cn("font-display", className)}>
-      <span className="text-foreground">{primary}</span>{" "}
+      <span className="text-inherit">{primary}</span>{" "}
       <span className="headline-split-muted">{muted}</span>
     </Tag>
   );

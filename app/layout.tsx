@@ -51,8 +51,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="site-ambient min-h-full flex flex-col font-sans bg-background text-muted">
+      <body
+        className="site-ambient min-h-full flex flex-col font-sans bg-background text-muted"
+        suppressHydrationWarning
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

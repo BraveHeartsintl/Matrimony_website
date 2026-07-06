@@ -8,11 +8,27 @@ import ProgressBar from "@/components/ui/ProgressBar";
 import Select from "@/components/ui/Select";
 import { useAuth } from "@/context/AuthContext";
 import { ID_DOCUMENT_TYPES, MOCK_OTP_CODE } from "@/lib/constants";
+import {
+  clearPhoneRecaptcha,
+  isPhoneDemoMode,
+  isValidPhoneNumber,
+  normalizePhoneNumber,
+  sendPhoneOtp,
+  verifyPhoneOtp,
+} from "@/lib/firebase/services/phone.service";
+import {
+  isAuthEmailVerified,
+  sendAccountVerificationEmail,
+} from "@/lib/firebase/services/email.service";
+import { uploadVerificationDoc } from "@/lib/firebase/services/storage.service";
+import { getFirebaseAuth } from "@/lib/firebase/config";
 import type { IdDocumentType } from "@/lib/types";
 import { Check, Clock, ShieldCheck, Upload } from "lucide-react";
 import Image from "next/image";
+import { reload } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 const STEPS = [
   "Mobile OTP",
@@ -22,15 +38,6 @@ const STEPS = [
   "Optional Documents",
   "Review & Submit",
 ] as const;
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 
 export default function OnboardingVerifyPage() {
   const {
@@ -42,11 +49,19 @@ export default function OnboardingVerifyPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
+  const [phone, setPhone] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [verificationId, setVerificationId] = useState<string | null>(null);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [recaptchaKey, setRecaptchaKey] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
   const [aiChecking, setAiChecking] = useState(false);
   const [aiProgress, setAiProgress] = useState(0);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [selfiePreviewLocal, setSelfiePreviewLocal] = useState<string | null>(null);
+  const [idPreviewLocal, setIdPreviewLocal] = useState<string | null>(null);
 
   const idInputRef = useRef<HTMLInputElement>(null);
   const selfieInputRef = useRef<HTMLInputElement>(null);
@@ -61,6 +76,16 @@ export default function OnboardingVerifyPage() {
     if (status === "verified") router.replace("/dashboard");
     if (status === "basic_registered") router.replace("/onboarding/profile");
   }, [session, status, router]);
+
+  useEffect(() => {
+    setPhone(session?.profile.verification.phone ?? "");
+  }, [session?.profile.verification.phone]);
+
+  useEffect(() => {
+    return () => {
+      clearPhoneRecaptcha();
+    };
+  }, []);
 
   if (!session || !verification) return null;
 
@@ -97,62 +122,157 @@ export default function OnboardingVerifyPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const runAiCheck = async (onComplete: () => void) => {
+  const runAiCheck = async (onComplete: () => void | Promise<void>) => {
     setAiChecking(true);
     setAiProgress(0);
-    for (let i = 0; i <= 100; i += 20) {
-      await new Promise((r) => setTimeout(r, 200));
-      setAiProgress(i);
+    setError("");
+    try {
+      for (let i = 0; i <= 100; i += 20) {
+        await new Promise((r) => setTimeout(r, 200));
+        setAiProgress(i);
+      }
+      await onComplete();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
+      throw err;
+    } finally {
+      setAiChecking(false);
     }
-    setAiChecking(false);
-    onComplete();
   };
 
-  const handlePhoneVerify = () => {
-    if (!verification.phone) {
+  const prepareRecaptchaContainer = (): string => {
+    clearPhoneRecaptcha();
+    let nextKey = 0;
+    flushSync(() => {
+      setRecaptchaKey((current) => {
+        nextKey = current + 1;
+        return nextKey;
+      });
+    });
+    return `recaptcha-container-${nextKey}`;
+  };
+
+  const phoneDemoMode = isPhoneDemoMode();
+
+  const handlePhoneVerify = async () => {
+    const trimmed = phone.trim();
+    if (!trimmed) {
       setError("Enter your phone number");
       return;
     }
-    setOtpSent(true);
-    setError("");
-  };
-
-  const handleOtpSubmit = () => {
-    if (otpCode !== MOCK_OTP_CODE) {
-      setError(`Invalid code. Use ${MOCK_OTP_CODE} for demo.`);
+    if (!isValidPhoneNumber(trimmed)) {
+      setError("Use international format, e.g. +91 86885 38590");
       return;
     }
-    updateVerification({ phoneVerified: true });
-    goToStep(1);
+
+    setSendingOtp(true);
+    setError("");
+    try {
+      const normalized = normalizePhoneNumber(trimmed);
+      const containerId = phoneDemoMode ? "recaptcha-skip" : prepareRecaptchaContainer();
+      const id = await sendPhoneOtp(normalized, containerId, {
+        forceNewRecaptcha: !phoneDemoMode,
+      });
+      setVerificationId(id);
+      updateVerification({ phone: normalized });
+      setOtpSent(true);
+      setOtpCode("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send OTP");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleOtpSubmit = async () => {
+    if (!verificationId) {
+      setError("Request an OTP first");
+      return;
+    }
+
+    setVerifyingOtp(true);
+    setError("");
+    try {
+      await verifyPhoneOtp(verificationId, otpCode);
+      updateVerification({ phoneVerified: true });
+      setVerificationId(null);
+      goToStep(1);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "OTP verification failed");
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
+  const handleChangeNumber = () => {
+    setOtpSent(false);
+    setOtpCode("");
+    setVerificationId(null);
+    clearPhoneRecaptcha();
+    setRecaptchaKey((k) => k + 1);
+    setError("");
   };
 
   const handleEmailVerify = async () => {
     setEmailSent(true);
-    await new Promise((r) => setTimeout(r, 800));
-    updateVerification({ emailVerified: true });
-    goToStep(2);
+    setError("");
+    try {
+      await sendAccountVerificationEmail();
+    } catch (err) {
+      setEmailSent(false);
+      setError(err instanceof Error ? err.message : "Failed to send verification email");
+    }
   };
+
+  const handleEmailConfirmed = async () => {
+    setError("");
+    const authUser = getFirebaseAuth().currentUser;
+    if (!authUser) {
+      setError("You must be logged in");
+      return;
+    }
+    await reload(authUser);
+    if (isAuthEmailVerified()) {
+      updateVerification({ emailVerified: true });
+      goToStep(2);
+    } else {
+      setError("Email not verified yet. Click the link in your inbox, then try again.");
+    }
+  };
+
+  const idDocumentPreview = idPreviewLocal ?? verification.idDocumentPreview;
+  const selfiePreview = selfiePreviewLocal ?? verification.selfiePreview;
 
   const handleIdUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !verification.idDocumentType) return;
-    const preview = await readFileAsDataUrl(file);
-    await runAiCheck(() => {
-      updateVerification({ idDocumentPreview: preview });
-      goToStep(3);
-    });
-    e.target.value = "";
+    if (!file || !verification.idDocumentType || !session) return;
+    setUploadingDoc(true);
+    try {
+      await runAiCheck(async () => {
+        const url = await uploadVerificationDoc(session.user.id, file, "id");
+        setIdPreviewLocal(url);
+        await updateVerification({ idDocumentPreview: url });
+      });
+    } finally {
+      setUploadingDoc(false);
+      e.target.value = "";
+    }
   };
 
   const handleSelfieUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
-    const preview = await readFileAsDataUrl(file);
-    await runAiCheck(() => {
-      updateVerification({ selfiePreview: preview });
-      goToStep(4);
-    });
-    e.target.value = "";
+    if (!file || !session) return;
+    setUploadingDoc(true);
+    try {
+      await runAiCheck(async () => {
+        const url = await uploadVerificationDoc(session.user.id, file, "selfie");
+        setSelfiePreviewLocal(url);
+        await updateVerification({ selfiePreview: url });
+      });
+    } finally {
+      setUploadingDoc(false);
+      e.target.value = "";
+    }
   };
 
   const handleSubmit = () => {
@@ -160,7 +280,7 @@ export default function OnboardingVerifyPage() {
       setError("Complete phone and email verification first");
       return;
     }
-    if (!verification.idDocumentPreview || !verification.selfiePreview) {
+    if (!idDocumentPreview || !selfiePreview) {
       setError("ID document and selfie are required");
       return;
     }
@@ -188,27 +308,61 @@ export default function OnboardingVerifyPage() {
         <div className="mt-8 space-y-5">
           {step === 0 && (
             <>
+              {!phoneDemoMode && (
+                <div key={recaptchaKey} id={`recaptcha-container-${recaptchaKey}`} />
+              )}
               <Input
                 label="Mobile Number"
-                value={verification.phone ?? ""}
-                onChange={(e) => updateVerification({ phone: e.target.value })}
-                placeholder="+44 7700 900000"
-                disabled={verification.phoneVerified}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 86885 38590"
+                disabled={verification.phoneVerified || otpSent}
               />
+              <p className="text-xs text-muted">
+                {phoneDemoMode
+                  ? "Demo mode: enter any valid number with country code, then use the demo OTP below."
+                  : "Include country code (e.g. +91 for India). We'll text you a 6-digit code."}
+              </p>
               {!verification.phoneVerified && !otpSent && (
-                <Button onClick={handlePhoneVerify}>Send OTP</Button>
+                <Button onClick={() => void handlePhoneVerify()} disabled={sendingOtp}>
+                  {sendingOtp ? "Sending OTP…" : "Send OTP"}
+                </Button>
               )}
               {otpSent && !verification.phoneVerified && (
                 <>
                   <Input
                     label="Enter 6-digit OTP"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
                     value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value)}
+                    onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     placeholder={MOCK_OTP_CODE}
                     maxLength={6}
                   />
-                  <p className="text-xs text-muted">Demo code: {MOCK_OTP_CODE}</p>
-                  <Button onClick={handleOtpSubmit}>Verify OTP</Button>
+                  {phoneDemoMode && (
+                    <p className="rounded-[6px] glass-subtle border-dashed px-3 py-2 text-center text-xs text-muted">
+                      Demo OTP: <span className="font-semibold text-foreground">{MOCK_OTP_CODE}</span>
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-3">
+                    <Button onClick={() => void handleOtpSubmit()} disabled={verifyingOtp || otpCode.length !== 6}>
+                      {verifyingOtp ? "Verifying…" : "Verify OTP"}
+                    </Button>
+                    <Button variant="outline" onClick={handleChangeNumber} disabled={sendingOtp || verifyingOtp}>
+                      Change number
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => void handlePhoneVerify()}
+                      disabled={sendingOtp || verifyingOtp}
+                    >
+                      {sendingOtp ? "Resending…" : "Resend OTP"}
+                    </Button>
+                  </div>
                 </>
               )}
               {verification.phoneVerified && (
@@ -226,9 +380,16 @@ export default function OnboardingVerifyPage() {
                 <strong>{session.user.email}</strong>
               </p>
               {!verification.emailVerified ? (
-                <Button onClick={handleEmailVerify} disabled={emailSent}>
-                  {emailSent ? "Verifying…" : "Send Verification Email"}
-                </Button>
+                <div className="space-y-3">
+                  <Button onClick={() => void handleEmailVerify()} disabled={emailSent}>
+                    {emailSent ? "Email Sent" : "Send Verification Email"}
+                  </Button>
+                  {emailSent && (
+                    <Button variant="outline" onClick={() => void handleEmailConfirmed()}>
+                      I&apos;ve verified my email
+                    </Button>
+                  )}
+                </div>
               ) : (
                 <p className="flex items-center gap-2 text-sm text-accent">
                   <Check className="h-4 w-4" /> Email verified
@@ -257,23 +418,37 @@ export default function OnboardingVerifyPage() {
                 className="hidden"
                 onChange={handleIdUpload}
               />
-              {verification.idDocumentPreview ? (
-                <div className="relative h-40 overflow-hidden rounded-lg border">
-                  <Image
-                    src={verification.idDocumentPreview}
-                    alt="ID document"
-                    fill
-                    className="object-contain"
-                  />
+              {idDocumentPreview ? (
+                <div className="space-y-3">
+                  <div className="relative h-40 overflow-hidden rounded-lg border">
+                    <Image
+                      src={idDocumentPreview}
+                      alt="ID document"
+                      fill
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                  <p className="flex items-center gap-2 text-sm text-accent">
+                    <Check className="h-4 w-4" /> ID document uploaded
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => idInputRef.current?.click()}
+                    disabled={aiChecking || uploadingDoc}
+                  >
+                    Replace document
+                  </Button>
                 </div>
               ) : (
                 <Button
                   variant="outline"
                   onClick={() => idInputRef.current?.click()}
-                  disabled={!verification.idDocumentType || aiChecking}
+                  disabled={!verification.idDocumentType || aiChecking || uploadingDoc}
                 >
                   <Upload className="h-4 w-4" />
-                  Upload ID Document
+                  {uploadingDoc ? "Uploading…" : "Upload ID Document"}
                 </Button>
               )}
               {aiChecking && (
@@ -298,29 +473,47 @@ export default function OnboardingVerifyPage() {
                 className="hidden"
                 onChange={handleSelfieUpload}
               />
-              {verification.selfiePreview ? (
-                <div className="relative mx-auto h-48 w-48 overflow-hidden rounded-full border">
-                  <Image
-                    src={verification.selfiePreview}
-                    alt="Selfie"
-                    fill
-                    className="object-cover"
-                  />
+              {selfiePreview ? (
+                <div className="space-y-3">
+                  <div className="relative mx-auto h-48 w-48 overflow-hidden rounded-full border">
+                    <Image
+                      src={selfiePreview}
+                      alt="Selfie"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                  <p className="flex items-center justify-center gap-2 text-sm text-accent">
+                    <Check className="h-4 w-4" /> Selfie uploaded
+                  </p>
+                  <p className="text-center text-xs text-muted">Face match: pending admin review</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mx-auto block"
+                    onClick={() => selfieInputRef.current?.click()}
+                    disabled={aiChecking || uploadingDoc}
+                  >
+                    Replace selfie
+                  </Button>
                 </div>
               ) : (
                 <Button
                   variant="outline"
                   onClick={() => selfieInputRef.current?.click()}
-                  disabled={aiChecking}
+                  disabled={aiChecking || uploadingDoc}
                 >
                   <Upload className="h-4 w-4" />
-                  Upload Selfie
+                  {uploadingDoc ? "Uploading…" : "Upload Selfie"}
                 </Button>
               )}
-              {verification.selfiePreview && (
-                <p className="text-xs text-muted">Face match: pending admin review</p>
+              {aiChecking && (
+                <div>
+                  <p className="mb-2 text-xs text-muted">AI quality check…</p>
+                  <ProgressBar value={aiProgress} />
+                </div>
               )}
-              {aiChecking && <ProgressBar value={aiProgress} />}
             </>
           )}
 
@@ -334,9 +527,9 @@ export default function OnboardingVerifyPage() {
                 className="hidden"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
-                  if (file) {
-                    const preview = await readFileAsDataUrl(file);
-                    updateVerification({ educationDocPreview: preview });
+                  if (file && session) {
+                    const url = await uploadVerificationDoc(session.user.id, file, "education");
+                    updateVerification({ educationDocPreview: url });
                   }
                   e.target.value = "";
                 }}
@@ -348,9 +541,9 @@ export default function OnboardingVerifyPage() {
                 className="hidden"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
-                  if (file) {
-                    const preview = await readFileAsDataUrl(file);
-                    updateVerification({ employmentDocPreview: preview });
+                  if (file && session) {
+                    const url = await uploadVerificationDoc(session.user.id, file, "employment");
+                    updateVerification({ employmentDocPreview: url });
                   }
                   e.target.value = "";
                 }}
@@ -385,7 +578,7 @@ export default function OnboardingVerifyPage() {
                 Email verified
               </p>
               <p className="flex items-center gap-2">
-                {verification.idDocumentPreview ? (
+                {idDocumentPreview ? (
                   <Check className="h-4 w-4 text-accent" />
                 ) : (
                   <span className="h-4 w-4" />
@@ -393,7 +586,7 @@ export default function OnboardingVerifyPage() {
                 ID document uploaded
               </p>
               <p className="flex items-center gap-2">
-                {verification.selfiePreview ? (
+                {selfiePreview ? (
                   <Check className="h-4 w-4 text-accent" />
                 ) : (
                   <span className="h-4 w-4" />
@@ -417,8 +610,8 @@ export default function OnboardingVerifyPage() {
                 onClick={() => {
                   if (step === 0 && verification.phoneVerified) goToStep(1);
                   else if (step === 1 && verification.emailVerified) goToStep(2);
-                  else if (step === 2 && verification.idDocumentPreview) goToStep(3);
-                  else if (step === 3 && verification.selfiePreview) goToStep(4);
+                  else if (step === 2 && idDocumentPreview) goToStep(3);
+                  else if (step === 3 && selfiePreview) goToStep(4);
                   else if (step === 4) goToStep(5);
                   else setError("Complete this step before continuing");
                 }}

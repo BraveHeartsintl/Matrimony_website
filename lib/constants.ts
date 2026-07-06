@@ -13,6 +13,18 @@ export const SITE_STATS = {
   cities: "15+",
 } as const;
 
+export const REPORT_REASONS = [
+  "Fake or misleading profile",
+  "Inappropriate messages or behaviour",
+  "Photos do not match person",
+  "Spam or repeated unsolicited contact",
+  "Other",
+] as const;
+
+/** Shown when a profile has no uploaded photos */
+export const DEFAULT_PROFILE_PHOTO =
+  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&h=1000&fit=crop";
+
 export const SOCIAL_LINKS = {
   email: "mailto:hello@ukmatrimony.co.uk",
   whatsapp: "https://wa.me/447000000000",
@@ -90,9 +102,13 @@ export const UK_LOCATIONS = [
   "Leicester",
   "Coventry",
   "Bradford",
+  "Slough",
+  "Wolverhampton",
   "Cardiff",
   "Belfast",
   "Nottingham",
+  "Reading",
+  "Luton",
 ];
 
 export const RELIGIONS = [

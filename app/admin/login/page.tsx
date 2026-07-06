@@ -3,7 +3,8 @@
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import { ADMIN_CREDENTIALS, adminLogin, isAdminLoggedIn } from "@/lib/admin-auth";
+import { ADMIN_CREDENTIALS } from "@/lib/admin-config";
+import { adminLogin, isAdminLoggedIn } from "@/lib/admin-auth";
 import { SITE_NAME } from "@/lib/constants";
 import { Heart, Shield } from "lucide-react";
 import Link from "next/link";
@@ -12,20 +13,25 @@ import { useEffect, useState } from "react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState<string>(ADMIN_CREDENTIALS.email);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isAdminLoggedIn()) router.replace("/admin");
   }, [router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminLogin(email, password)) {
+    setLoading(true);
+    setError("");
+    const result = await adminLogin(email, password);
+    setLoading(false);
+    if (result.success) {
       router.push("/admin");
     } else {
-      setError("Invalid admin credentials");
+      setError(result.error ?? "Invalid admin credentials");
     }
   };
 
@@ -44,8 +50,8 @@ export default function AdminLoginPage() {
             Admin Portal
           </h1>
           <p className="mt-4 max-w-md text-muted">
-            Manage users, verify profiles, moderate content, and monitor subscriptions across the
-            UK Matrimony platform.
+            Use the demo admin credentials to access the dashboard, manage users, and sync demo
+            matches.
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -69,7 +75,7 @@ export default function AdminLoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@ukmatrimony.co.uk"
+              placeholder={ADMIN_CREDENTIALS.email}
             />
             <Input
               label="Password"
@@ -77,14 +83,19 @@ export default function AdminLoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter admin password"
             />
             {error && (
-              <p className="feedback-error rounded-[6px] px-3 py-2 text-sm">
-                {error}
-              </p>
+              <p className="feedback-error rounded-[6px] px-3 py-2 text-sm">{error}</p>
             )}
-            <Button type="submit" className="w-full">
-              Sign In to Admin
+            <p className="text-center text-xs text-muted">
+              First time?{" "}
+              <Link href="/admin/setup" className="text-accent hover:underline">
+                Run admin setup
+              </Link>
+            </p>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in…" : "Sign In to Admin"}
             </Button>
           </form>
 

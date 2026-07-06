@@ -4,6 +4,8 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
+import { adminLogin } from "@/lib/admin-auth";
+import { ADMIN_CREDENTIALS, matchesAdminCredentials } from "@/lib/admin-config";
 import { SITE_NAME } from "@/lib/constants";
 import { Heart, Shield } from "lucide-react";
 import Link from "next/link";
@@ -27,6 +29,17 @@ export default function LoginPage() {
     const loginEmail = String(fd.get("email") ?? email).trim();
     const loginPassword = String(fd.get("password") ?? password);
 
+    if (matchesAdminCredentials(loginEmail, loginPassword)) {
+      const adminResult = await adminLogin(loginEmail, loginPassword);
+      setLoading(false);
+      if (adminResult.success) {
+        router.push("/admin");
+      } else {
+        setError(adminResult.error || "Admin login failed");
+      }
+      return;
+    }
+
     const result = await login(loginEmail, loginPassword);
     setLoading(false);
 
@@ -39,7 +52,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-deepest via-[#5c1a38] to-deepest p-12 lg:flex">
+      <div className="hidden w-1/2 flex-col justify-between bg-gradient-to-br from-deepest via-navy-royal to-deepest p-12 lg:flex">
         <Link href="/" className="flex items-center gap-2">
           <Heart className="h-8 w-8 text-gold" />
           <span className="font-display text-2xl font-bold text-white">{SITE_NAME}</span>
@@ -113,18 +126,24 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 rounded-[6px] glass-subtle border-dashed p-4 text-center text-xs">
-              <p className="font-semibold uppercase tracking-wider text-accent">Demo Account</p>
-              <p className="mt-1 text-muted">Email: demo@example.com</p>
-              <p className="text-muted">Password: password123</p>
-            </div>
-
-            <p className="mt-6 text-center text-sm text-muted">
+            <div className="mt-6 text-center text-sm text-muted">
               Don&apos;t have an account?{" "}
               <Link href="/register" className="text-foreground transition-colors hover:text-accent">
                 Register Free
               </Link>
-            </p>
+            </div>
+
+            <div className="mt-6 rounded-[6px] glass-subtle p-3 text-center text-xs text-muted">
+              <p className="font-medium uppercase tracking-wider text-foreground">Admin access</p>
+              <p className="mt-1">Email: {ADMIN_CREDENTIALS.email}</p>
+              <p>Password: {ADMIN_CREDENTIALS.password}</p>
+              <p className="mt-2 text-muted-foreground">
+                Use these on this page to open the admin portal, or{" "}
+                <Link href="/admin/login" className="text-accent hover:underline">
+                  admin login
+                </Link>
+              </p>
+            </div>
           </Card>
         </div>
       </div>

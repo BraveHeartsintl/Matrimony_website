@@ -5,17 +5,17 @@ import FilterPanel from "@/components/search/FilterPanel";
 import ProfileCard from "@/components/search/ProfileCard";
 import Button from "@/components/ui/Button";
 import { useAuth } from "@/context/AuthContext";
+import { useSearchProfiles } from "@/hooks/useSearchProfiles";
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
 import { canAccess } from "@/lib/onboarding/access";
-import { MOCK_PROFILES } from "@/lib/mock/profiles";
+import { applyClientSearchFilters } from "@/lib/firebase/services/search.service";
 import {
   DEFAULT_SEARCH_FILTERS,
-  filterProfiles,
-  filtersFromPreferences,
   normalizeFilters,
   type SearchFilters,
 } from "@/lib/search-filters";
-import { SlidersHorizontal, Lock } from "lucide-react";
+import { partnerGenderFilterForProfile } from "@/lib/matchmaking";
+import { SlidersHorizontal, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -38,19 +38,26 @@ export default function SearchPage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
+  const { profiles: allProfiles, loading, error, reload } = useSearchProfiles(session?.user.id);
+
   useEffect(() => {
     if (!session || initialized) return;
-    const fromPrefs = filtersFromPreferences(session.profile);
-    setDraft(fromPrefs);
-    setApplied(fromPrefs);
+    const gender = partnerGenderFilterForProfile(session.profile);
+    const browseFilters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, gender };
+    setDraft(browseFilters);
+    setApplied(browseFilters);
     setInitialized(true);
   }, [session, initialized]);
 
-  const previewResults = useMemo(() => filterProfiles(MOCK_PROFILES, draft), [draft]);
+  const previewResults = useMemo(
+    () => applyClientSearchFilters(allProfiles, draft),
+    [allProfiles, draft]
+  );
+
   const results = useMemo(() => {
-    const filtered = filterProfiles(MOCK_PROFILES, applied);
+    const filtered = applyClientSearchFilters(allProfiles, applied);
     return isLimitedBrowse ? filtered.slice(0, LIMITED_MATCH_COUNT) : filtered;
-  }, [applied, isLimitedBrowse]);
+  }, [allProfiles, applied, isLimitedBrowse]);
 
   const scoredResults = useMemo(
     () =>
@@ -78,7 +85,9 @@ export default function SearchPage() {
   };
 
   const resetFilters = () => {
-    const resetTo = session ? filtersFromPreferences(session.profile) : DEFAULT_SEARCH_FILTERS;
+    const resetTo = session
+      ? { ...DEFAULT_SEARCH_FILTERS, gender: partnerGenderFilterForProfile(session.profile) }
+      : DEFAULT_SEARCH_FILTERS;
     setDraft(resetTo);
     setApplied(resetTo);
     setMobileFiltersOpen(false);
@@ -166,11 +175,27 @@ export default function SearchPage() {
             </p>
           )}
 
-          {results.length === 0 ? (
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-accent" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center rounded-xl glass py-16 text-center">
+              <p className="text-lg font-medium">Could not load profiles</p>
+              <p className="mt-1 text-sm text-muted">{error}</p>
+              <Button variant="outline" size="sm" className="mt-4" onClick={() => void reload()}>
+                Retry
+              </Button>
+            </div>
+          ) : results.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl glass py-16 text-center">
               <p className="text-lg font-medium">No profiles found</p>
-              <p className="mt-1 text-sm text-muted">Try adjusting your search filters</p>
-              {canUseFilters && (
+              <p className="mt-1 text-sm text-muted">
+                {allProfiles.length === 0
+                  ? "No members are visible in search yet. Ask an admin to seed demo profiles."
+                  : "Try adjusting your search filters"}
+              </p>
+              {canUseFilters && allProfiles.length > 0 && (
                 <Button variant="outline" size="sm" className="mt-4" onClick={resetFilters}>
                   Reset Filters
                 </Button>
@@ -180,7 +205,7 @@ export default function SearchPage() {
             <>
               <p className="mb-4 text-sm text-muted">
                 Showing <span className="font-medium text-foreground">{results.length}</span>
-                {isLimitedBrowse ? " preview matches" : ` of ${MOCK_PROFILES.length} profiles`}
+                {isLimitedBrowse ? " preview matches" : ` of ${allProfiles.length} profiles`}
               </p>
               <div className="grid gap-4 sm:grid-cols-2">
                 {scoredResults.map(({ profile, match }) => (

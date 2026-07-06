@@ -9,16 +9,33 @@ import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import Textarea from "@/components/ui/Textarea";
+import { submitContactMessage } from "@/lib/firebase/services/report.service";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setError("");
+    try {
+      await submitContactMessage({
+        name: form.name,
+        email: form.email,
+        subject: "Website contact",
+        message: form.message,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send message");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -101,9 +118,10 @@ export default function ContactPage() {
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
                   />
-                  <Button type="submit" className="w-full sm:w-auto">
-                    Send Message
+                  <Button type="submit" className="w-full sm:w-auto" disabled={submitting}>
+                    {submitting ? "Sending…" : "Send Message"}
                   </Button>
+                  {error && <p className="text-sm text-red-600">{error}</p>}
                 </form>
               )}
             </Card>

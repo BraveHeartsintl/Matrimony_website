@@ -1,11 +1,11 @@
+import AboutStats from "@/components/about/AboutStats";
 import PublicLayout from "@/components/layout/PublicLayout";
 import Card from "@/components/ui/Card";
 import Container from "@/components/ui/Container";
 import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
-import StatBlock from "@/components/ui/StatBlock";
-import { SITE_STATS, SITE_TAGLINE } from "@/lib/constants";
+import { SITE_TAGLINE } from "@/lib/constants";
 import { Heart, Shield, Target, Users } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -95,28 +95,7 @@ export default function AboutPage() {
         <Container className="max-w-3xl text-center">
           <SectionLabel>By The Numbers</SectionLabel>
           <SplitHeadline primary="Trusted by" muted="Thousands" />
-          <p className="mt-4 text-muted">
-            With over {SITE_STATS.members} registered Brit Asian members and {SITE_STATS.matches}{" "}
-            successful matches, UK Matrimony is one of the fastest-growing matrimony platforms in
-            the United Kingdom.
-          </p>
-          <div className="mt-12 flex flex-col items-center gap-7 sm:flex-row sm:justify-center">
-            <StatBlock
-              value={SITE_STATS.members}
-              label="Members"
-              description="Brit Asian singles in the UK"
-            />
-            <StatBlock
-              value={SITE_STATS.matches}
-              label="Matches"
-              description="Successful connections"
-            />
-            <StatBlock
-              value={SITE_STATS.verified}
-              label="Verified"
-              description="Profile authenticity rate"
-            />
-          </div>
+          <AboutStats />
         </Container>
       </Section>
     </PublicLayout>

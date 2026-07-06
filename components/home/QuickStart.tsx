@@ -1,12 +1,16 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import FadeIn from "@/components/ui/FadeIn";
 import Section from "@/components/ui/Section";
-import { SITE_STATS } from "@/lib/constants";
+import { usePlatformContent } from "@/hooks/usePlatformContent";
 import { ArrowRight, UserPlus } from "lucide-react";
 import Link from "next/link";
 
 export default function QuickStart() {
+  const { stats } = usePlatformContent();
+
   return (
     <Section variant="surface" className="!py-16 lg:!py-20">
       <Container>
@@ -21,9 +25,9 @@ export default function QuickStart() {
                   Find your Special Someone
                 </h2>
                 <p className="mt-4 max-w-md text-muted">
-                  Create your free matrimony profile in under 5 minutes. Join{" "}
-                  {SITE_STATS.members} Brit Asian singles already searching for their life
-                  partner on the UK&apos;s dedicated matchmaking platform.
+                  Create your free matrimony profile in under 5 minutes. Join {stats.members} Brit
+                  Asian singles already searching for their life partner on the UK&apos;s dedicated
+                  matchmaking platform.
                 </p>
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Link href="/register">

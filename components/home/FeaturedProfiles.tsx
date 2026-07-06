@@ -1,3 +1,5 @@
+"use client";
+
 import Badge from "@/components/ui/Badge";
 import Container from "@/components/ui/Container";
 import FadeIn from "@/components/ui/FadeIn";
@@ -5,14 +7,30 @@ import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import TextCTA from "@/components/ui/TextCTA";
-import { MOCK_PROFILES } from "@/lib/mock/profiles";
+import { DEFAULT_PROFILE_PHOTO } from "@/lib/constants";
+import { fetchFeaturedProfiles } from "@/lib/firebase/services/search.service";
+import type { SearchProfile } from "@/lib/types";
 import { MapPin, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-
-const featured = MOCK_PROFILES.slice(0, 4);
+import { useEffect, useState } from "react";
 
 export default function FeaturedProfiles() {
+  const [featured, setFeatured] = useState<SearchProfile[]>([]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const profiles = await fetchFeaturedProfiles(6);
+        setFeatured(profiles);
+      } catch {
+        setFeatured([]);
+      }
+    })();
+  }, []);
+
+  if (featured.length === 0) return null;
+
   return (
     <Section id="featured-profiles" variant="base" className="scroll-mt-20">
       <Container>
@@ -27,16 +45,19 @@ export default function FeaturedProfiles() {
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((profile, i) => (
             <FadeIn key={profile.id} delay={i * 100} direction="scale">
-              <div className="group overflow-hidden rounded-[14px] glass glass-hover shadow-sm transition-all duration-300 hover:border-accent/30 hover:shadow-md">
+              <Link
+                href={`/search/profile?id=${profile.id}`}
+                className="group block overflow-hidden rounded-[14px] glass glass-hover shadow-sm transition-all duration-300 hover:border-accent/30 hover:shadow-md"
+              >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
-                    src={profile.photos[0]}
+                    src={profile.photos[0] || DEFAULT_PROFILE_PHOTO}
                     alt={profile.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#3d1228]/75 via-[#3d1228]/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-deepest/80 via-deepest/25 to-transparent" />
                   {profile.verified && (
                     <div className="absolute right-3 top-3 flex items-center gap-1 rounded glass-subtle px-2 py-1 text-xs font-medium uppercase tracking-wider text-accent">
                       <ShieldCheck className="h-3.5 w-3.5" />
@@ -60,7 +81,7 @@ export default function FeaturedProfiles() {
                     <Badge variant="accent">{profile.education}</Badge>
                   </div>
                 </div>
-              </div>
+              </Link>
             </FadeIn>
           ))}
         </div>

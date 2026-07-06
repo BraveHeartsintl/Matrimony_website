@@ -187,6 +187,7 @@ export default function ProfilePage() {
 
           {activeTab === "photos" && (
             <PhotoUpload
+              userId={session.user.id}
               photos={profile.photos}
               onChange={(photos) => updateProfile({ photos })}
             />

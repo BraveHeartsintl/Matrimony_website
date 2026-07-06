@@ -18,17 +18,18 @@ export default function ConversationList({
 }: ConversationListProps) {
   if (conversations.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center p-6 text-sm text-muted">
+      <div className="flex h-full min-h-0 items-center justify-center p-6 text-sm text-muted">
         No conversations yet
       </div>
     );
   }
 
   return (
-    <div className="divide-y divide-border overflow-y-auto">
+    <div className="h-full min-h-0 divide-y divide-border overflow-y-auto overscroll-contain">
       {conversations.map((conv) => (
         <button
           key={conv.id}
+          type="button"
           onClick={() => onSelect(conv.id)}
           className={cn(
             "glass-list-hover flex w-full items-center gap-3 p-4 text-left transition-colors",
@@ -37,7 +38,7 @@ export default function ConversationList({
         >
           <Avatar src={conv.participantPhoto} name={conv.participantName} />
           <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <span className="truncate text-sm font-medium text-foreground">
                 {conv.participantName}
               </span>
@@ -45,7 +46,7 @@ export default function ConversationList({
                 {formatRelativeTime(conv.lastMessageAt)}
               </span>
             </div>
-            <p className="truncate text-xs text-muted">{conv.lastMessage}</p>
+            <p className="truncate text-xs text-muted">{conv.lastMessage || "Start chatting"}</p>
           </div>
           {conv.unreadCount > 0 && (
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-xs text-white">

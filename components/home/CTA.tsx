@@ -1,13 +1,17 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import FadeIn from "@/components/ui/FadeIn";
 import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
-import { SITE_STATS } from "@/lib/constants";
+import { usePlatformContent } from "@/hooks/usePlatformContent";
 import Link from "next/link";
 
 export default function CTA() {
+  const { stats } = usePlatformContent();
+
   return (
     <Section variant="deepest">
       <Container>
@@ -16,8 +20,8 @@ export default function CTA() {
             <SectionLabel>Get Started</SectionLabel>
             <SplitHeadline primary="Ready to Find" muted="Your Life Partner?" />
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted">
-              Join {SITE_STATS.members} Brit Asian singles on the UK&apos;s dedicated matrimony
-              platform. Registration is free and takes less than 5 minutes.
+              Join {stats.members} Brit Asian singles on the UK&apos;s dedicated matrimony platform.
+              Registration is free and takes less than 5 minutes.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
               <Link href="/register">

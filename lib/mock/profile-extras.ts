@@ -38,27 +38,27 @@ export const PROFILE_EXTRAS: Record<string, ProfileExtras> = {
     photos: [
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop",
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f2d?w=800&h=1000&fit=crop",
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=1000&fit=crop",
     ],
     matrimony: {
       aboutMe:
-        "Born and raised in Manchester, I am a chartered accountant who believes in living a balanced life. Football fan, active church member, and volunteer at a local food bank. I am ready to build a home founded on faith, laughter, and mutual respect.",
+        "Chartered accountant in Leeds with Punjabi Hindu upbringing. I work in audit for a Big Four firm, live near Roundhay, and visit my parents in Bradford most weekends. I enjoy Yorkshire cricket, Diwali at home, and planning for my first home purchase.",
       partnerExpectations:
-        "Looking for a Christian woman aged 25–34 who shares my faith and values. Ideally based in the North West, with a warm personality and a desire to start a family.",
+        "Educated Hindu woman, 25–32, family-oriented. Preferably Punjabi or North Indian background. Must be comfortable living in Yorkshire and involving both families in the matchmaking process.",
       familyBackground:
-        "Traditional British Christian family from Greater Manchester. Parents married for 38 years, strong community involvement through church and local charities.",
-      fatherOccupation: "Electrician (self-employed)",
-      motherOccupation: "NHS Administrator",
-      siblings: "1 older sister (married, teacher)",
-      diet: "Non-vegetarian",
+        "Punjabi Hindu family in Leeds since the 1970s. Father runs a wholesale business; mother is a dinner lady. Large cousin network across Bradford and Leeds.",
+      fatherOccupation: "Wholesale Business Owner",
+      motherOccupation: "School Catering Assistant",
+      siblings: "1 younger sister (married, pharmacist)",
+      diet: "Vegetarian",
       smoking: "Non-smoker",
-      drinking: "Occasionally",
-      languages: ["English"],
-      community: "British Christian",
-      willingToRelocate: true,
-      hobbies: ["Football", "Volunteering", "Hiking", "Reading"],
+      drinking: "Does not drink",
+      languages: ["English", "Punjabi", "Hindi"],
+      community: "Punjabi Hindu",
+      willingToRelocate: false,
+      hobbies: ["Cricket", "Finance podcasts", "Travel", "Cooking"],
       memberSince: "2024-01-20",
-      lastActive: "2026-06-16",
+      lastActive: "2026-07-04",
     },
   },
   "profile-3": {
@@ -120,27 +120,27 @@ export const PROFILE_EXTRAS: Record<string, ProfileExtras> = {
     photos: [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=1000&fit=crop",
       "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=1000&fit=crop",
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&h=1000&fit=crop",
     ],
     matrimony: {
       aboutMe:
-        "Marketing professional from Bristol. After a difficult divorce, I have grown stronger and clearer about what I want — a genuine, supportive partnership built on trust and open communication.",
+        "Tamil Hindu NHS physiotherapist in North London. Born in Wembley Central; parents from Jaffna Tamil community. I speak Tamil at home, work in acute rehab, and balance career ambitions with traditional family expectations around marriage.",
       partnerExpectations:
-        "Mature, emotionally intelligent man aged 28–38. Christian or no religion. Must be accepting of my past and ready to embrace a fresh start together.",
+        "Hindu groom, preferably Tamil or South Indian, 28–35, UK-educated and professionally settled. Must respect parents' involvement and be open to London or Home Counties.",
       familyBackground:
-        "Close-knit English family in the South West. Parents are supportive and welcoming; I have one son who lives with his father.",
-      fatherOccupation: "Retired Engineer",
-      motherOccupation: "Part-time Florist",
-      siblings: "1 brother (married, Bristol)",
-      diet: "Non-vegetarian",
+        "Tamil Hindu family in Wembley. Father is an Underground engineer, mother works in a sari boutique. Strong ties to Sri Lankan Tamil community in NW London.",
+      fatherOccupation: "London Underground Engineer",
+      motherOccupation: "Boutique Assistant",
+      siblings: "1 younger brother (university)",
+      diet: "Vegetarian",
       smoking: "Non-smoker",
-      drinking: "Occasionally",
-      languages: ["English"],
-      community: "British Christian",
+      drinking: "Does not drink",
+      languages: ["English", "Tamil"],
+      community: "Tamil Hindu",
       willingToRelocate: true,
-      hobbies: ["Yoga", "Painting", "Coastal Walks", "Cooking"],
+      hobbies: ["Bharatanatyam", "NHS outreach", "South Indian cooking"],
       memberSince: "2025-01-12",
-      lastActive: "2026-06-14",
+      lastActive: "2026-07-04",
     },
   },
   "profile-6": {
@@ -175,54 +175,54 @@ export const PROFILE_EXTRAS: Record<string, ProfileExtras> = {
     photos: [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=1000&fit=crop",
       "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=800&h=1000&fit=crop",
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1619895862022-09114b41f16f?w=800&h=1000&fit=crop",
     ],
     matrimony: {
       aboutMe:
-        "NHS nurse from Glasgow with Irish-Scottish roots. Compassionate, adventurous, and grounded. I love the Scottish Highlands, live acoustic music, and cosy nights in with good company.",
+        "Hospital pharmacist in Glasgow with British Pakistani heritage. Raised in Pollokshields; parents from Rawalpindi. I balance hijab, NHS shift work, and being the eldest daughter in a traditional but supportive family.",
       partnerExpectations:
-        "Kind, honest man aged 26–35. Christian background preferred but open-minded. Must appreciate Scottish culture and be ready for a committed relationship.",
+        "Practising Muslim man, 26–33, employed, UK-resident. Must respect hijab, involve families appropriately, and be ready for nikah within Scotland or northern England.",
       familyBackground:
-        "Irish Catholic family settled in Glasgow for two generations. Large extended family; Sunday roasts and ceilidh nights are a tradition.",
-      fatherOccupation: "Firefighter (retired)",
-      motherOccupation: "NHS Ward Sister",
-      siblings: "2 younger brothers (both single)",
-      diet: "Non-vegetarian",
+        "Pakistani Muslim family in Glasgow since the 1980s. Father owns a convenience store; mother is a community Urdu teacher. Large extended family across Glasgow and Manchester.",
+      fatherOccupation: "Convenience Store Owner",
+      motherOccupation: "Community Language Teacher",
+      siblings: "2 younger brothers (one at university)",
+      diet: "Halal",
       smoking: "Non-smoker",
-      drinking: "Occasionally",
-      languages: ["English"],
-      community: "Scottish Christian",
+      drinking: "Does not drink",
+      languages: ["English", "Urdu", "Punjabi"],
+      community: "British Pakistani Muslim",
       willingToRelocate: true,
-      hobbies: ["Hill Walking", "Live Music", "Nursing", "Baking"],
+      hobbies: ["Pharmacy research", "Islamic study circles", "Highland walks"],
       memberSince: "2024-04-18",
-      lastActive: "2026-06-16",
+      lastActive: "2026-07-03",
     },
   },
   "profile-8": {
     photos: [
       "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&h=1000&fit=crop",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1000&fit=crop",
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=800&h=1000&fit=crop",
     ],
     matrimony: {
       aboutMe:
-        "Research scientist at a London university with Chinese-British heritage. I find balance through meditation, hiking, and intellectual conversations. Seeking a thoughtful partner who values personal growth.",
+        "GP trainee in Birmingham with Punjabi Sikh roots from Handsworth. Turbaned, NHS-focused, and active in gurdwara youth programmes. I am on the specialist training pathway and want a partner who understands long training hours but values seva and family.",
       partnerExpectations:
-        "Educated woman aged 28–36, open to Buddhist or secular worldview. Intellectual curiosity and emotional maturity are more important than background.",
+        "Sikh bride, 28–34, from a respectful UK family. Amritdhari or strongly practising preferred. Must be comfortable with Anand Karaj and living in the Midlands during training.",
       familyBackground:
-        "Chinese-British family in London. Parents are academics; emphasis on education, mindfulness, and respecting both Eastern and Western traditions.",
-      fatherOccupation: "University Professor",
-      motherOccupation: "Medical Researcher",
-      siblings: "Only child",
-      diet: "Mostly vegetarian",
+        "Punjabi Sikh family in Birmingham. Father is a taxi fleet operator; mother is a NHS healthcare assistant. Sister married in Coventry.",
+      fatherOccupation: "Taxi Fleet Operator",
+      motherOccupation: "NHS Healthcare Assistant",
+      siblings: "1 sister (married, Coventry)",
+      diet: "Vegetarian",
       smoking: "Non-smoker",
-      drinking: "Rarely",
-      languages: ["English", "Mandarin", "Cantonese"],
-      community: "Chinese-British Buddhist",
-      willingToRelocate: false,
-      hobbies: ["Meditation", "Science", "Hiking", "Photography"],
+      drinking: "Does not drink",
+      languages: ["English", "Punjabi"],
+      community: "Punjabi Sikh",
+      willingToRelocate: true,
+      hobbies: ["NHS training", "Gurdwara seva", "Running", "Medical podcasts"],
       memberSince: "2023-09-30",
-      lastActive: "2026-06-18",
+      lastActive: "2026-07-04",
     },
   },
   "profile-9": {
@@ -256,28 +256,288 @@ export const PROFILE_EXTRAS: Record<string, ProfileExtras> = {
   "profile-10": {
     photos: [
       "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=800&h=1000&fit=crop",
       "https://images.unsplash.com/photo-1506794778202-cad84cf45f2d?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "HMRC civil servant in Cardiff with British Bengali Muslim heritage. Parents from Sylhet; I grew up between Canton masjid, Welsh school, and family trips to Bangladesh. Stable career, homeowner, and ready for marriage with full family involvement.",
+      partnerExpectations:
+        "Practising Muslim bride, 26–32, educated, UK-based. Prefer Bengali or South Asian background. Must be comfortable with Wales or western England and a traditional nikah.",
+      familyBackground:
+        "Sylheti Bengali family in Cardiff since the 1980s. Father worked in catering, now runs a restaurant; mother is a homemaker active in Bengali Welfare Association.",
+      fatherOccupation: "Restaurant Owner",
+      motherOccupation: "Homemaker",
+      siblings: "2 sisters (both married in Cardiff)",
+      diet: "Halal",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Bengali", "Sylheti"],
+      community: "British Bengali Muslim",
+      willingToRelocate: false,
+      hobbies: ["Community fundraising", "Football", "Bangladesh travel"],
+      memberSince: "2024-02-28",
+      lastActive: "2026-07-04",
+    },
+  },
+  "profile-11": {
+    photos: [
+      "https://images.unsplash.com/photo-1583394838336-acd9777362f6?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Bradford-born NHS midwife from a Mirpuri-Punjabi family. I work night shifts at Bradford Royal Infirmary and value deen, honest communication, and family involvement in marriage decisions.",
+      partnerExpectations:
+        "Practising Muslim man, 27–34, employed, UK-based. Must respect my career and be comfortable with a nikah followed by a simple walima in Yorkshire.",
+      familyBackground:
+        "Parents from Azad Kashmir, settled in Bradford since the 1970s. Large extended family in West Yorkshire; marriage discussions involve elders with my consent.",
+      fatherOccupation: "Post Office Supervisor (retired)",
+      motherOccupation: "Homemaker",
+      siblings: "2 brothers (both married, Bradford)",
+      diet: "Halal",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Punjabi", "Urdu"],
+      community: "British Pakistani Muslim",
+      willingToRelocate: false,
+      hobbies: ["NHS volunteering", "Islamic lectures", "Walking"],
+      memberSince: "2025-01-12",
+      lastActive: "2026-07-01",
+    },
+  },
+  "profile-12": {
+    photos: [
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Primary teacher in Ealing, raised in Southall. I keep kesh, attend gurdwara regularly, and balance British professional life with Punjabi family expectations.",
+      partnerExpectations:
+        "Sikh groom, 28–35, preferably UK-born. Must be willing to involve both families in matchmaking and respect Anand Karaj traditions.",
+      familyBackground:
+        "Punjabi Sikh family; father runs a logistics firm, mother is a dinner lady. Strong ties to Southall and Greenford gurdwaras.",
+      fatherOccupation: "Logistics Business Owner",
+      motherOccupation: "School Catering Assistant",
+      siblings: "1 younger sister (university)",
+      diet: "Vegetarian",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Punjabi"],
+      community: "Punjabi Sikh",
+      willingToRelocate: true,
+      hobbies: ["Teaching", "Kirtan", "Bollywood classics"],
+      memberSince: "2024-09-20",
+      lastActive: "2026-07-02",
+    },
+  },
+  "profile-13": {
+    photos: [
+      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "ACCA accountant commuting between Luton and Milton Keynes. British Bengali Muslim with Sylheti roots; jummah at local masjid and close to the Bengali Welfare Association.",
+      partnerExpectations:
+        "Practising Muslim bride, 24–30, educated, willing to live in Beds/Herts. Family must be comfortable with a UK civil marriage process alongside Islamic nikah.",
+      familyBackground:
+        "Parents arrived in the 1980s; father worked in textiles, now runs a cash-and-carry. Three sisters, all married in the UK.",
+      fatherOccupation: "Retail Business Owner",
+      motherOccupation: "Homemaker",
+      siblings: "3 sisters (all married)",
+      diet: "Halal",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Bengali", "Sylheti"],
+      community: "British Bengali Muslim",
+      willingToRelocate: false,
+      hobbies: ["Football", "Charity fundraising", "Travel to Bangladesh"],
+      memberSince: "2024-06-03",
+      lastActive: "2026-07-01",
+    },
+  },
+  "profile-14": {
+    photos: [
+      "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Leicester-born Gujarati dental hygienist. Strict vegetarian, Navratri and Diwali are big in our home. Looking for a UK-settled groom through family introductions.",
+      partnerExpectations:
+        "Hindu Gujarati groom, 26–32, professionally settled. Vegetarian household preferred; must respect parents' involvement.",
+      familyBackground:
+        "Parents own a corner shop in Belgrave; brother is a pharmacy dispenser. Typical Leicester Gujarati middle-class family.",
+      fatherOccupation: "Shopkeeper",
+      motherOccupation: "Shop Assistant",
+      siblings: "1 brother (engaged)",
+      diet: "Vegetarian",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Gujarati", "Hindi"],
+      community: "Gujarati Hindu",
+      willingToRelocate: true,
+      hobbies: ["Garba", "Dental volunteering", "Cooking"],
+      memberSince: "2025-03-18",
+      lastActive: "2026-06-28",
+    },
+  },
+  "profile-15": {
+    photos: [
+      "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=800&h=1000&fit=crop",
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&h=1000&fit=crop",
     ],
     matrimony: {
       aboutMe:
-        "Architect in Edinburgh with a passion for heritage buildings and modern design. Divorced with no children; I have learned what matters most — honesty, humour, and a partner who is my best friend.",
+        "IT project manager in Birmingham's financial services sector. Gujarati Hindu, homeowner in Edgbaston, and regular at local mandir events.",
       partnerExpectations:
-        "Woman aged 30–40, independent and kind. No strong religious requirements. Must appreciate Scottish culture and be open to blending families if children are involved.",
+        "Educated Hindu bride, 26–32, career-oriented but family-focused. Open to living in Birmingham long term.",
       familyBackground:
-        "Scottish family in Edinburgh. Father was a builder; mother a librarian. Warm, no-nonsense family who welcome everyone to the table.",
-      fatherOccupation: "Builder (retired)",
-      motherOccupation: "Retired Librarian",
-      siblings: "1 sister (married, Aberdeen)",
-      diet: "Non-vegetarian",
+        "Parents in Wembley; father retired from Heathrow logistics. Two sisters married in London.",
+      fatherOccupation: "Retired Logistics Manager",
+      motherOccupation: "Homemaker",
+      siblings: "2 sisters (married, London)",
+      diet: "Vegetarian",
       smoking: "Non-smoker",
       drinking: "Occasionally",
-      languages: ["English"],
-      community: "Scottish",
+      languages: ["English", "Gujarati", "Hindi"],
+      community: "Gujarati Hindu",
       willingToRelocate: false,
-      hobbies: ["Architecture", "Whisky Tasting", "Cycling", "History"],
-      memberSince: "2024-02-28",
-      lastActive: "2026-06-15",
+      hobbies: ["Cricket", "Property investment", "Travel"],
+      memberSince: "2023-11-09",
+      lastActive: "2026-07-03",
+    },
+  },
+  "profile-16": {
+    photos: [
+      "https://images.unsplash.com/photo-1619895862022-09114b41f16f?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1583394838336-acd9777362f6?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Psychology graduate beginning NHS IAPT counselling training. British Pakistani from Longsight, hijabi, and serious about balancing career with marriage.",
+      partnerExpectations:
+        "Practising Muslim man, emotionally mature, 24–30. Must support my career and be comfortable with a gradual getting-to-know-you period with families involved.",
+      familyBackground:
+        "Parents from Lahore; father drives for a ride-hailing app, mother is a teaching assistant. Conservative but supportive of education.",
+      fatherOccupation: "Private Hire Driver",
+      motherOccupation: "Teaching Assistant",
+      siblings: "1 older brother (married)",
+      diet: "Halal",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Urdu", "Punjabi"],
+      community: "British Pakistani Muslim",
+      willingToRelocate: true,
+      hobbies: ["Reading", "Mental health advocacy", "Urdu poetry"],
+      memberSince: "2025-05-22",
+      lastActive: "2026-07-04",
+    },
+  },
+  "profile-17": {
+    photos: [
+      "https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Civil engineer on Midlands highway projects with family mini-cab firm. Wolverhampton-born Sikh, turbaned, and active in local gurdwara youth seva.",
+      partnerExpectations:
+        "Sikh bride from a respectful family, 24–30. Must be comfortable with joint family visits and traditional wedding customs in the West Midlands.",
+      familyBackground:
+        "Punjabi family in Wolverhampton since the 1960s. Father started with factory work, now owns transport contracts.",
+      fatherOccupation: "Transport Business Owner",
+      motherOccupation: "Homemaker",
+      siblings: "1 sister (married, Coventry)",
+      diet: "Vegetarian",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Punjabi"],
+      community: "Punjabi Sikh",
+      willingToRelocate: false,
+      hobbies: ["Bhangra", "Gurdwara seva", "Engineering podcasts"],
+      memberSince: "2024-04-14",
+      lastActive: "2026-07-02",
+    },
+  },
+  "profile-18": {
+    photos: [
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Tamil Hindu biomedical scientist at NHS Greater Glasgow. Parents migrated from Sri Lanka via London; I speak Tamil at home and English at work.",
+      partnerExpectations:
+        "Hindu groom, preferably Tamil or South Indian, 27–34. Open to UK-wide matches if career allows.",
+      familyBackground:
+        "Tamil family in Glasgow's south side. Father is an NHS porter, mother works in a sari shop.",
+      fatherOccupation: "NHS Porter",
+      motherOccupation: "Retail Assistant",
+      siblings: "1 younger brother (university)",
+      diet: "Vegetarian",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Tamil"],
+      community: "Tamil Hindu",
+      willingToRelocate: true,
+      hobbies: ["Classical dance", "NHS research", "Hill walking"],
+      memberSince: "2024-08-07",
+      lastActive: "2026-07-01",
+    },
+  },
+  "profile-19": {
+    photos: [
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f2d?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Quantity surveyor on Leeds city centre builds. British Pakistani, cricket league on Sundays, and regular at Harehills masjid.",
+      partnerExpectations:
+        "Modest, educated Muslim bride, 23–29, from a UK-resident family. Prefer Yorkshire/Lancashire so both families can stay connected.",
+      familyBackground:
+        "Kashmiri-Pakistani heritage; father worked in textile mills, now owns a takeaway. Large cousin network across West Yorkshire.",
+      fatherOccupation: "Takeaway Owner",
+      motherOccupation: "Homemaker",
+      siblings: "2 sisters (one married)",
+      diet: "Halal",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Urdu", "Punjabi"],
+      community: "British Pakistani Muslim",
+      willingToRelocate: false,
+      hobbies: ["Cricket", "Construction sites", "Charity cricket"],
+      memberSince: "2024-01-30",
+      lastActive: "2026-07-03",
+    },
+  },
+  "profile-20": {
+    photos: [
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=1000&fit=crop",
+    ],
+    matrimony: {
+      aboutMe:
+        "Marketing executive in Slough/Reading corridor. Punjabi Hindu, vegetarian, and close to both Berkshire temples and London family events.",
+      partnerExpectations:
+        "Professional Hindu groom, 27–33, UK citizen or settled status. Vegetarian, respectful of parents, ready for marriage within 18 months.",
+      familyBackground:
+        "Parents in Slough; father is an IT contractor, mother works in a pharmacy. Typical commuter-belt Punjabi family.",
+      fatherOccupation: "IT Contractor",
+      motherOccupation: "Pharmacy Dispenser",
+      siblings: "1 brother (married, Hounslow)",
+      diet: "Vegetarian",
+      smoking: "Non-smoker",
+      drinking: "Does not drink",
+      languages: ["English", "Hindi", "Punjabi"],
+      community: "Punjabi Hindu",
+      willingToRelocate: true,
+      hobbies: ["Marketing", "Bollywood fitness", "Weekend trips to London"],
+      memberSince: "2024-10-11",
+      lastActive: "2026-07-04",
     },
   },
 };

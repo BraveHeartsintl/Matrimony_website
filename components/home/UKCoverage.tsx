@@ -1,12 +1,17 @@
+"use client";
+
 import Container from "@/components/ui/Container";
 import FadeIn from "@/components/ui/FadeIn";
 import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
-import { UK_REGIONS } from "@/lib/constants";
+import { usePlatformContent } from "@/hooks/usePlatformContent";
+import { formatRegionMembers } from "@/lib/platform-format";
 import { MapPin } from "lucide-react";
 
 export default function UKCoverage() {
+  const { regions } = usePlatformContent();
+
   return (
     <Section variant="surface">
       <Container>
@@ -20,24 +25,20 @@ export default function UKCoverage() {
         </FadeIn>
 
         <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {UK_REGIONS.map((region, i) => (
+          {regions.map((region, i) => (
             <FadeIn key={region.city} delay={i * 60} direction="scale">
               <div className="glass glass-hover flex items-center justify-between rounded-[10px] px-5 py-4">
                 <div className="flex items-center gap-3">
                   <MapPin className="h-4 w-4 text-accent" />
                   <span className="font-medium text-foreground">{region.city}</span>
                 </div>
-                <span className="text-xs font-medium text-muted">{region.members}</span>
+                <span className="text-xs font-medium text-muted">
+                  {formatRegionMembers(region.members)}
+                </span>
               </div>
             </FadeIn>
           ))}
         </div>
-
-        <FadeIn delay={100}>
-          <p className="mt-10 text-center text-sm text-muted-foreground">
-            Also serving Cardiff, Belfast, Coventry, Sheffield, Bristol, Nottingham & more
-          </p>
-        </FadeIn>
       </Container>
     </Section>
   );

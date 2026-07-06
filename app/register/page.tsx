@@ -103,7 +103,7 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen">
-      <div className="hidden w-80 flex-col justify-between bg-gradient-to-br from-deepest via-[#5c1a38] to-deepest p-8 text-white lg:flex">
+      <div className="hidden w-80 flex-col justify-between bg-gradient-to-br from-deepest via-navy-royal to-deepest p-8 text-white lg:flex">
         <div>
           <Link href="/" className="flex items-center gap-2">
             <Heart className="h-6 w-6 text-gold" />

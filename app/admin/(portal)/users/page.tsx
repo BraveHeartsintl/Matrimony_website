@@ -4,13 +4,26 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import { ADMIN_USERS } from "@/lib/mock/admin";
+import { fetchAdminUsers, updateUserAccountStatus } from "@/lib/firebase/services/admin.service";
+import type { AdminUser } from "@/lib/mock/admin";
 import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
-  const [users, setUsers] = useState(ADMIN_USERS);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void (async () => {
+      setLoading(true);
+      try {
+        setUsers(await fetchAdminUsers());
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
@@ -22,13 +35,13 @@ export default function AdminUsersPage() {
     );
   }, [users, query]);
 
-  const toggleStatus = (id: string) => {
+  const toggleStatus = async (id: string) => {
+    const user = users.find((u) => u.id === id);
+    if (!user) return;
+    const next = user.status === "suspended" ? "active" : "suspended";
+    await updateUserAccountStatus(id, next);
     setUsers((prev) =>
-      prev.map((u) =>
-        u.id === id
-          ? { ...u, status: u.status === "suspended" ? "active" : ("suspended" as const) }
-          : u
-      )
+      prev.map((u) => (u.id === id ? { ...u, status: next } : u))
     );
   };
 
@@ -51,63 +64,43 @@ export default function AdminUsersPage() {
         </div>
 
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-border text-xs uppercase text-muted">
-                <th className="pb-3 pr-4">Member</th>
-                <th className="pb-3 pr-4">Location</th>
-                <th className="pb-3 pr-4">Plan</th>
-                <th className="pb-3 pr-4">Status</th>
-                <th className="pb-3 pr-4">Verified</th>
-                <th className="pb-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((user) => (
-                <tr key={user.id} className="border-b border-border">
-                  <td className="py-4 pr-4">
-                    <p className="font-medium text-foreground">{user.name}</p>
-                    <p className="text-xs text-muted">{user.email}</p>
-                  </td>
-                  <td className="py-4 pr-4 text-muted">{user.location}</td>
-                  <td className="py-4 pr-4">
-                    <Badge variant={user.plan === "gold" ? "accent" : "default"}>
-                      {user.plan}
-                    </Badge>
-                  </td>
-                  <td className="py-4 pr-4">
-                    <Badge
-                      variant={
-                        user.status === "active"
-                          ? "success"
-                          : user.status === "pending"
-                            ? "warning"
-                            : "default"
-                      }
-                    >
-                      {user.status}
-                    </Badge>
-                  </td>
-                  <td className="py-4 pr-4">
-                    {user.verified ? (
-                      <span className="text-accent">Yes</span>
-                    ) : (
-                      <span className="text-muted">Pending</span>
-                    )}
-                  </td>
-                  <td className="py-4">
-                    <Button
-                      size="sm"
-                      variant={user.status === "suspended" ? "primary" : "outline"}
-                      onClick={() => toggleStatus(user.id)}
-                    >
-                      {user.status === "suspended" ? "Reactivate" : "Suspend"}
-                    </Button>
-                  </td>
+          {loading ? (
+            <p className="text-sm text-muted">Loading users…</p>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-border text-xs uppercase text-muted">
+                  <th className="pb-3 pr-4">Member</th>
+                  <th className="pb-3 pr-4">Location</th>
+                  <th className="pb-3 pr-4">Plan</th>
+                  <th className="pb-3 pr-4">Status</th>
+                  <th className="pb-3 pr-4">Verified</th>
+                  <th className="pb-3">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((user) => (
+                  <tr key={user.id} className="border-b border-border">
+                    <td className="py-3 pr-4">
+                      <p className="font-medium text-foreground">{user.name}</p>
+                      <p className="text-xs text-muted">{user.email}</p>
+                    </td>
+                    <td className="py-3 pr-4 text-muted">{user.location}</td>
+                    <td className="py-3 pr-4">
+                      <Badge variant="accent">{user.plan}</Badge>
+                    </td>
+                    <td className="py-3 pr-4 capitalize text-muted">{user.status}</td>
+                    <td className="py-3 pr-4">{user.verified ? "Yes" : "No"}</td>
+                    <td className="py-3">
+                      <Button size="sm" variant="outline" onClick={() => void toggleStatus(user.id)}>
+                        {user.status === "suspended" ? "Activate" : "Suspend"}
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </Card>
     </div>

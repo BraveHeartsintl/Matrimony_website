@@ -10,13 +10,13 @@ import Card from "@/components/ui/Card";
 import ProgressBar from "@/components/ui/ProgressBar";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useAuth } from "@/context/AuthContext";
+import { useConversations } from "@/hooks/useConversations";
+import { useInterests } from "@/hooks/useInterests";
+import { useSearchProfiles } from "@/hooks/useSearchProfiles";
 import { canAccess } from "@/lib/onboarding/access";
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
-import { filterCompatibleConversations, filterCompatibleProfiles, isCompatibleMatch } from "@/lib/matchmaking";
-import { MOCK_INTERESTS } from "@/lib/mock/interests";
-import { MOCK_CONVERSATIONS } from "@/lib/mock/messages";
-import { MOCK_PROFILES } from "@/lib/mock/profiles";
-import type { Profile } from "@/lib/types";
+import { filterCompatibleProfiles } from "@/lib/matchmaking";
+import type { Profile, SearchProfile } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/utils";
 import {
   ArrowRight,
@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -53,10 +54,53 @@ function isTipDone(key: (typeof PROFILE_TIPS)[number]["key"], profile: Profile):
   return profile.preferences.religions.length > 0;
 }
 
-const profilesByUserId = new Map(MOCK_PROFILES.map((p) => [p.userId, p]));
-
 export default function DashboardPage() {
   const { session } = useAuth();
+  const [profileLookup, setProfileLookup] = useState(
+    () => new Map<string, { name: string; photo: string }>()
+  );
+  const [allProfiles, setAllProfiles] = useState<SearchProfile[]>([]);
+
+  const { interests } = useInterests(session?.user.id);
+  const { conversations } = useConversations(session?.user.id, profileLookup);
+  const { profiles: searchProfiles } = useSearchProfiles(session?.user.id);
+
+  useEffect(() => {
+    setAllProfiles(searchProfiles);
+    const map = new Map<string, { name: string; photo: string }>();
+    searchProfiles.forEach((p) => map.set(p.id, { name: p.name, photo: p.photos[0] ?? "" }));
+    setProfileLookup(map);
+  }, [searchProfiles]);
+
+  const userId = session?.user.id;
+  const profilesByUserId = useMemo(
+    () => new Map(allProfiles.map((p) => [p.userId, p])),
+    [allProfiles]
+  );
+
+  const interestsEnriched = useMemo(() => {
+    if (!userId) return [];
+    return interests.map((interest) => {
+      const otherUserId =
+        interest.fromUserId === userId ? interest.toUserId : interest.fromUserId;
+      const other =
+        profilesByUserId.get(otherUserId) ?? allProfiles.find((p) => p.id === otherUserId);
+      const isReceived = interest.toUserId === userId;
+      return {
+        ...interest,
+        otherUserId,
+        otherUserName:
+          other?.name ??
+          (isReceived ? interest.fromUserName : interest.toUserName) ??
+          "Member",
+        otherUserPhoto:
+          other?.photos[0] ??
+          (isReceived ? interest.fromUserPhoto : interest.toUserPhoto) ??
+          "",
+      };
+    });
+  }, [interests, userId, profilesByUserId, allProfiles]);
+
   if (!session) return null;
 
   const { user, profile } = session;
@@ -64,22 +108,9 @@ export default function DashboardPage() {
   const canSeeMatchScore = canAccess(profile.onboardingStatus, "ai_compatibility_score");
   const isLimitedBrowse = profile.onboardingStatus === "basic_registered";
 
-  const conversations = filterCompatibleConversations(
-    MOCK_CONVERSATIONS,
-    profile.gender,
-    profilesByUserId
-  );
-
-  const interests = MOCK_INTERESTS.filter((i) => {
-    if (i.fromUserId !== user.id && i.toUserId !== user.id) return false;
-    const otherUserId = i.fromUserId === user.id ? i.toUserId : i.fromUserId;
-    const other = profilesByUserId.get(otherUserId);
-    if (!other) return true;
-    return isCompatibleMatch(profile.gender, other.gender);
-  });
-  const receivedInterests = interests.filter((i) => i.toUserId === user.id).length;
+  const receivedInterests = interestsEnriched.filter((i) => i.toUserId === user.id).length;
   const unreadMessages = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
-  const suggestedMatches = filterCompatibleProfiles(MOCK_PROFILES, profile.gender)
+  const suggestedMatches = filterCompatibleProfiles(allProfiles, profile.gender)
     .slice(0, isLimitedBrowse ? 3 : 4)
     .map((match) => ({
       profile: match,
@@ -154,7 +185,7 @@ export default function DashboardPage() {
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Profile Views" value="128" icon={Eye} trend="+12 this week" accent="accent" />
-        <StatCard label="Interests" value={interests.length} icon={Heart} trend={`${receivedInterests} received`} />
+        <StatCard label="Interests" value={interestsEnriched.length} icon={Heart} trend={`${receivedInterests} received`} />
         <StatCard label="Messages" value={unreadMessages} icon={MessageCircle} trend="Unread" />
         <StatCard label="Profile Score" value={`${profile.profileCompletion}%`} icon={Star} accent="accent" />
       </section>
@@ -280,7 +311,7 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {interests.length === 0 ? (
+        {interestsEnriched.length === 0 ? (
           <div className="mt-8 flex flex-col items-center rounded-[6px] glass-subtle py-10 text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-full glass">
               <Heart className="h-7 w-7 text-accent" />
@@ -295,19 +326,18 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {interests.map((interest) => {
+            {interestsEnriched.map((interest) => {
               const isReceived = interest.toUserId === user.id;
-              const displayName = isReceived ? interest.toUserName : interest.toUserName;
-              const displayPhoto = interest.toUserPhoto;
 
               return (
-                <div
+                <Link
                   key={interest.id}
-                  className="flex items-center gap-4 rounded-[6px] glass-subtle p-4 transition-colors hover:border-border-hover"
+                  href={`/messages?with=${encodeURIComponent(interest.otherUserId)}`}
+                  className="flex items-center gap-4 rounded-[6px] glass-subtle p-4 transition-colors hover:border-accent/25 hover:bg-surface/80"
                 >
-                  <Avatar src={displayPhoto} name={displayName} size="lg" />
+                  <Avatar src={interest.otherUserPhoto} name={interest.otherUserName} size="lg" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-foreground">{displayName}</p>
+                    <p className="truncate font-semibold text-foreground">{interest.otherUserName}</p>
                     <p className="text-xs text-muted">
                       {isReceived ? "Sent you interest" : "You sent interest"}
                     </p>
@@ -326,7 +356,7 @@ export default function DashboardPage() {
                   >
                     {interest.status}
                   </Badge>
-                </div>
+                </Link>
               );
             })}
           </div>

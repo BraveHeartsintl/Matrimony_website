@@ -2,7 +2,9 @@
 
 import Card from "@/components/ui/Card";
 import SectionLabel from "@/components/ui/SectionLabel";
-import { ADMIN_ANALYTICS, ADMIN_REPORTS, ADMIN_USERS } from "@/lib/mock/admin";
+import Button from "@/components/ui/Button";
+import { fetchAdminAnalytics, fetchAdminReports, fetchAdminUsers } from "@/lib/firebase/services/admin.service";
+import { isFirestoreSeeded, seedMockProfiles } from "@/lib/firebase/services/seed.service";
 import {
   CreditCard,
   Heart,
@@ -11,26 +13,102 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-
-const stats = [
-  { label: "Total Members", value: ADMIN_ANALYTICS.totalUsers.toLocaleString(), icon: Users },
-  { label: "Active Today", value: ADMIN_ANALYTICS.activeToday.toLocaleString(), icon: TrendingUp },
-  { label: "Verified Profiles", value: ADMIN_ANALYTICS.verifiedProfiles.toLocaleString(), icon: ShieldCheck },
-  { label: "Premium Members", value: ADMIN_ANALYTICS.premiumMembers.toLocaleString(), icon: CreditCard },
-  { label: "Success Stories", value: ADMIN_ANALYTICS.successStories.toLocaleString(), icon: Heart },
-  { label: "Messages Sent", value: `${(ADMIN_ANALYTICS.messagesSent / 1000).toFixed(0)}K`, icon: MessageSquare },
-];
+import { useEffect, useState } from "react";
 
 export default function AdminDashboardPage() {
-  const recentUsers = ADMIN_USERS.slice(0, 5);
-  const openReports = ADMIN_REPORTS.filter((r) => r.status !== "resolved");
+  const [analytics, setAnalytics] = useState<Record<string, number>>({});
+  const [recentUsers, setRecentUsers] = useState<Awaited<ReturnType<typeof fetchAdminUsers>>>([]);
+  const [openReports, setOpenReports] = useState<Awaited<ReturnType<typeof fetchAdminReports>>>([]);
+  const [seeded, setSeeded] = useState(true);
+  const [seeding, setSeeding] = useState(false);
+
+  const [seedMessage, setSeedMessage] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoadError(null);
+    try {
+      const [stats, users, reports, seedStatus] = await Promise.all([
+        fetchAdminAnalytics(),
+        fetchAdminUsers(),
+        fetchAdminReports(),
+        isFirestoreSeeded(),
+      ]);
+      setAnalytics(stats);
+      setRecentUsers(users.slice(0, 5));
+      setOpenReports(reports.filter((r) => r.status !== "resolved"));
+      setSeeded(seedStatus);
+    } catch (err) {
+      setLoadError(err instanceof Error ? err.message : "Failed to load admin data");
+    }
+  };
+
+  useEffect(() => {
+    void (async () => {
+      await load();
+      const seedStatus = await isFirestoreSeeded();
+      if (!seedStatus) {
+        setSeeding(true);
+        try {
+          const result = await seedMockProfiles();
+          setSeedMessage(
+            `Auto-loaded ${result.total} realistic UK demo profiles (${result.created} new, ${result.updated} updated).`
+          );
+          await load();
+        } catch (err) {
+          setSeedMessage(
+            err instanceof Error
+              ? err.message
+              : "Could not auto-seed demo profiles. Use the button below to retry."
+          );
+        } finally {
+          setSeeding(false);
+        }
+      }
+    })();
+  }, []);
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    setSeedMessage(null);
+    try {
+      const result = await seedMockProfiles();
+      setSeedMessage(
+        `Synced ${result.total} demo profiles (${result.created} new, ${result.updated} updated).`
+      );
+      await load();
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const stats = [
+    { label: "Total Members", value: (analytics.totalUsers ?? 0).toLocaleString(), icon: Users },
+    { label: "Active Today", value: (analytics.activeToday ?? 0).toLocaleString(), icon: TrendingUp },
+    { label: "Verified Profiles", value: (analytics.verifiedProfiles ?? 0).toLocaleString(), icon: ShieldCheck },
+    { label: "Premium Members", value: (analytics.premiumMembers ?? 0).toLocaleString(), icon: CreditCard },
+    { label: "Success Stories", value: (analytics.successStories ?? 0).toLocaleString(), icon: Heart },
+    { label: "Messages Sent", value: `${Math.round((analytics.messagesSent ?? 0) / 1000)}K`, icon: MessageSquare },
+  ];
 
   return (
     <div className="space-y-8">
-      <div>
-        <SectionLabel>Admin</SectionLabel>
-        <h1 className="font-display text-2xl font-bold text-foreground">Platform Overview</h1>
-        <p className="text-sm text-muted">Real-time analytics and key metrics (static demo data)</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <SectionLabel>Admin</SectionLabel>
+          <h1 className="font-display text-2xl font-bold text-foreground">Platform Overview</h1>
+          <p className="text-sm text-muted">
+            Live analytics from Firestore. Demo matches are realistic Brit Asian profiles across London,
+            Birmingham, Bradford, Leicester, Leeds, Glasgow, Cardiff and more.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <Button onClick={() => void handleSeed()} disabled={seeding}>
+            {seeding ? "Syncing…" : seeded ? "Sync Demo Matches" : "Seed Demo Profiles"}
+          </Button>
+          {seedMessage && <p className="text-xs text-muted">{seedMessage}</p>}
+          {loadError && <p className="text-xs text-red-600">{loadError}</p>}
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -56,25 +134,25 @@ export default function AdminDashboardPage() {
             <div className="rounded-[6px] glass-subtle p-4">
               <p className="text-xs uppercase tracking-wider text-muted">Monthly Revenue</p>
               <p className="mt-1 text-2xl font-bold text-accent">
-                £{ADMIN_ANALYTICS.monthlyRevenue.toLocaleString()}
+                £{(analytics.monthlyRevenue ?? 0).toLocaleString()}
               </p>
             </div>
             <div className="rounded-[6px] glass-subtle p-4">
               <p className="text-xs uppercase tracking-wider text-muted">New This Week</p>
               <p className="mt-1 text-2xl font-bold text-foreground">
-                +{ADMIN_ANALYTICS.newThisWeek}
+                +{analytics.newThisWeek ?? 0}
               </p>
             </div>
             <div className="rounded-[6px] glass-subtle p-4">
               <p className="text-xs uppercase tracking-wider text-muted">Pending Verification</p>
               <p className="mt-1 text-2xl font-bold text-accent">
-                {ADMIN_ANALYTICS.pendingVerification}
+                {analytics.pendingVerification ?? 0}
               </p>
             </div>
             <div className="rounded-[6px] glass-subtle p-4">
               <p className="text-xs uppercase tracking-wider text-muted">Open Reports</p>
               <p className="mt-1 text-2xl font-bold text-foreground">
-                {ADMIN_ANALYTICS.openReports}
+                {analytics.openReports ?? 0}
               </p>
             </div>
           </div>

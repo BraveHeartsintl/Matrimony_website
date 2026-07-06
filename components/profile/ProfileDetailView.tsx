@@ -2,13 +2,17 @@
 
 import MatchScoreDisplay from "@/components/matchmaking/MatchScoreDisplay";
 import LockedFeature from "@/components/onboarding/LockedFeature";
+import ReportProfileDialog from "@/components/profile/ReportProfileDialog";
 import ProfileGallery from "@/components/profile/ProfileGallery";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Tabs from "@/components/ui/Tabs";
 import { useAuth } from "@/context/AuthContext";
+import { useInterests } from "@/hooks/useInterests";
+import { sendInterest } from "@/lib/firebase/services/interest.service";
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
+import { resolveProfileId } from "@/lib/firebase/services/search.service";
 import { canAccess, getNextOnboardingRoute } from "@/lib/onboarding/access";
 import type { FullProfile } from "@/lib/types";
 import {
@@ -20,6 +24,7 @@ import {
 } from "@/lib/utils";
 import {
   ArrowLeft,
+  AlertTriangle,
   Briefcase,
   GraduationCap,
   Heart,
@@ -60,8 +65,11 @@ function DetailRow({ label, value }: { label: string; value: string }) {
 
 export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
   const [activeTab, setActiveTab] = useState("about");
-  const [interested, setInterested] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [interestBusy, setInterestBusy] = useState(false);
   const { session } = useAuth();
+  const { sentTo } = useInterests(session?.user.id);
+  const interested = sentTo(profile.id);
   const { matrimony } = profile;
 
   const status = session?.profile.onboardingStatus ?? "basic_registered";
@@ -211,7 +219,17 @@ export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
               <Button
                 size="lg"
                 variant={interested ? "secondary" : "primary"}
-                onClick={() => setInterested(!interested)}
+                disabled={interestBusy || interested}
+                onClick={() => {
+                  if (!session || interested || interestBusy) return;
+                  setInterestBusy(true);
+                  void sendInterest(session.user.id, profile.id, {
+                    toUserName: profile.name,
+                    toUserPhoto: profile.photos[0],
+                    fromUserName: session.user.name,
+                    fromUserPhoto: session.profile.photos[0],
+                  }).finally(() => setInterestBusy(false));
+                }}
               >
                 <Heart className={`h-4 w-4 ${interested ? "fill-current" : ""}`} />
                 {interested ? "Interest Sent" : "Send Interest"}
@@ -228,7 +246,7 @@ export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
             )}
             {canChat ? (
               <>
-                <Link href="/messages">
+                <Link href={`/messages?with=${encodeURIComponent(resolveProfileId(profile.id))}`}>
                   <Button size="lg" variant="outline">
                     <MessageCircle className="h-4 w-4" />
                     Message
@@ -250,9 +268,22 @@ export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
                 </Link>
               )
             )}
+            {session && session.user.id !== profile.id && (
+              <Button size="lg" variant="outline" onClick={() => setReportOpen(true)}>
+                <AlertTriangle className="h-4 w-4" />
+                Report
+              </Button>
+            )}
           </div>
         </div>
       </div>
+
+      <ReportProfileDialog
+        profileId={profile.id}
+        profileName={profile.name}
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+      />
 
       {canSeeFullProfile ? (
         <Card className="mt-10" padding="lg">

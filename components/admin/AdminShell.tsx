@@ -2,7 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import { SITE_NAME } from "@/lib/constants";
-import { adminLogout, isAdminLoggedIn } from "@/lib/admin-auth";
+import { adminLogout, ensureAdminFirebaseAuth, isAdminLoggedIn } from "@/lib/admin-auth";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
@@ -34,11 +34,27 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (!isAdminLoggedIn()) {
-      router.replace("/admin/login");
-    } else {
+    void (async () => {
+      const session = sessionStorage.getItem("uk_matrimony_admin_session");
+      if (!session) {
+        router.replace("/admin/login");
+        return;
+      }
+
+      const firebase = await ensureAdminFirebaseAuth();
+      if (!firebase.success) {
+        sessionStorage.removeItem("uk_matrimony_admin_session");
+        router.replace("/admin/login");
+        return;
+      }
+
+      if (!isAdminLoggedIn()) {
+        router.replace("/admin/login");
+        return;
+      }
+
       setReady(true);
-    }
+    })();
   }, [router]);
 
   const handleLogout = () => {
@@ -109,7 +125,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             Administration Dashboard
           </p>
           <span className="glass-accent rounded px-3 py-1 text-xs font-medium uppercase tracking-wider text-accent">
-            Static Demo
+            Live
           </span>
         </header>
 

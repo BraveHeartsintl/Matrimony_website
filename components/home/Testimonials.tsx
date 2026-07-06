@@ -1,37 +1,20 @@
+"use client";
+
 import Card from "@/components/ui/Card";
 import Container from "@/components/ui/Container";
 import FadeIn from "@/components/ui/FadeIn";
 import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
+import { usePlatformContent } from "@/hooks/usePlatformContent";
 import { Quote } from "lucide-react";
 import Image from "next/image";
 
-const testimonials = [
-  {
-    name: "Priya & Arjun",
-    location: "London",
-    community: "Hindu",
-    image: "/images/success-stories/success-sarah-david-london.png",
-    text: "We both grew up in London with Indian heritage and wanted someone who understood our culture and British upbringing. UK Matrimony made that possible — we matched within two months and married last summer.",
-  },
-  {
-    name: "Simran & Harpreet",
-    location: "Leicester",
-    community: "Sikh",
-    image: "/images/success-stories/success-anita-raj-manchester.png",
-    text: "Our families were involved from the start, which mattered to us. The platform's verification and privacy controls gave both families confidence. We couldn't be happier with our Anand Karaj.",
-  },
-  {
-    name: "Fatima & Omar",
-    location: "Birmingham",
-    community: "Muslim",
-    image: "/images/success-stories/success-emma-james-birmingham.png",
-    text: "As British Muslims, we needed a halal platform that respected our values. UK Matrimony connected us with serious, like-minded people. Alhamdulillah, we found each other here.",
-  },
-];
-
 export default function Testimonials() {
+  const { testimonials } = usePlatformContent();
+
+  if (testimonials.length === 0) return null;
+
   return (
     <Section variant="base">
       <Container>
@@ -55,7 +38,7 @@ export default function Testimonials() {
                     className="object-cover transition-all duration-500 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#3d1228]/80 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-deepest/80 via-transparent to-transparent" />
                   <span className="absolute left-4 top-4 rounded-full glass-pill px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gold">
                     {t.community}
                   </span>

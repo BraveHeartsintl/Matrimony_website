@@ -1,6 +1,4 @@
 import { EDUCATION_LEVELS } from "@/lib/constants";
-import { PROFILE_EXTRAS } from "@/lib/mock/profile-extras";
-import { DEMO_USER } from "@/lib/mock/users";
 import type { FullProfile, MatrimonyDetails, Profile, SearchProfile } from "@/lib/types";
 
 export type MatchLabel = "Excellent Match" | "Good Match" | "Average Match" | "Low Match";
@@ -38,19 +36,6 @@ interface MatchableProfile {
   willingToRelocate?: boolean;
 }
 
-const DEMO_VIEWER_MATRIMONY: Partial<MatrimonyDetails> = {
-  community: "British Christian",
-  diet: "Non-vegetarian",
-  smoking: "Non-smoker",
-  drinking: "Occasionally",
-  hobbies: ["Football", "Travel", "Reading", "Volunteering"],
-  familyBackground:
-    "Traditional British Christian family with strong community values and faith-centred upbringing.",
-  partnerExpectations:
-    "Seeking a kind, well-educated partner aged 25–35 who shares Christian or Hindu values, based in London or Manchester.",
-  willingToRelocate: false,
-};
-
 const UK_REGIONS: Record<string, string> = {
   London: "south",
   Manchester: "north",
@@ -83,26 +68,18 @@ const STOP_WORDS = new Set([
 ]);
 
 function resolveMatrimony(
-  profile: Profile | SearchProfile | FullProfile,
-  userId: string
+  profile: Profile | SearchProfile | FullProfile
 ): Partial<MatrimonyDetails> {
-  if ("matrimony" in profile && profile.matrimony) {
+  if ("matrimony" in profile && profile.matrimony && Object.keys(profile.matrimony).length > 0) {
     return profile.matrimony;
-  }
-  if ("id" in profile && PROFILE_EXTRAS[profile.id]) {
-    return PROFILE_EXTRAS[profile.id].matrimony;
-  }
-  if (userId === DEMO_USER.id) {
-    return DEMO_VIEWER_MATRIMONY;
   }
   return {};
 }
 
 function toMatchable(
-  profile: Profile | SearchProfile | FullProfile,
-  userId: string
+  profile: Profile | SearchProfile | FullProfile
 ): MatchableProfile {
-  const extras = resolveMatrimony(profile, userId);
+  const extras = resolveMatrimony(profile);
   return {
     age: profile.age,
     education: profile.education,
@@ -477,8 +454,8 @@ export function calculateMatchScore(
   viewer: Profile,
   target: SearchProfile | FullProfile
 ): MatchScoreResult {
-  const viewerMatchable = toMatchable(viewer, viewer.userId);
-  const targetMatchable = toMatchable(target, target.userId);
+  const viewerMatchable = toMatchable(viewer);
+  const targetMatchable = toMatchable(target);
 
   const criteria: CriterionResult[] = [
     scoreAge(viewerMatchable, targetMatchable),

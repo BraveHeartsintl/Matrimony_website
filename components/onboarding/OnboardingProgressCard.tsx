@@ -14,18 +14,20 @@ interface OnboardingProgressCardProps {
 }
 
 function phaseComplete(phaseId: number, status: OnboardingStatus): boolean {
-  if (phaseId === 1) return status !== "basic_registered";
-  if (phaseId === 2)
+  if (phaseId === 1) return true;
+  if (phaseId === 2) {
     return ["profile_completed", "verification_pending", "verified", "rejected"].includes(status);
+  }
   if (phaseId === 3) return status === "verified";
   return false;
 }
 
 function phaseActive(phaseId: number, status: OnboardingStatus): boolean {
-  if (phaseId === 1) return status === "basic_registered";
-  if (phaseId === 2)
-    return status === "profile_completed" || status === "rejected";
-  if (phaseId === 3) return status === "verification_pending";
+  if (status === "verified") return false;
+  if (phaseId === 2) return status === "basic_registered";
+  if (phaseId === 3) {
+    return ["profile_completed", "rejected", "verification_pending"].includes(status);
+  }
   return false;
 }
 
