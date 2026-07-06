@@ -17,6 +17,7 @@ export interface AdminReport {
   reason: string;
   status: "open" | "reviewing" | "resolved";
   createdAt: string;
+  
 }
 
 export interface AdminSubscription {
