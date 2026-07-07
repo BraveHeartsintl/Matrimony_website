@@ -1,8 +1,7 @@
 "use client";
 
 import { getFirebaseAnalytics } from "@/lib/firebase/analytics";
-import { getFirebaseApp, getFirebaseAuth, isFirebaseConfigured } from "@/lib/firebase/config";
-import { initializeRecaptchaConfig } from "firebase/auth";
+import { getFirebaseApp, isFirebaseConfigured } from "@/lib/firebase/config";
 import { useEffect } from "react";
 
 export default function FirebaseProvider({ children }: { children: React.ReactNode }) {
@@ -15,12 +14,9 @@ export default function FirebaseProvider({ children }: { children: React.ReactNo
     }
     getFirebaseApp();
     void getFirebaseAnalytics();
-
-    // Required for Firebase phone auth (12.x + Blaze plan).
-    // Without this, reCAPTCHA Enterprise config is empty and phone OTP fails with 400.
-    void initializeRecaptchaConfig(getFirebaseAuth()).catch(() => {
-      // Non-fatal — falls back to reCAPTCHA v2 on domains where Enterprise is not configured.
-    });
+    // Note: do NOT call initializeRecaptchaConfig here unless reCAPTCHA Enterprise
+    // site keys are fully configured in Firebase Console → Authentication → reCAPTCHA.
+    // Without Enterprise keys, calling it breaks the standard v2 reCAPTCHA phone auth flow.
   }, []);
 
   return children;

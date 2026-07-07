@@ -115,6 +115,10 @@ export async function sendPhoneOtp(
     return await provider.verifyPhoneNumber(normalized, verifier);
   } catch (error) {
     clearPhoneRecaptcha();
+    // Log the raw Firebase error code to help diagnose reCAPTCHA/backend issues.
+    if (error instanceof Error && "code" in error) {
+      console.error("[phone-otp] Firebase error code:", (error as { code?: string }).code, error.message);
+    }
     throw new Error(mapFirebaseError(error, "Failed to send OTP. Please try again.", "phone"));
   }
 }
