@@ -19,7 +19,7 @@ export default function MatchStats() {
               Your story is waiting to happen
             </p>
             <h2 className="mt-4 font-display text-3xl font-bold text-foreground lg:text-5xl">
-              Over {stats.matches} Brit Asian Matches
+              Over {stats.matches} UK's Indian Matches
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-muted">
               Real couples. Real families. Real weddings — all starting with a single profile on

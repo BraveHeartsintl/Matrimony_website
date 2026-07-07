@@ -1,10 +1,10 @@
 export const SITE_NAME = "UK Matrimony";
 
 export const SITE_TAGLINE =
-  "The UK's trusted matchmaking service for Brit Asian singles";
+  "The UK's trusted matchmaking service for UK's Indian singles";
 
 export const SITE_DESCRIPTION =
-  "Join thousands of verified Brit Asian singles across England, Scotland, Wales & Northern Ireland. Register free, connect with compatible matches, and find your life partner on the UK's dedicated matrimony platform.";
+  "Join thousands of verified UK's Indian singles across England, Scotland, Wales & Northern Ireland. Register free, connect with compatible matches, and find your life partner on the UK's dedicated matrimony platform.";
 
 export const SITE_STATS = {
   members: "50,000+",

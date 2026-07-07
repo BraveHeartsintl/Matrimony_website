@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { getNextOnboardingRoute } from "@/lib/onboarding/access";
+import { getNextOnboardingRoute, getOptionalVerificationRoute } from "@/lib/onboarding/access";
 import type { OnboardingStatus } from "@/lib/types";
 import Link from "next/link";
 import { Lock } from "lucide-react";
@@ -19,7 +19,7 @@ export default function LockedFeature({
   children,
   className,
 }: LockedFeatureProps) {
-  const nextRoute = getNextOnboardingRoute(status);
+  const nextRoute = getNextOnboardingRoute(status) ?? getOptionalVerificationRoute(status);
 
   return (
     <div className={`relative ${className ?? ""}`}>

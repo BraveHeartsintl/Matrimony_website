@@ -1,5 +1,9 @@
-import { compressImageFile } from "@/lib/firebase/image-compress";
-import { getFirebaseStorage } from "@/lib/firebase/config";
+import {
+  compressVerificationImage,
+  contentTypeForFile,
+  prepareImageUpload,
+} from "@/lib/firebase/image-compress";
+import { getFirebaseAuth, getFirebaseStorage } from "@/lib/firebase/config";
 import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 function extensionForFile(file: File): string {
@@ -11,44 +15,81 @@ function extensionForFile(file: File): string {
   return "jpg";
 }
 
+/** Only use Firestore inline images when explicitly enabled (local demo without Storage). */
 function storageDemoFallbackEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_FIREBASE_STORAGE_DEMO_MODE !== "false";
+  return process.env.NEXT_PUBLIC_FIREBASE_STORAGE_DEMO_MODE === "true";
 }
 
-function isStorageUnavailableError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+function storageSetupHint(): string {
   return (
-    message.includes("cors") ||
-    message.includes("network") ||
-    message.includes("storage") ||
-    message.includes("404") ||
-    message.includes("403") ||
-    message.includes("failed") ||
-    message.includes("unauthorized")
+    "Firebase Storage upload failed. In Firebase Console open Build → Storage, confirm the bucket is enabled, " +
+    "then deploy rules: firebase deploy --only storage"
   );
+}
+
+function getStorageErrorCode(error: unknown): string {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    return String((error as { code?: string }).code);
+  }
+  return "";
+}
+
+function isStorageInfrastructureError(error: unknown): boolean {
+  const code = getStorageErrorCode(error).toLowerCase();
+  const message = error instanceof Error ? error.message.toLowerCase() : String(error).toLowerCase();
+
+  return (
+    code === "storage/bucket-not-found" ||
+    code === "storage/object-not-found" ||
+    code === "storage/canceled" ||
+    code === "storage/retry-limit-exceeded" ||
+    message.includes("cors") ||
+    message.includes("network error") ||
+    message.includes("failed to fetch")
+  );
+}
+
+function assertSignedInUploader(userId: string): void {
+  const authUser = getFirebaseAuth().currentUser;
+  if (!authUser) {
+    throw new Error("You must be signed in to upload files.");
+  }
+  if (authUser.uid !== userId) {
+    throw new Error("Upload session mismatch. Please sign out and sign in again.");
+  }
 }
 
 async function uploadImageWithFallback(file: File, upload: () => Promise<string>): Promise<string> {
   try {
     return await upload();
   } catch (error) {
-    if (!storageDemoFallbackEnabled() || !file.type.startsWith("image/")) {
+    const code = getStorageErrorCode(error);
+    console.error("[storage] Upload failed", code, error);
+
+    if (storageDemoFallbackEnabled() && isStorageInfrastructureError(error)) {
+      console.warn("[storage] Using compressed Firestore fallback (demo mode).");
+      return compressVerificationImage(file);
+    }
+
+    if (code === "storage/unauthorized" || code === "storage/unauthenticated") {
       throw new Error(
-        "Firebase Storage is not available. Enable Storage in the Firebase Console (Build → Storage → Get started), then retry. " +
-          (error instanceof Error ? error.message : "Upload failed")
+        `${storageSetupHint()} Storage rules blocked this upload (not signed in or rules not deployed).`
       );
     }
-    if (!isStorageUnavailableError(error)) throw error;
-    console.warn("[storage] Firebase Storage upload failed; using compressed Firestore fallback.", error);
-    return compressImageFile(file);
+
+    throw new Error(
+      `${storageSetupHint()}${error instanceof Error ? `: ${error.message}` : ""}`
+    );
   }
 }
 
 export async function uploadProfilePhoto(userId: string, file: File): Promise<string> {
   return uploadImageWithFallback(file, async () => {
-    const path = `profiles/${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${extensionForFile(file)}`;
+    assertSignedInUploader(userId);
+    const { bytes, contentType } = await prepareImageUpload(file);
+    const path = `profiles/${userId}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
     const storageRef = ref(getFirebaseStorage(), path);
-    await uploadBytes(storageRef, file, { contentType: file.type || "image/jpeg" });
+    await uploadBytes(storageRef, bytes, { contentType });
     return getDownloadURL(storageRef);
   });
 }
@@ -70,30 +111,40 @@ export async function uploadVerificationDoc(
   file: File,
   kind: VerificationDocKind
 ): Promise<string> {
-  const isImage = file.type.startsWith("image/") || kind === "id" || kind === "selfie";
+  const isImage =
+    file.type.startsWith("image/") ||
+    kind === "id" ||
+    kind === "selfie" ||
+    ["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"].includes(
+      file.name.split(".").pop()?.toLowerCase() ?? ""
+    );
 
   if (isImage) {
     return uploadImageWithFallback(file, async () => {
-      const path = `verification/${userId}/${kind}-${Date.now()}.${extensionForFile(file)}`;
+      assertSignedInUploader(userId);
+      const { bytes, contentType } = await prepareImageUpload(file, {
+        maxWidth: 1400,
+        maxHeight: 1400,
+        quality: 0.86,
+      });
+      const path = `verification/${userId}/${kind}-${Date.now()}.jpg`;
       const storageRef = ref(getFirebaseStorage(), path);
-      const contentType = file.type || "image/jpeg";
-      await uploadBytes(storageRef, file, { contentType });
+      await uploadBytes(storageRef, bytes, { contentType });
       return getDownloadURL(storageRef);
     });
   }
 
-  // PDFs require Firebase Storage
+  assertSignedInUploader(userId);
   const path = `verification/${userId}/${kind}-${Date.now()}.${extensionForFile(file)}`;
   const storageRef = ref(getFirebaseStorage(), path);
   try {
     await uploadBytes(storageRef, file, {
-      contentType: file.type || "application/pdf",
+      contentType: contentTypeForFile(file),
     });
     return getDownloadURL(storageRef);
   } catch (error) {
     throw new Error(
-      "Could not upload document. Enable Firebase Storage in the Firebase Console (Build → Storage → Get started). " +
-        (error instanceof Error ? error.message : "")
+      `${storageSetupHint()}${error instanceof Error ? `: ${error.message}` : ""}`
     );
   }
 }

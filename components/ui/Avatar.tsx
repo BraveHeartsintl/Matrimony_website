@@ -1,5 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface AvatarProps {
   src?: string;
@@ -8,7 +11,22 @@ interface AvatarProps {
   className?: string;
 }
 
+function needsUnoptimized(src: string): boolean {
+  return (
+    src.startsWith("data:") ||
+    src.includes("firebasestorage.googleapis.com") ||
+    src.includes("firebasestorage.app")
+  );
+}
+
 export default function Avatar({ src, name, size = "md", className }: AvatarProps) {
+  const [failed, setFailed] = useState(false);
+  const photoSrc = src?.trim();
+
+  useEffect(() => {
+    setFailed(false);
+  }, [photoSrc]);
+
   const sizes = {
     sm: "h-8 w-8 text-xs",
     md: "h-10 w-10 text-sm",
@@ -25,15 +43,17 @@ export default function Avatar({ src, name, size = "md", className }: AvatarProp
     .slice(0, 2)
     .toUpperCase();
 
-  if (src) {
+  if (photoSrc && !failed) {
     return (
       <div className={cn("relative overflow-hidden rounded-full img-bw", sizes[size], className)}>
         <Image
-          src={src}
+          src={photoSrc}
           alt={name}
           width={imageSizes[size]}
           height={imageSizes[size]}
           className="h-full w-full object-cover"
+          unoptimized={needsUnoptimized(photoSrc)}
+          onError={() => setFailed(true)}
         />
       </div>
     );

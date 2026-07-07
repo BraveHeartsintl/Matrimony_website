@@ -16,7 +16,7 @@ export default function Communities() {
           <SectionLabel>Communities</SectionLabel>
           <SplitHeadline primary="Browse by" muted="Faith & Culture" />
           <p className="mt-4 max-w-xl text-muted">
-            Whether you are looking within your faith or cultural community, we help Brit Asian
+            Whether you are looking within your faith or cultural community, we help UK's Indian
             families find compatible matches across the United Kingdom.
           </p>
         </FadeIn>

@@ -19,6 +19,17 @@ function interestId(fromUserId: string, toUserId: string): string {
   return `${fromUserId}_${toUserId}`;
 }
 
+/** Match auth uid, profile id, or legacy seed/mock ids to the same member. */
+export function isSameMemberId(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  return resolveProfileId(a) === resolveProfileId(b);
+}
+
+export function isInterestReceived(interest: Interest, userId: string): boolean {
+  return isSameMemberId(interest.toUserId, userId);
+}
+
 function mapInterest(docId: string, data: Record<string, unknown>): Interest {
   return {
     id: docId,
@@ -128,6 +139,14 @@ export async function updateInterestStatus(
     { status, updatedAt: serverTimestamp() },
     { merge: true }
   );
+}
+
+export async function acceptInterest(interestId: string): Promise<void> {
+  await updateInterestStatus(interestId, "accepted");
+}
+
+export async function declineInterest(interestId: string): Promise<void> {
+  await updateInterestStatus(interestId, "declined");
 }
 
 export async function hasSentInterest(fromUserId: string, toUserId: string): Promise<boolean> {

@@ -13,11 +13,11 @@ import {
   subscribeAuthState,
 } from "@/lib/firebase/services/auth.service";
 import {
-  createVerificationRequest,
   ensureUserAndProfile,
   touchLastActive,
   updateProfile as updateProfileInFirestore,
 } from "@/lib/firebase/services/profile.service";
+import { saveVerificationFields } from "@/lib/firebase/services/verification.service";
 import { isFirebaseConfigured } from "@/lib/firebase/config";
 import type { AuthSession, MatrimonyDetails, Profile, VerificationData } from "@/lib/types";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -33,11 +33,11 @@ interface AuthContextType {
     profile: Partial<Profile>;
   }) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
-  updateProfile: (updates: Partial<Profile>) => void;
+  updateProfile: (updates: Partial<Profile>) => Promise<void>;
   updateMatrimony: (updates: Partial<MatrimonyDetails>) => void;
   updateVerification: (updates: Partial<VerificationData>) => Promise<void>;
   completeOnboardingProfile: (updates: Partial<Profile>) => Promise<void>;
-  submitVerificationRequest: () => void;
+  submitVerificationRequest: () => Promise<void>;
   simulateVerificationApproval: () => void;
   simulateVerificationRejection: (reason: string) => void;
 }
@@ -95,20 +95,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const current = sessionRef.current;
     if (!current) return;
     const profileToSave = profileOverride ?? sessionRef.current?.profile ?? current.profile;
-    const saved = await updateProfileInFirestore(current.user.id, current.user, profileToSave);
-    const latest = sessionRef.current;
-    if (latest) {
-      const merged: Profile = {
-        ...latest.profile,
-        ...saved,
-        verification: { ...latest.profile.verification, ...saved.verification },
-        matrimony: { ...latest.profile.matrimony, ...saved.matrimony },
-        preferences: { ...latest.profile.preferences, ...saved.preferences },
-        privacySettings: { ...latest.profile.privacySettings, ...saved.privacySettings },
-      };
-      const nextSession = { ...latest, profile: merged };
-      setSession(nextSession);
-      sessionRef.current = nextSession;
+    try {
+      const saved = await updateProfileInFirestore(current.user.id, current.user, profileToSave);
+      const latest = sessionRef.current;
+      if (latest) {
+        const merged: Profile = {
+          ...latest.profile,
+          ...saved,
+          verification: { ...latest.profile.verification, ...saved.verification },
+          matrimony: { ...latest.profile.matrimony, ...saved.matrimony },
+          preferences: { ...latest.profile.preferences, ...saved.preferences },
+          privacySettings: { ...latest.profile.privacySettings, ...saved.privacySettings },
+        };
+        const nextSession = { ...latest, profile: merged };
+        setSession(nextSession);
+        sessionRef.current = nextSession;
+      }
+    } catch (error) {
+      console.error("[auth] Failed to save profile to Firestore", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message.includes("longer than")
+            ? "Image is too large to save. Enable Firebase Storage in your Firebase project and try again."
+            : error.message
+          : "Could not save profile. Please try again."
+      );
     }
   }, []);
 
@@ -141,7 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const updateProfile = useCallback(
-    (updates: Partial<Profile>) => {
+    async (updates: Partial<Profile>) => {
       const current = sessionRef.current;
       if (!current) return;
 
@@ -158,7 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(nextSession);
       sessionRef.current = nextSession;
 
-      void persistProfile(updatedProfile);
+      await persistProfile(updatedProfile);
     },
     [persistProfile]
   );
@@ -177,18 +188,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const current = sessionRef.current;
       if (!current) return;
 
+      const mergedVerification: VerificationData = {
+        ...current.profile.verification,
+        ...updates,
+      };
+
       const updatedProfile: Profile = {
         ...current.profile,
-        verification: { ...current.profile.verification, ...updates },
+        verification: mergedVerification,
       };
 
       const nextSession = { ...current, profile: updatedProfile };
       setSession(nextSession);
       sessionRef.current = nextSession;
 
-      await persistProfile(updatedProfile);
+      try {
+        await saveVerificationFields(current.user.id, current.user, mergedVerification);
+      } catch (error) {
+        console.error("[auth] Failed to save verification", error);
+        throw new Error(
+          error instanceof Error
+            ? error.message.includes("longer than") || error.message.includes("size")
+              ? "Image is too large to save. Enable Firebase Storage in your Firebase project and try again."
+              : error.message
+            : "Could not save verification document. Please try again."
+        );
+      }
     },
-    [persistProfile]
+    []
   );
 
   const completeOnboardingProfile = useCallback(
@@ -205,21 +232,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const submitVerificationRequest = useCallback(() => {
+  const submitVerificationRequest = useCallback(async () => {
     const current = sessionRef.current;
     if (!current) return;
 
     const updated = submitVerification(current.profile);
-    void (async () => {
-      await persistProfile(updated);
-      await createVerificationRequest({
-        userId: current.user.id,
-        name: current.user.name,
-        email: current.user.email,
-        submittedAt: updated.verification.submittedAt ?? new Date().toISOString(),
-        idDocumentType: updated.verification.idDocumentType,
-      });
-    })();
+    await persistProfile(updated);
+    await saveVerificationFields(current.user.id, current.user, updated.verification, {
+      submitted: true,
+    });
   }, [persistProfile]);
 
   const simulateVerificationApproval = useCallback(() => {

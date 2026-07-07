@@ -191,7 +191,7 @@ export default function OnboardingProfilePage() {
           ),
         },
       });
-      router.push("/onboarding/verify");
+      router.push("/dashboard");
     } catch {
       setError("Failed to save your profile. Please try again.");
     } finally {

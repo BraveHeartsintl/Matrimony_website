@@ -20,7 +20,7 @@ export default function CTA() {
             <SectionLabel>Get Started</SectionLabel>
             <SplitHeadline primary="Ready to Find" muted="Your Life Partner?" />
             <p className="mx-auto mt-6 max-w-xl text-lg text-muted">
-              Join {stats.members} Brit Asian singles on the UK&apos;s dedicated matrimony platform.
+              Join {stats.members} UK&apos;s Indian singles on the UK&apos;s dedicated matrimony platform.
               Registration is free and takes less than 5 minutes.
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">

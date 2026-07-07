@@ -51,7 +51,7 @@ export default function QuickStart() {
                 <ul className="mt-6 space-y-4">
                   {[
                     "Create and publish your matrimony profile",
-                    "Browse verified Brit Asian profiles across the UK",
+                    "Browse verified UK's Indian profiles across the UK",
                     "Send interests to profiles you like",
                     "Receive match recommendations based on your preferences",
                   ].map((item, i) => (

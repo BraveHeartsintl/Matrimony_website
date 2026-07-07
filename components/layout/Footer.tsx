@@ -36,7 +36,7 @@ export default function Footer() {
             </div>
             <p className="mt-3 max-w-sm text-sm text-muted">{SITE_TAGLINE}.</p>
             <p className="mt-2 max-w-sm text-sm text-muted">
-              Connecting Brit Asian singles across England, Scotland, Wales, and Northern
+              Connecting UK&apos;s Indian singles across England, Scotland, Wales, and Northern
               Ireland with verified profiles, privacy controls, and dedicated support.
             </p>
             <div className="mt-6 flex gap-5 lg:hidden">
@@ -93,7 +93,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} {SITE_NAME}. The UK&apos;s Leading Brit Asian
+          &copy; {new Date().getFullYear()} {SITE_NAME}. The UK&apos;s Leading UK&apos;s Indian
           Matchmaking Service. All rights reserved.
         </div>
       </Container>

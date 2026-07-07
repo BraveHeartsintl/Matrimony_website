@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
           <SectionLabel>Admin</SectionLabel>
           <h1 className="font-display text-2xl font-bold text-foreground">Platform Overview</h1>
           <p className="text-sm text-muted">
-            Live analytics from Firestore. Demo matches are realistic Brit Asian profiles across London,
+            Live analytics from Firestore. Demo matches are realistic UK's Indian profiles across London,
             Birmingham, Bradford, Leicester, Leeds, Glasgow, Cardiff and more.
           </p>
         </div>

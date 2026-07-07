@@ -19,7 +19,7 @@ export default function UKCoverage() {
           <SectionLabel>UK Coverage</SectionLabel>
           <SplitHeadline primary="Members Across" muted="the United Kingdom" />
           <p className="mt-4 max-w-xl text-muted">
-            From London to Glasgow, Birmingham to Bradford — connect with verified Brit Asian
+            From London to Glasgow, Birmingham to Bradford — connect with verified UK's Indian
             singles in every major UK city.
           </p>
         </FadeIn>

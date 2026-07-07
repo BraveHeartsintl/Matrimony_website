@@ -41,31 +41,31 @@ export function canAccess(status: OnboardingStatus, feature: OnboardingFeature):
 
 export function getOnboardingPhase(status: OnboardingStatus): 1 | 2 | 3 {
   if (status === "basic_registered") return 2;
-  if (
-    status === "profile_completed" ||
-    status === "rejected" ||
-    status === "verification_pending" ||
-    status === "verified"
-  ) {
-    return 3;
-  }
+  if (status === "rejected" || status === "verification_pending") return 3;
+  if (status === "profile_completed" || status === "verified") return 2;
   return 1;
 }
 
+/** Required next step only — Phase 3 verification is optional after profile completion. */
 export function getNextOnboardingRoute(status: OnboardingStatus): string | null {
   switch (status) {
     case "basic_registered":
       return "/onboarding/profile";
-    case "profile_completed":
     case "rejected":
       return "/onboarding/verify";
+    case "profile_completed":
     case "verification_pending":
-      return null;
     case "verified":
       return null;
     default:
       return null;
   }
+}
+
+/** Optional identity verification — user chooses when to start Phase 3. */
+export function getOptionalVerificationRoute(status: OnboardingStatus): string | null {
+  if (status === "profile_completed") return "/onboarding/verify";
+  return null;
 }
 
 export function getOnboardingStatusLabel(status: OnboardingStatus): string {
@@ -90,7 +90,7 @@ export function getPhaseCtaMessage(status: OnboardingStatus): string | null {
     case "basic_registered":
       return "Complete your profile to unlock compatibility scores and send interests.";
     case "profile_completed":
-      return "Verify your identity to unlock messaging and contact details.";
+      return "Optional: verify your identity anytime to unlock contact details and your verified badge.";
     case "verification_pending":
       return "Your verification is under review. We'll notify you once approved.";
     case "rejected":

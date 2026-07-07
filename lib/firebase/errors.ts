@@ -19,6 +19,12 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/credential-already-in-use": "This phone number is already linked to another account.",
   "auth/provider-already-linked": "This phone number is already verified on your account.",
   "auth/captcha-check-failed": "Security check failed. Refresh the page and try again.",
+  "auth/app-not-authorized":
+    "This domain is not authorized for Firebase Auth. Add your current domain in Firebase Console → Authentication → Settings → Authorized domains.",
+  "auth/invalid-app-credential":
+    "Phone OTP cannot be sent from localhost (Firebase policy). Open the app on 127.0.0.1 instead of localhost, OR add a test phone number in Firebase Console → Authentication → Sign-in method → Phone → Phone numbers for testing.",
+  "auth/missing-app-credential":
+    "reCAPTCHA could not initialise. Refresh the page and try again.",
   "auth/quota-exceeded": "SMS limit reached. Please try again later.",
   "auth/user-token-expired": "Session expired. Please log in again.",
   "permission-denied": "Permission denied. Please try again or contact support.",
@@ -28,13 +34,8 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
 function operationNotAllowedMessage(context?: FirebaseErrorContext): string {
   if (context === "phone") {
     return [
-      "Phone OTP could not be sent.",
-      "Check Firebase Console → Authentication → Sign-in method:",
-      "1) Enable Phone",
-      "2) Enable Email/Password (required for login)",
-      "3) Upgrade to Blaze plan for real SMS",
-      "4) Add localhost under Authorized domains",
-      "5) For testing, add your number under Phone numbers for testing",
+      "Phone sign-in is not enabled.",
+      "In Firebase Console → Authentication → Sign-in method → Phone: click Enable and Save.",
     ].join(" ");
   }
   if (context === "register") {

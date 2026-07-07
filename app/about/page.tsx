@@ -12,7 +12,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Learn about UK Matrimony — the UK's trusted matchmaking platform for Brit Asian singles seeking meaningful, lifelong partnerships.",
+    "Learn about UK Matrimony — the UK's trusted matchmaking platform for UK's Indian singles seeking meaningful, lifelong partnerships.",
 };
 
 const values = [
@@ -20,7 +20,7 @@ const values = [
     icon: Heart,
     title: "Meaningful Connections",
     description:
-      "We believe every Brit Asian deserves a genuine, lasting relationship built on trust, respect, shared culture, and family values.",
+      "We believe every UK's Indian deserves a genuine, lasting relationship built on trust, respect, shared culture, and family values.",
   },
   {
     icon: Shield,
@@ -30,7 +30,7 @@ const values = [
   },
   {
     icon: Users,
-    title: "Brit Asian Community",
+    title: "UK's Indian Community",
     description:
       "Built specifically for British Asian singles across England, Scotland, Wales, and Northern Ireland — understanding both heritage and modern British life.",
   },
@@ -48,7 +48,7 @@ export default function AboutPage() {
       <Section variant="deepest" className="!py-24">
         <Container className="max-w-3xl text-center">
           <SectionLabel>About Us</SectionLabel>
-          <SplitHeadline primary="About UK Matrimony" muted="Brit Asian Matchmaking" />
+          <SplitHeadline primary="About UK Matrimony" muted="UK's Indian Matchmaking" />
           <p className="mt-6 text-lg text-muted">{SITE_TAGLINE} since 2020.</p>
         </Container>
       </Section>
@@ -68,7 +68,7 @@ export default function AboutPage() {
             Our platform combines modern technology with traditional values, offering advanced
             search filters by faith, city, education, and profession, alongside profile verification,
             privacy controls, and a dedicated UK-based support team. Whether you are Hindu, Sikh,
-            Muslim, or Christian — we help Brit Asian families connect with confidence.
+            Muslim, or Christian — we help UK's Indian families connect with confidence.
           </p>
         </Container>
       </Section>

@@ -22,7 +22,7 @@ export default function Testimonials() {
           <SectionLabel>Success Stories</SectionLabel>
           <SplitHeadline primary="Real Couples" muted="Real Weddings" />
           <p className="mt-4 text-muted">
-            Hear from Brit Asian couples who found their life partner through UK Matrimony
+            Hear from UK's Indian couples who found their life partner through UK Matrimony
           </p>
         </FadeIn>
 

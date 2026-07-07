@@ -2,6 +2,7 @@ import MatchScoreDisplay from "@/components/matchmaking/MatchScoreDisplay";
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import { getProfilePhotoUrl } from "@/lib/profile-photos";
 import type { MatchScoreResult } from "@/lib/matchmaking/calculateMatchScore";
 import type { SearchProfile } from "@/lib/types";
 import { Heart, MapPin, ShieldCheck } from "lucide-react";
@@ -16,7 +17,7 @@ export default function SuggestedMatchCard({ profile, matchResult }: SuggestedMa
   return (
     <div className="group flex min-w-[220px] flex-col rounded-[6px] glass p-4 transition-colors hover:border-border-hover sm:min-w-[240px]">
       <div className="relative mx-auto">
-        <Avatar src={profile.photos[0]} name={profile.name} size="xl" />
+        <Avatar src={getProfilePhotoUrl(profile)} name={profile.name} size="xl" />
         {profile.verified && (
           <div className="absolute -bottom-1 -right-1 rounded-full glass p-0.5">
             <ShieldCheck className="h-5 w-5 text-accent" />

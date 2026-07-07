@@ -51,6 +51,23 @@ export function formatGender(gender: string): string {
   return labels[gender] ?? gender;
 }
 
+export function formatInterestStatus(status: string): string {
+  const labels: Record<string, string> = {
+    pending: "Pending",
+    accepted: "Approved",
+    declined: "Rejected",
+  };
+  return labels[status] ?? status;
+}
+
+export function interestStatusBadgeVariant(
+  status: string
+): "default" | "success" | "warning" | "accent" {
+  if (status === "accepted") return "success";
+  if (status === "declined") return "warning";
+  return "default";
+}
+
 export function formatRelativeTime(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();

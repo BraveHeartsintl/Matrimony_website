@@ -58,9 +58,11 @@ export function getFirebaseApp(): FirebaseApp {
 export function getFirebaseAuth(): Auth {
   if (!auth) {
     auth = getAuth(getFirebaseApp());
-    if (process.env.NEXT_PUBLIC_FIREBASE_PHONE_TEST_MODE === "true") {
-      auth.settings.appVerificationDisabledForTesting = true;
-    }
+  }
+  // Must be applied every call — auth may be cached before this flag is read.
+  // Only takes effect with Firebase test phone numbers configured in the console.
+  if (process.env.NEXT_PUBLIC_FIREBASE_PHONE_TEST_MODE === "true") {
+    auth.settings.appVerificationDisabledForTesting = true;
   }
   return auth;
 }

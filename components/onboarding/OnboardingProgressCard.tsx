@@ -2,7 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
-import { getNextOnboardingRoute, getOnboardingStatusLabel } from "@/lib/onboarding/access";
+import { getNextOnboardingRoute, getOptionalVerificationRoute, getOnboardingStatusLabel } from "@/lib/onboarding/access";
 import { ONBOARDING_PHASES } from "@/lib/constants";
 import type { OnboardingStatus } from "@/lib/types";
 import { Check } from "lucide-react";
@@ -26,7 +26,7 @@ function phaseActive(phaseId: number, status: OnboardingStatus): boolean {
   if (status === "verified") return false;
   if (phaseId === 2) return status === "basic_registered";
   if (phaseId === 3) {
-    return ["profile_completed", "rejected", "verification_pending"].includes(status);
+    return status === "rejected" || status === "verification_pending";
   }
   return false;
 }
@@ -35,6 +35,7 @@ export default function OnboardingProgressCard({ status }: OnboardingProgressCar
   if (status === "verified") return null;
 
   const nextRoute = getNextOnboardingRoute(status);
+  const optionalVerifyRoute = getOptionalVerificationRoute(status);
 
   return (
     <Card className="mb-8" padding="lg">
@@ -51,11 +52,18 @@ export default function OnboardingProgressCard({ status }: OnboardingProgressCar
             </span>
           </p>
         </div>
-        {nextRoute && (
-          <Link href={nextRoute}>
-            <Button>Continue Setup</Button>
-          </Link>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {nextRoute && (
+            <Link href={nextRoute}>
+              <Button>Continue Setup</Button>
+            </Link>
+          )}
+          {optionalVerifyRoute && (
+            <Link href={optionalVerifyRoute}>
+              <Button variant="outline">Verify Identity (optional)</Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       <ol className="mt-6 grid gap-4 sm:grid-cols-3">

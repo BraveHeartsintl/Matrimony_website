@@ -208,4 +208,9 @@ export interface PendingVerificationSubmission {
   email: string;
   submittedAt: string;
   idDocumentType?: string;
+  idDocumentPreview?: string;
+  selfiePreview?: string;
+  educationDocPreview?: string;
+  employmentDocPreview?: string;
+  stage?: string;
 }

@@ -38,7 +38,7 @@ export default function FeaturedProfiles() {
           <SectionLabel>Discover</SectionLabel>
           <SplitHeadline primary="Featured Profiles" muted="from across the UK" />
           <p className="mt-4 text-muted">
-            Verified Brit Asian members from London, Birmingham, Manchester, Leicester and beyond
+            Verified UK's Indian members from London, Birmingham, Manchester, Leicester and beyond
           </p>
         </FadeIn>
 

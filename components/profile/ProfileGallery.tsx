@@ -37,6 +37,7 @@ export default function ProfileGallery({ photos, name }: ProfileGalleryProps) {
             className="object-cover transition-opacity duration-300"
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority
+            unoptimized={displayPhotos[activeIndex].startsWith("data:")}
           />
         )}
 
@@ -96,6 +97,7 @@ export default function ProfileGallery({ photos, name }: ProfileGalleryProps) {
                 fill
                 className="object-cover"
                 sizes="80px"
+                unoptimized={photo.startsWith("data:")}
               />
             </button>
           ))}

@@ -127,6 +127,13 @@ export async function updateProfile(
   user: { name: string; email: string },
   updates: Partial<Profile>
 ): Promise<Profile> {
+  if (updates.photos) {
+    updates = {
+      ...updates,
+      photos: updates.photos.map((photo) => photo.trim()).filter(Boolean),
+    };
+  }
+
   const current = (await getProfile(uid)) ?? createDefaultProfile(uid);
   const updated = normalizeProfile({
     ...current,
@@ -159,28 +166,17 @@ export async function createVerificationRequest(
     name: submission.name,
     email: submission.email,
     idDocumentType: submission.idDocumentType ?? null,
+    idDocumentPreview: submission.idDocumentPreview ?? null,
+    selfiePreview: submission.selfiePreview ?? null,
+    educationDocPreview: submission.educationDocPreview ?? null,
+    employmentDocPreview: submission.employmentDocPreview ?? null,
     status: "pending",
     submittedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
 }
 
-export async function getPendingVerifications(): Promise<PendingVerificationSubmission[]> {
-  const db = getFirebaseDb();
-  const q = query(collection(db, "verificationRequests"), where("status", "==", "pending"));
-  const snap = await getDocs(q);
-
-  return snap.docs.map((docSnap) => {
-    const data = docSnap.data();
-    return {
-      userId: String(data.userId ?? docSnap.id),
-      name: String(data.name ?? ""),
-      email: String(data.email ?? ""),
-      submittedAt: timestampToIso(data.submittedAt) ?? new Date().toISOString(),
-      idDocumentType: data.idDocumentType as string | undefined,
-    };
-  });
-}
+export { getPendingVerifications } from "./verification.service";
 
 export async function resolveVerificationRequest(
   userId: string,

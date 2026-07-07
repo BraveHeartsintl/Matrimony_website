@@ -14,7 +14,7 @@ let recaptchaContainerId: string | undefined;
 const DEMO_VERIFICATION_PREFIX = "demo-otp:";
 
 export function isPhoneDemoMode(): boolean {
-  return process.env.NEXT_PUBLIC_FIREBASE_PHONE_DEMO_MODE !== "false";
+  return process.env.NEXT_PUBLIC_FIREBASE_PHONE_DEMO_MODE === "true";
 }
 
 /** Normalize UK/local input to E.164 (defaults to +44 when no country code). */

@@ -28,7 +28,7 @@ export default function Hero() {
   const { stats } = usePlatformContent();
 
   const heroStats = [
-    { value: stats.members, label: "Members", description: "Brit Asian singles in the UK" },
+    { value: stats.members, label: "Members", description: "UK's Indian singles in the UK" },
     { value: stats.matches, label: "Matches", description: "Successful connections made" },
     { value: stats.verified, label: "Verified", description: "Profile authenticity rate" },
   ];
@@ -53,7 +53,7 @@ export default function Hero() {
             🇬🇧
           </span>
           <span className="text-xs font-semibold uppercase tracking-[0.12em] text-gold">
-            Serving Brit Asian singles across the United Kingdom
+            Serving UK's Indian singles across the United Kingdom
           </span>
         </div>
 

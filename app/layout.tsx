@@ -17,14 +17,14 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: `${SITE_NAME} — Brit Asian Matchmaking UK`,
+    default: `${SITE_NAME} — UK's Indian Matchmaking UK`,
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "The UK's trusted matchmaking service for Brit Asian singles. Register free, browse verified profiles, and find your life partner across England, Scotland, Wales & Northern Ireland.",
+    "The UK's trusted matchmaking service for UK's Indian singles. Register free, browse verified profiles, and find your life partner across England, Scotland, Wales & Northern Ireland.",
   keywords: [
     "UK matrimony",
-    "Brit Asian dating",
+    "UK's Indian dating",
     "British Asian marriage",
     "Hindu matrimony UK",
     "Sikh matrimony UK",
@@ -33,9 +33,9 @@ export const metadata: Metadata = {
     "shaadi UK alternative",
   ],
   openGraph: {
-    title: `${SITE_NAME} — The UK's Trusted Brit Asian Matchmaking Service`,
+    title: `${SITE_NAME} — The UK's Trusted UK's Indian Matchmaking Service`,
     description:
-      "Join 50,000+ verified Brit Asian singles. Register free and find your life partner on the UK's dedicated matrimony platform.",
+      "Join 50,000+ verified UK's Indian singles. Register free and find your life partner on the UK's dedicated matrimony platform.",
     locale: "en_GB",
     type: "website",
     siteName: SITE_NAME,

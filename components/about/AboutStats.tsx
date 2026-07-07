@@ -10,7 +10,7 @@ export default function AboutStats() {
   return (
     <>
       <p className="mt-4 text-muted">
-        With over {stats.members} registered Brit Asian members and {stats.matches} successful
+        With over {stats.members} registered UK's Indian members and {stats.matches} successful
         matches, UK Matrimony is one of the fastest-growing matrimony platforms in the United
         Kingdom.
       </p>
@@ -18,7 +18,7 @@ export default function AboutStats() {
         <StatBlock
           value={stats.members}
           label="Members"
-          description="Brit Asian singles in the UK"
+          description="UK's Indian singles in the UK"
         />
         <StatBlock value={stats.matches} label="Matches" description="Successful connections" />
         <StatBlock value={stats.verified} label="Verified" description="Profile authenticity rate" />

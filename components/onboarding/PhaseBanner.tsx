@@ -1,7 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { getNextOnboardingRoute, getPhaseCtaMessage } from "@/lib/onboarding/access";
+import { getNextOnboardingRoute, getOptionalVerificationRoute, getPhaseCtaMessage } from "@/lib/onboarding/access";
 import type { OnboardingStatus } from "@/lib/types";
 import { X } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +15,7 @@ export default function PhaseBanner({ status }: PhaseBannerProps) {
   const [dismissed, setDismissed] = useState(false);
   const message = getPhaseCtaMessage(status);
   const nextRoute = getNextOnboardingRoute(status);
+  const optionalVerifyRoute = getOptionalVerificationRoute(status);
 
   if (dismissed || !message || status === "verified" || status === "verification_pending") {
     return null;
@@ -27,6 +28,13 @@ export default function PhaseBanner({ status }: PhaseBannerProps) {
         {nextRoute && (
           <Link href={nextRoute}>
             <Button size="sm">Continue</Button>
+          </Link>
+        )}
+        {optionalVerifyRoute && (
+          <Link href={optionalVerifyRoute}>
+            <Button size="sm" variant="outline">
+              Verify Identity
+            </Button>
           </Link>
         )}
         <button

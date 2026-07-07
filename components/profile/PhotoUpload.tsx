@@ -9,7 +9,7 @@ import { useRef, useState } from "react";
 interface PhotoUploadProps {
   userId: string;
   photos: string[];
-  onChange: (photos: string[]) => void;
+  onChange: (photos: string[]) => void | Promise<void>;
   maxPhotos?: number;
 }
 
@@ -31,7 +31,7 @@ export default function PhotoUpload({
     setError("");
     try {
       const url = await uploadProfilePhoto(userId, file);
-      onChange([...photos, url]);
+      await onChange([...photos, url]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -49,7 +49,13 @@ export default function PhotoUpload({
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {photos.map((photo, i) => (
           <div key={photo} className="relative aspect-square overflow-hidden rounded-lg border border-border">
-            <Image src={photo} alt={`Photo ${i + 1}`} fill className="object-cover" />
+            <Image
+              src={photo}
+              alt={`Photo ${i + 1}`}
+              fill
+              className="object-cover"
+              unoptimized={photo.startsWith("data:")}
+            />
             <button
               type="button"
               onClick={() => removePhoto(i)}

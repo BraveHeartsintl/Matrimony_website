@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 export default function SearchProfileClient() {
   const searchParams = useSearchParams();
   const profileId = searchParams.get("id");
+  const interestId = searchParams.get("interest");
   const [profile, setProfile] = useState<FullProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -82,5 +83,5 @@ export default function SearchProfileClient() {
     );
   }
 
-  return <ProfileDetailView profile={profile} />;
+  return <ProfileDetailView profile={profile} interestId={interestId} />;
 }

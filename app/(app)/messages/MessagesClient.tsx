@@ -7,7 +7,7 @@ import Card from "@/components/ui/Card";
 import { useAuth } from "@/context/AuthContext";
 import { useConversations, useMessages } from "@/hooks/useConversations";
 import { useInterests } from "@/hooks/useInterests";
-import { canAccess, getNextOnboardingRoute } from "@/lib/onboarding/access";
+import { canAccess, getNextOnboardingRoute, getOptionalVerificationRoute } from "@/lib/onboarding/access";
 import {
   fetchSearchProfiles,
   getPublicSearchProfile,

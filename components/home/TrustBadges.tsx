@@ -25,7 +25,7 @@ const badges = [
   {
     icon: Heart,
     title: "Trusted by Thousands",
-    desc: "50,000+ Brit Asian members across England, Scotland, Wales & Northern Ireland",
+    desc: "50,000+ UK's Indian members across England, Scotland, Wales & Northern Ireland",
   },
 ];
 

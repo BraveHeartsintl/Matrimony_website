@@ -4,6 +4,7 @@ import PhaseBanner from "@/components/onboarding/PhaseBanner";
 import { useAuth } from "@/context/AuthContext";
 import { canAccess, getOnboardingStatusLabel } from "@/lib/onboarding/access";
 import { APP_NAV, SITE_NAME } from "@/lib/constants";
+import { getProfilePhotoUrl } from "@/lib/profile-photos";
 import { cn } from "@/lib/utils";
 import {
   Crown,
@@ -54,6 +55,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const status = session.profile.onboardingStatus;
   const messagesLocked = !canAccess(status, "direct_chat");
+  const profilePhoto = getProfilePhotoUrl(session.profile);
 
   const handleLogout = () => {
     logout();
@@ -98,7 +100,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="border-t border-border p-4">
           <div className="mb-3 flex items-center gap-3">
-            <Avatar src={session.profile.photos[0]} name={session.user.name} size="sm" />
+            <Avatar src={profilePhoto} name={session.user.name} size="sm" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-foreground">{session.user.name}</p>
               <p className="truncate text-xs text-muted">{session.user.email}</p>
@@ -120,7 +122,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <Menu className="h-6 w-6 text-foreground" />
           </button>
           <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
-          <Avatar src={session.profile.photos[0]} name={session.user.name} size="sm" />
+          <Avatar src={profilePhoto} name={session.user.name} size="sm" />
         </header>
 
         <main className="flex-1 overflow-auto p-4 pb-20 lg:p-8 lg:pb-8">

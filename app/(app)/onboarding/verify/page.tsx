@@ -22,13 +22,13 @@ import {
 } from "@/lib/firebase/services/email.service";
 import { uploadVerificationDoc } from "@/lib/firebase/services/storage.service";
 import { getFirebaseAuth } from "@/lib/firebase/config";
+import { profileHasPhoto } from "@/lib/profile-photos";
 import type { IdDocumentType } from "@/lib/types";
 import { Check, Clock, ShieldCheck, Upload } from "lucide-react";
 import Image from "next/image";
 import { reload } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 
 const STEPS = [
   "Mobile OTP",
@@ -42,6 +42,7 @@ const STEPS = [
 export default function OnboardingVerifyPage() {
   const {
     session,
+    updateProfile,
     updateVerification,
     submitVerificationRequest,
     simulateVerificationApproval,
@@ -55,7 +56,6 @@ export default function OnboardingVerifyPage() {
   const [verificationId, setVerificationId] = useState<string | null>(null);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
-  const [recaptchaKey, setRecaptchaKey] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
   const [aiChecking, setAiChecking] = useState(false);
   const [aiProgress, setAiProgress] = useState(0);
@@ -140,18 +140,6 @@ export default function OnboardingVerifyPage() {
     }
   };
 
-  const prepareRecaptchaContainer = (): string => {
-    clearPhoneRecaptcha();
-    let nextKey = 0;
-    flushSync(() => {
-      setRecaptchaKey((current) => {
-        nextKey = current + 1;
-        return nextKey;
-      });
-    });
-    return `recaptcha-container-${nextKey}`;
-  };
-
   const phoneDemoMode = isPhoneDemoMode();
 
   const handlePhoneVerify = async () => {
@@ -169,7 +157,7 @@ export default function OnboardingVerifyPage() {
     setError("");
     try {
       const normalized = normalizePhoneNumber(trimmed);
-      const containerId = phoneDemoMode ? "recaptcha-skip" : prepareRecaptchaContainer();
+      const containerId = phoneDemoMode ? "recaptcha-skip" : "recaptcha-container";
       const id = await sendPhoneOtp(normalized, containerId, {
         forceNewRecaptcha: !phoneDemoMode,
       });
@@ -209,7 +197,6 @@ export default function OnboardingVerifyPage() {
     setOtpCode("");
     setVerificationId(null);
     clearPhoneRecaptcha();
-    setRecaptchaKey((k) => k + 1);
     setError("");
   };
 
@@ -247,12 +234,16 @@ export default function OnboardingVerifyPage() {
     const file = e.target.files?.[0];
     if (!file || !verification.idDocumentType || !session) return;
     setUploadingDoc(true);
+    setError("");
     try {
       await runAiCheck(async () => {
         const url = await uploadVerificationDoc(session.user.id, file, "id");
-        setIdPreviewLocal(url);
         await updateVerification({ idDocumentPreview: url });
+        setIdPreviewLocal(url);
       });
+    } catch (err) {
+      setIdPreviewLocal(null);
+      setError(err instanceof Error ? err.message : "Failed to save ID document");
     } finally {
       setUploadingDoc(false);
       e.target.value = "";
@@ -263,19 +254,26 @@ export default function OnboardingVerifyPage() {
     const file = e.target.files?.[0];
     if (!file || !session) return;
     setUploadingDoc(true);
+    setError("");
     try {
       await runAiCheck(async () => {
         const url = await uploadVerificationDoc(session.user.id, file, "selfie");
-        setSelfiePreviewLocal(url);
         await updateVerification({ selfiePreview: url });
+        if (!profileHasPhoto(session.profile)) {
+          await updateProfile({ photos: [url] });
+        }
+        setSelfiePreviewLocal(url);
       });
+    } catch (err) {
+      setSelfiePreviewLocal(null);
+      setError(err instanceof Error ? err.message : "Failed to save selfie");
     } finally {
       setUploadingDoc(false);
       e.target.value = "";
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!verification.phoneVerified || !verification.emailVerified) {
       setError("Complete phone and email verification first");
       return;
@@ -284,8 +282,13 @@ export default function OnboardingVerifyPage() {
       setError("ID document and selfie are required");
       return;
     }
-    submitVerificationRequest();
-    router.push("/dashboard");
+    setError("");
+    try {
+      await submitVerificationRequest();
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to submit verification");
+    }
   };
 
   return (
@@ -309,7 +312,7 @@ export default function OnboardingVerifyPage() {
           {step === 0 && (
             <>
               {!phoneDemoMode && (
-                <div key={recaptchaKey} id={`recaptcha-container-${recaptchaKey}`} />
+                <div id="recaptcha-container" />
               )}
               <Input
                 label="Mobile Number"
@@ -340,7 +343,7 @@ export default function OnboardingVerifyPage() {
                     autoComplete="one-time-code"
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    placeholder={MOCK_OTP_CODE}
+                    placeholder="Enter 6-digit OTP"
                     maxLength={6}
                   />
                   {phoneDemoMode && (
@@ -430,7 +433,7 @@ export default function OnboardingVerifyPage() {
                     />
                   </div>
                   <p className="flex items-center gap-2 text-sm text-accent">
-                    <Check className="h-4 w-4" /> ID document uploaded
+                    <Check className="h-4 w-4" /> ID document saved to your account
                   </p>
                   <Button
                     variant="ghost"
@@ -485,7 +488,7 @@ export default function OnboardingVerifyPage() {
                     />
                   </div>
                   <p className="flex items-center justify-center gap-2 text-sm text-accent">
-                    <Check className="h-4 w-4" /> Selfie uploaded
+                    <Check className="h-4 w-4" /> Selfie saved to your account
                   </p>
                   <p className="text-center text-xs text-muted">Face match: pending admin review</p>
                   <Button
@@ -527,11 +530,18 @@ export default function OnboardingVerifyPage() {
                 className="hidden"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
-                  if (file && session) {
+                  if (!file || !session) return;
+                  setUploadingDoc(true);
+                  setError("");
+                  try {
                     const url = await uploadVerificationDoc(session.user.id, file, "education");
-                    updateVerification({ educationDocPreview: url });
+                    await updateVerification({ educationDocPreview: url });
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "Upload failed");
+                  } finally {
+                    setUploadingDoc(false);
+                    e.target.value = "";
                   }
-                  e.target.value = "";
                 }}
               />
               <input
@@ -541,11 +551,18 @@ export default function OnboardingVerifyPage() {
                 className="hidden"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
-                  if (file && session) {
+                  if (!file || !session) return;
+                  setUploadingDoc(true);
+                  setError("");
+                  try {
                     const url = await uploadVerificationDoc(session.user.id, file, "employment");
-                    updateVerification({ employmentDocPreview: url });
+                    await updateVerification({ employmentDocPreview: url });
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "Upload failed");
+                  } finally {
+                    setUploadingDoc(false);
+                    e.target.value = "";
                   }
-                  e.target.value = "";
                 }}
               />
               <div className="flex flex-wrap gap-3">
@@ -619,7 +636,7 @@ export default function OnboardingVerifyPage() {
                 Continue
               </Button>
             ) : (
-              <Button className="flex-1" onClick={handleSubmit}>
+              <Button className="flex-1" onClick={() => void handleSubmit()}>
                 Submit for Review
               </Button>
             )}

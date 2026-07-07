@@ -1,8 +1,22 @@
 "use client";
 
-import { subscribeInterests } from "@/lib/firebase/services/interest.service";
+import {
+  isSameMemberId,
+  subscribeInterests,
+} from "@/lib/firebase/services/interest.service";
+import { resolveProfileId } from "@/lib/firebase/services/search.service";
 import type { Interest } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
+function matchesProfile(interest: Interest, userId: string, profileId: string): boolean {
+  const resolved = resolveProfileId(profileId);
+  return (
+    (isSameMemberId(interest.fromUserId, userId) &&
+      resolveProfileId(interest.toUserId) === resolved) ||
+    (isSameMemberId(interest.toUserId, userId) &&
+      resolveProfileId(interest.fromUserId) === resolved)
+  );
+}
 
 export function useInterests(userId: string | undefined) {
   const [interests, setInterests] = useState<Interest[]>([]);
@@ -22,10 +36,30 @@ export function useInterests(userId: string | undefined) {
     return unsub;
   }, [userId]);
 
-  const sentTo = (profileId: string) =>
-    interests.some((i) => i.fromUserId === userId && i.toUserId === profileId);
+  const sentTo = useCallback(
+    (profileId: string) =>
+      interests.some(
+        (i) =>
+          isSameMemberId(i.fromUserId, userId ?? "") &&
+          resolveProfileId(i.toUserId) === resolveProfileId(profileId)
+      ),
+    [interests, userId]
+  );
 
-  const receivedCount = interests.filter((i) => i.toUserId === userId).length;
+  const interestById = useCallback(
+    (interestId: string): Interest | undefined => interests.find((i) => i.id === interestId),
+    [interests]
+  );
 
-  return { interests, loading, sentTo, receivedCount };
+  const interestForProfile = useCallback(
+    (profileId: string): Interest | undefined => {
+      if (!userId) return undefined;
+      return interests.find((i) => matchesProfile(i, userId, profileId));
+    },
+    [interests, userId]
+  );
+
+  const receivedCount = interests.filter((i) => isSameMemberId(i.toUserId, userId ?? "")).length;
+
+  return { interests, loading, sentTo, interestForProfile, interestById, receivedCount };
 }

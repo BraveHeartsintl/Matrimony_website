@@ -10,7 +10,12 @@ import Card from "@/components/ui/Card";
 import Tabs from "@/components/ui/Tabs";
 import { useAuth } from "@/context/AuthContext";
 import { useInterests } from "@/hooks/useInterests";
-import { sendInterest } from "@/lib/firebase/services/interest.service";
+import {
+  acceptInterest,
+  declineInterest,
+  isInterestReceived,
+  sendInterest,
+} from "@/lib/firebase/services/interest.service";
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
 import { resolveProfileId } from "@/lib/firebase/services/search.service";
 import { canAccess, getNextOnboardingRoute } from "@/lib/onboarding/access";
@@ -19,13 +24,16 @@ import {
   formatBodyType,
   formatDate,
   formatGender,
+  formatInterestStatus,
   formatMaritalStatus,
   formatRelativeTime,
+  interestStatusBadgeVariant,
 } from "@/lib/utils";
 import {
   ArrowLeft,
   AlertTriangle,
   Briefcase,
+  Check,
   GraduationCap,
   Heart,
   Mail,
@@ -37,12 +45,14 @@ import {
   Users,
   Video,
   Weight,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
 interface ProfileDetailViewProps {
   profile: FullProfile;
+  interestId?: string | null;
 }
 
 const TABS = [
@@ -63,13 +73,21 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
+export default function ProfileDetailView({ profile, interestId }: ProfileDetailViewProps) {
   const [activeTab, setActiveTab] = useState("about");
   const [reportOpen, setReportOpen] = useState(false);
   const [interestBusy, setInterestBusy] = useState(false);
+  const [statusBusy, setStatusBusy] = useState(false);
   const { session } = useAuth();
-  const { sentTo } = useInterests(session?.user.id);
+  const { sentTo, interestForProfile, interestById } = useInterests(session?.user.id);
   const interested = sentTo(profile.id);
+  const relatedInterest = useMemo(() => {
+    if (interestId) {
+      const byId = interestById(interestId);
+      if (byId) return byId;
+    }
+    return interestForProfile(profile.id) ?? interestForProfile(profile.userId);
+  }, [interestId, interestById, interestForProfile, profile.id, profile.userId]);
   const { matrimony } = profile;
 
   const status = session?.profile.onboardingStatus ?? "basic_registered";
@@ -87,6 +105,25 @@ export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
         : undefined,
     [session, profile, canSeeMatchScore]
   );
+
+  const isReceivedInterest = Boolean(
+    relatedInterest && session && isInterestReceived(relatedInterest, session.user.id)
+  );
+  const canRespondToInterest = Boolean(isReceivedInterest && relatedInterest?.status === "pending");
+  const canMessage =
+    canChat && (!relatedInterest || relatedInterest.status === "accepted");
+
+  const handleApproveInterest = () => {
+    if (!relatedInterest || statusBusy) return;
+    setStatusBusy(true);
+    void acceptInterest(relatedInterest.id).finally(() => setStatusBusy(false));
+  };
+
+  const handleRejectInterest = () => {
+    if (!relatedInterest || statusBusy) return;
+    setStatusBusy(true);
+    void declineInterest(relatedInterest.id).finally(() => setStatusBusy(false));
+  };
 
   const detailGrid = canSeeFullProfile
     ? [
@@ -147,6 +184,79 @@ export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
               </div>
             </div>
           </div>
+
+          {relatedInterest && (
+            <Card
+              className={`mt-6 ${canRespondToInterest ? "border-2 border-accent/50 bg-accent/5" : "border-accent/25"}`}
+              padding="md"
+            >
+              <div className="flex flex-col gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Interest Status
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <Badge variant={interestStatusBadgeVariant(relatedInterest.status)}>
+                      {formatInterestStatus(relatedInterest.status)}
+                    </Badge>
+                    <span className="text-xs text-muted">
+                      {isReceivedInterest ? "They sent you an interest" : "You sent an interest"} ·{" "}
+                      {formatRelativeTime(relatedInterest.createdAt)}
+                    </span>
+                  </div>
+                  {canRespondToInterest && (
+                    <p className="mt-2 text-sm font-medium text-foreground">
+                      This member is interested in you. Approve to connect or reject to decline.
+                    </p>
+                  )}
+                  {!isReceivedInterest && relatedInterest.status === "pending" && (
+                    <p className="mt-2 text-sm text-muted">
+                      You sent this interest. Only <strong>{profile.name}</strong> can approve or
+                      reject it — you are waiting for their response.
+                    </p>
+                  )}
+                  {relatedInterest.status === "accepted" && (
+                    <p className="mt-2 text-sm text-muted">
+                      {isReceivedInterest
+                        ? "You approved this interest. You can now message each other."
+                        : "They approved your interest. You can now message each other."}
+                    </p>
+                  )}
+                  {relatedInterest.status === "declined" && isReceivedInterest && (
+                    <p className="mt-2 text-sm text-muted">You rejected this interest.</p>
+                  )}
+                  {relatedInterest.status === "declined" && !isReceivedInterest && (
+                    <p className="mt-2 text-sm text-muted">
+                      {profile.name} declined your interest.
+                    </p>
+                  )}
+                </div>
+                {canRespondToInterest && (
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Button
+                      size="lg"
+                      className="flex-1"
+                      disabled={statusBusy}
+                      onClick={handleApproveInterest}
+                    >
+                      <Check className="h-4 w-4" />
+                      Approve Interest
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="flex-1"
+                      disabled={statusBusy}
+                      onClick={handleRejectInterest}
+                    >
+                      <X className="h-4 w-4" />
+                      Reject
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
 
           <div className="mt-6 flex flex-wrap gap-2">
             <Badge variant="accent">{profile.religion}</Badge>
@@ -244,7 +354,7 @@ export default function ProfileDetailView({ profile }: ProfileDetailViewProps) {
                 </Link>
               )
             )}
-            {canChat ? (
+            {canMessage ? (
               <>
                 <Link href={`/messages?with=${encodeURIComponent(resolveProfileId(profile.id))}`}>
                   <Button size="lg" variant="outline">

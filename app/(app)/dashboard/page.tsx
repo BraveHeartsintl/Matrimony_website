@@ -1,6 +1,7 @@
 "use client";
 
 import SuggestedMatchCard from "@/components/dashboard/SuggestedMatchCard";
+import InterestCard from "@/components/dashboard/InterestCard";
 import OnboardingProgressCard from "@/components/onboarding/OnboardingProgressCard";
 import StatCard from "@/components/dashboard/StatCard";
 import Avatar from "@/components/ui/Avatar";
@@ -13,9 +14,12 @@ import { useAuth } from "@/context/AuthContext";
 import { useConversations } from "@/hooks/useConversations";
 import { useInterests } from "@/hooks/useInterests";
 import { useSearchProfiles } from "@/hooks/useSearchProfiles";
+import { isInterestReceived } from "@/lib/firebase/services/interest.service";
 import { canAccess } from "@/lib/onboarding/access";
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
 import { filterCompatibleProfiles } from "@/lib/matchmaking";
+import { resolveProfileId } from "@/lib/firebase/services/search.service";
+import { getProfilePhotoUrl, profileHasPhoto } from "@/lib/profile-photos";
 import type { Profile, SearchProfile } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/utils";
 import {
@@ -49,7 +53,7 @@ const PROFILE_TIPS = [
 ];
 
 function isTipDone(key: (typeof PROFILE_TIPS)[number]["key"], profile: Profile): boolean {
-  if (key === "photos") return profile.photos.length > 0;
+  if (key === "photos") return profileHasPhoto(profile);
   if (key === "bio") return profile.bio.length > 20;
   return profile.preferences.religions.length > 0;
 }
@@ -68,7 +72,9 @@ export default function DashboardPage() {
   useEffect(() => {
     setAllProfiles(searchProfiles);
     const map = new Map<string, { name: string; photo: string }>();
-    searchProfiles.forEach((p) => map.set(p.id, { name: p.name, photo: p.photos[0] ?? "" }));
+    searchProfiles.forEach((p) =>
+      map.set(p.id, { name: p.name, photo: getProfilePhotoUrl(p) ?? "" })
+    );
     setProfileLookup(map);
   }, [searchProfiles]);
 
@@ -89,12 +95,13 @@ export default function DashboardPage() {
       return {
         ...interest,
         otherUserId,
+        otherProfileId: other?.id ?? resolveProfileId(otherUserId),
         otherUserName:
           other?.name ??
           (isReceived ? interest.fromUserName : interest.toUserName) ??
           "Member",
         otherUserPhoto:
-          other?.photos[0] ??
+          getProfilePhotoUrl(other ?? {}) ??
           (isReceived ? interest.fromUserPhoto : interest.toUserPhoto) ??
           "",
       };
@@ -104,11 +111,18 @@ export default function DashboardPage() {
   if (!session) return null;
 
   const { user, profile } = session;
+  const profilePhoto = getProfilePhotoUrl(profile);
   const firstName = user.name.split(" ")[0];
   const canSeeMatchScore = canAccess(profile.onboardingStatus, "ai_compatibility_score");
   const isLimitedBrowse = profile.onboardingStatus === "basic_registered";
 
-  const receivedInterests = interestsEnriched.filter((i) => i.toUserId === user.id).length;
+  const receivedInterests = interestsEnriched.filter((i) => isInterestReceived(i, user.id)).length;
+  const pendingReceivedInterests = interestsEnriched.filter(
+    (i) => isInterestReceived(i, user.id) && i.status === "pending"
+  );
+  const otherInterests = interestsEnriched.filter(
+    (i) => !(isInterestReceived(i, user.id) && i.status === "pending")
+  );
   const unreadMessages = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
   const suggestedMatches = filterCompatibleProfiles(allProfiles, profile.gender)
     .slice(0, isLimitedBrowse ? 3 : 4)
@@ -163,7 +177,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-4 rounded-[6px] glass p-4 lg:p-5">
-            <Avatar src={profile.photos[0]} name={user.name} size="xl" />
+            <Avatar src={profilePhoto} name={user.name} size="xl" />
             <div>
               <p className="font-semibold text-foreground">{user.name}</p>
               <div className="mt-0.5 flex items-center gap-1 text-sm text-muted">
@@ -194,13 +208,17 @@ export default function DashboardPage() {
         <Card className="lg:col-span-2" hover>
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
             <div className="relative mx-auto shrink-0 sm:mx-0">
-              {profile.photos[0] ? (
+              {profilePhoto ? (
                 <div className="relative h-28 w-28 overflow-hidden rounded-[6px] border border-border">
                   <Image
-                    src={profile.photos[0]}
+                    src={profilePhoto}
                     alt={user.name}
                     fill
                     className="object-cover img-bw"
+                    unoptimized={
+                      profilePhoto.startsWith("data:") ||
+                      profilePhoto.includes("firebasestorage")
+                    }
                   />
                 </div>
               ) : (
@@ -325,40 +343,42 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {interestsEnriched.map((interest) => {
-              const isReceived = interest.toUserId === user.id;
+          <div className="mt-6 space-y-6">
+            {pendingReceivedInterests.length > 0 && (
+              <div>
+                <p className="mb-3 text-sm font-semibold text-accent">
+                  Action required — {pendingReceivedInterests.length} interest
+                  {pendingReceivedInterests.length === 1 ? "" : "s"} waiting for your approval
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {pendingReceivedInterests.map((interest) => (
+                    <InterestCard
+                      key={interest.id}
+                      interest={interest}
+                      currentUserId={user.id}
+                      highlight
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
 
-              return (
-                <Link
-                  key={interest.id}
-                  href={`/messages?with=${encodeURIComponent(interest.otherUserId)}`}
-                  className="flex items-center gap-4 rounded-[6px] glass-subtle p-4 transition-colors hover:border-accent/25 hover:bg-surface/80"
-                >
-                  <Avatar src={interest.otherUserPhoto} name={interest.otherUserName} size="lg" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-foreground">{interest.otherUserName}</p>
-                    <p className="text-xs text-muted">
-                      {isReceived ? "Sent you interest" : "You sent interest"}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {formatRelativeTime(interest.createdAt)}
-                    </p>
-                  </div>
-                  <Badge
-                    variant={
-                      interest.status === "accepted"
-                        ? "success"
-                        : interest.status === "declined"
-                          ? "warning"
-                          : "default"
-                    }
-                  >
-                    {interest.status}
-                  </Badge>
-                </Link>
-              );
-            })}
+            {otherInterests.length > 0 && (
+              <div>
+                {pendingReceivedInterests.length > 0 && (
+                  <p className="mb-3 text-sm font-medium text-muted">Your other interests</p>
+                )}
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {otherInterests.map((interest) => (
+                    <InterestCard
+                      key={interest.id}
+                      interest={interest}
+                      currentUserId={user.id}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Card>

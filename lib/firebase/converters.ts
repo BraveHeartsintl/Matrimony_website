@@ -1,4 +1,5 @@
 import { normalizeProfile } from "@/lib/auth";
+import { photosFromFirestoreData, getPrimaryPhotoUrl } from "@/lib/profile-photos";
 import type { Profile, User } from "@/lib/types";
 import { Timestamp } from "firebase/firestore";
 
@@ -88,7 +89,7 @@ export function profileFromFirestore(uid: string, data: Record<string, unknown>)
     annualIncome: data.annualIncome as string | undefined,
     maritalStatus: (data.maritalStatus as Profile["maritalStatus"]) ?? "never_married",
     bio: String(data.bio ?? ""),
-    photos: Array.isArray(data.photos) ? (data.photos as string[]) : [],
+    photos: photosFromFirestoreData(data),
     privacySettings: (data.privacySettings as Profile["privacySettings"]) ?? {
       hidePhoto: false,
       hideContact: false,
@@ -156,7 +157,7 @@ export function profileToFirestore(
     maritalStatus: normalized.maritalStatus,
     bio: normalized.bio,
     photos: normalized.photos,
-    primaryPhotoUrl: normalized.photos[0] ?? "",
+    primaryPhotoUrl: getPrimaryPhotoUrl(normalized.photos),
     privacySettings: normalized.privacySettings,
     preferences: normalized.preferences,
     matrimony: normalized.matrimony,

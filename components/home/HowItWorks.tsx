@@ -18,7 +18,7 @@ const steps = [
     title: "Connect",
     subtitle: "Select & connect with matches",
     description:
-      "Browse verified Brit Asian profiles across the UK. Use advanced filters by city, faith, education, and profession — then send interests to profiles you like.",
+      "Browse verified UK's Indian profiles across the UK. Use advanced filters by city, faith, education, and profession — then send interests to profiles you like.",
   },
   {
     icon: Crown,
@@ -36,7 +36,7 @@ export default function HowItWorks() {
         <SectionLabel>How It Works</SectionLabel>
         <SplitHeadline primary="Three Simple Steps" muted="to find your life partner" />
         <p className="mt-4 max-w-xl text-muted">
-          From profile creation to your first conversation — we make Brit Asian matchmaking
+          From profile creation to your first conversation — we make UK's Indian matchmaking
           straightforward, secure, and respectful.
         </p>
 

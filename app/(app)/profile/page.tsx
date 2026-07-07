@@ -189,7 +189,9 @@ export default function ProfilePage() {
             <PhotoUpload
               userId={session.user.id}
               photos={profile.photos}
-              onChange={(photos) => updateProfile({ photos })}
+              onChange={async (photos) => {
+                await updateProfile({ photos });
+              }}
             />
           )}
 
