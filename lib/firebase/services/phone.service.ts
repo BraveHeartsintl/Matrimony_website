@@ -8,8 +8,10 @@ import {
   RecaptchaVerifier,
 } from "firebase/auth";
 
-let recaptchaVerifier: RecaptchaVerifier | undefined;
-let recaptchaContainerId: string | undefined;
+// Single module-level verifier — always cleared before each send to avoid
+// "reCAPTCHA has already been rendered in this element" errors.
+let activeVerifier: RecaptchaVerifier | undefined;
+let activeContainerId: string | undefined;
 
 const DEMO_VERIFICATION_PREFIX = "demo-otp:";
 
@@ -44,54 +46,53 @@ export function isValidPhoneNumber(input: string): boolean {
   return /^\+\d{10,15}$/.test(normalized);
 }
 
-function resetRecaptchaContainer(containerId: string): void {
+function clearContainerHtml(containerId: string): void {
   const el = document.getElementById(containerId);
-  if (el) {
-    el.innerHTML = "";
-  }
-}
-
-function createRecaptchaVerifier(containerId: string): RecaptchaVerifier {
-  const auth = getFirebaseAuth();
-  resetRecaptchaContainer(containerId);
-
-  const verifier = new RecaptchaVerifier(auth, containerId, {
-    size: "invisible",
-  });
-
-  recaptchaVerifier = verifier;
-  recaptchaContainerId = containerId;
-  return verifier;
-}
-
-function getOrCreateRecaptchaVerifier(containerId: string): RecaptchaVerifier {
-  if (recaptchaVerifier && recaptchaContainerId === containerId) {
-    return recaptchaVerifier;
-  }
-  clearPhoneRecaptcha();
-  return createRecaptchaVerifier(containerId);
+  if (el) el.innerHTML = "";
 }
 
 export function clearPhoneRecaptcha(): void {
-  if (recaptchaVerifier) {
+  if (activeVerifier) {
     try {
-      recaptchaVerifier.clear();
+      activeVerifier.clear();
     } catch {
-      // Verifier may already be cleared
+      // Already cleared or widget gone — safe to ignore
     }
-    recaptchaVerifier = undefined;
+    activeVerifier = undefined;
   }
+  if (activeContainerId) {
+    clearContainerHtml(activeContainerId);
+    activeContainerId = undefined;
+  }
+}
 
-  if (recaptchaContainerId) {
-    resetRecaptchaContainer(recaptchaContainerId);
-    recaptchaContainerId = undefined;
+/**
+ * Always creates a fresh RecaptchaVerifier.
+ * Clears any existing widget first so we never hit
+ * "reCAPTCHA has already been rendered in this element".
+ */
+function createFreshVerifier(containerId: string): RecaptchaVerifier {
+  // Destroy the old one unconditionally before creating a new one.
+  clearPhoneRecaptcha();
+
+  const el = document.getElementById(containerId);
+  if (!el) {
+    throw new Error(`reCAPTCHA container #${containerId} not found in DOM.`);
   }
+  el.innerHTML = "";
+
+  const verifier = new RecaptchaVerifier(getFirebaseAuth(), containerId, {
+    size: "invisible",
+  });
+
+  activeVerifier = verifier;
+  activeContainerId = containerId;
+  return verifier;
 }
 
 export async function sendPhoneOtp(
   phoneNumber: string,
-  recaptchaContainerId: string,
-  options?: { forceNewRecaptcha?: boolean }
+  containerId: string,
 ): Promise<string> {
   const auth = getFirebaseAuth();
   if (!auth.currentUser) {
@@ -108,12 +109,8 @@ export async function sendPhoneOtp(
     return `${DEMO_VERIFICATION_PREFIX}${normalized}`;
   }
 
-  if (options?.forceNewRecaptcha) {
-    clearPhoneRecaptcha();
-  }
-
   try {
-    const verifier = getOrCreateRecaptchaVerifier(recaptchaContainerId);
+    const verifier = createFreshVerifier(containerId);
     const provider = new PhoneAuthProvider(auth);
     return await provider.verifyPhoneNumber(normalized, verifier);
   } catch (error) {

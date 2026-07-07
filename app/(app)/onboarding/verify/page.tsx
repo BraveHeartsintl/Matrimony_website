@@ -158,9 +158,7 @@ export default function OnboardingVerifyPage() {
     try {
       const normalized = normalizePhoneNumber(trimmed);
       const containerId = phoneDemoMode ? "recaptcha-skip" : "recaptcha-container";
-      const id = await sendPhoneOtp(normalized, containerId, {
-        forceNewRecaptcha: !phoneDemoMode,
-      });
+      const id = await sendPhoneOtp(normalized, containerId);
       setVerificationId(id);
       updateVerification({ phone: normalized });
       setOtpSent(true);
