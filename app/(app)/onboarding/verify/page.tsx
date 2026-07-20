@@ -24,7 +24,7 @@ import { uploadVerificationDoc } from "@/lib/firebase/services/storage.service";
 import { getFirebaseAuth } from "@/lib/firebase/config";
 import { profileHasPhoto } from "@/lib/profile-photos";
 import type { IdDocumentType } from "@/lib/types";
-import { Check, Clock, ShieldCheck, Upload } from "lucide-react";
+import { Check, Clock, Upload } from "lucide-react";
 import Image from "next/image";
 import { reload } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -45,7 +45,6 @@ export default function OnboardingVerifyPage() {
     updateProfile,
     updateVerification,
     submitVerificationRequest,
-    simulateVerificationApproval,
   } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(0);
@@ -100,15 +99,11 @@ export default function OnboardingVerifyPage() {
             {verification.submittedAt
               ? new Date(verification.submittedAt).toLocaleDateString()
               : "recently"}
-            . Our team is reviewing your submission.
+            . Our team will review your submission within 24–48 hours.
           </p>
-          <p className="mt-4 text-xs text-muted-foreground">
-            Demo: simulate admin approval to unlock full access.
+          <p className="mt-4 text-sm text-muted">
+            You will be notified once your profile is verified.
           </p>
-          <Button className="mt-6" onClick={simulateVerificationApproval}>
-            <ShieldCheck className="h-4 w-4" />
-            Simulate Admin Approval
-          </Button>
         </Card>
       </div>
     );

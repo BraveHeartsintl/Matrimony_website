@@ -192,7 +192,7 @@ export default function SearchPage() {
               <p className="text-lg font-medium">No profiles found</p>
               <p className="mt-1 text-sm text-muted">
                 {allProfiles.length === 0
-                  ? "No members are visible in search yet. Ask an admin to seed demo profiles."
+                  ? "No profiles are visible yet. Check back soon as new members join."
                   : "Try adjusting your search filters"}
               </p>
               {canUseFilters && allProfiles.length > 0 && (

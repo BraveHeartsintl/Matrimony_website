@@ -1,7 +1,7 @@
 "use client";
 
+import AuthShell from "@/components/auth/AuthShell";
 import Button from "@/components/ui/Button";
-import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import { useAuth } from "@/context/AuthContext";
@@ -9,12 +9,10 @@ import {
   BIRTH_MONTHS,
   GENDERS,
   LOOKING_FOR_OPTIONS,
-  SITE_NAME,
   UK_LOCATIONS,
 } from "@/lib/constants";
 import type { Gender, LookingFor } from "@/lib/types";
 import { calculateAgeFromYearOfBirth } from "@/lib/utils";
-import { Heart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -102,145 +100,128 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <div className="hidden w-80 flex-col justify-between bg-gradient-to-br from-deepest via-navy-royal to-deepest p-8 text-white lg:flex">
-        <div>
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-gold" />
-            <span className="font-display text-xl font-bold">{SITE_NAME}</span>
-          </Link>
-          <h2 className="mt-12 font-display text-3xl font-bold leading-tight">
-            Join in under 60 seconds
-          </h2>
-          <p className="mt-4 text-sm text-white/70">
-            Create your account with just the essentials. Browse matches immediately — complete
-            your profile and verify later to unlock more features.
+    <AuthShell
+      asideTitle="Join in under 60 seconds"
+      asideBody="Create your account with the essentials. Browse matches right away — complete your profile and verify when you're ready to connect."
+    >
+      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold">
+        Quick registration
+      </p>
+      <h2 className="mt-2 font-display text-3xl leading-tight text-[#fff8e7]">
+        Create your account
+      </h2>
+      <p className="mt-2 text-sm text-white/70">
+        A few basics to get started. Add more details later.
+      </p>
+
+      <form onSubmit={handleSubmit} className="mt-7 space-y-4">
+        <Input ref={nameRef} label="First Name" placeholder="Your first name" required />
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Select
+            label="Gender"
+            value={essentials.gender}
+            onChange={(e) =>
+              setEssentials((s) => ({ ...s, gender: e.target.value as Gender }))
+            }
+            options={GENDERS}
+          />
+          <Select
+            label="Looking For"
+            value={essentials.lookingFor}
+            onChange={(e) =>
+              setEssentials((s) => ({
+                ...s,
+                lookingFor: e.target.value as LookingFor,
+              }))
+            }
+            options={LOOKING_FOR_OPTIONS.map((o) => ({
+              value: o.value,
+              label: o.label,
+            }))}
+          />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Select
+            label="Birth Month"
+            value={essentials.birthMonth}
+            onChange={(e) =>
+              setEssentials((s) => ({ ...s, birthMonth: e.target.value }))
+            }
+            options={BIRTH_MONTHS}
+          />
+          <Select
+            label="Birth Year"
+            value={essentials.yearOfBirth}
+            onChange={(e) =>
+              setEssentials((s) => ({ ...s, yearOfBirth: e.target.value }))
+            }
+            options={Array.from({ length: 60 }, (_, i) => {
+              const year = new Date().getFullYear() - 18 - i;
+              return { value: String(year), label: String(year) };
+            })}
+          />
+        </div>
+
+        <Select
+          label="Current Location"
+          value={essentials.location}
+          onChange={(e) =>
+            setEssentials((s) => ({ ...s, location: e.target.value }))
+          }
+          options={UK_LOCATIONS.map((l) => ({ value: l, label: l }))}
+        />
+
+        <div className="border-t border-white/15 pt-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.12em] text-white/50">
+            Account credentials
           </p>
-          <ul className="mt-8 space-y-3 text-sm text-white/80">
-            <li>✓ See potential matches right away</li>
-            <li>✓ Add details at your own pace</li>
-            <li>✓ Verify when you&apos;re ready to connect</li>
-          </ul>
+          <div className="space-y-4">
+            <Input
+              ref={emailRef}
+              label="Email"
+              type="email"
+              placeholder="you@example.com"
+              required
+            />
+            <Input
+              ref={passwordRef}
+              label="Password"
+              type="password"
+              placeholder="At least 6 characters"
+              required
+            />
+            <Input
+              ref={confirmPasswordRef}
+              label="Confirm Password"
+              type="password"
+              placeholder="Repeat password"
+              required
+            />
+          </div>
         </div>
-        <p className="text-xs text-white/50">
-          Already have an account?{" "}
-          <Link href="/login" className="text-gold underline">
-            Sign in
-          </Link>
-        </p>
-      </div>
 
-      <div className="flex flex-1 flex-col">
-        <header className="flex h-14 items-center justify-between border-b border-accent/10 px-4 lg:hidden">
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-accent" />
-            <span className="font-display text-lg font-bold">{SITE_NAME}</span>
-          </Link>
-          <Link href="/login" className="text-sm text-accent">
-            Sign in
-          </Link>
-        </header>
+        {error && (
+          <p className="auth-feedback-error rounded-lg px-3 py-2 text-sm">
+            {error}
+          </p>
+        )}
 
-        <div className="flex flex-1 items-start justify-center p-4 py-8 lg:p-8">
-          <Card className="animate-scale-in w-full max-w-lg" padding="lg" style={{ animationDelay: "0.15s" }}>
-            <p className="section-label">Quick Registration</p>
-            <h1 className="mt-1 font-display text-2xl font-bold">Create your account</h1>
-            <p className="mt-2 text-sm text-muted">
-              Tell us a few basics to get started. You can add more details later.
-            </p>
+        <Button type="submit" className="w-full" size="lg" disabled={loading}>
+          {loading ? "Creating account…" : "Create Account & See Matches"}
+        </Button>
+      </form>
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-              <Input ref={nameRef} label="First Name" placeholder="Your first name" required />
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Select
-                  label="Gender"
-                  value={essentials.gender}
-                  onChange={(e) =>
-                    setEssentials((s) => ({ ...s, gender: e.target.value as Gender }))
-                  }
-                  options={GENDERS}
-                />
-                <Select
-                  label="Looking For"
-                  value={essentials.lookingFor}
-                  onChange={(e) =>
-                    setEssentials((s) => ({ ...s, lookingFor: e.target.value as LookingFor }))
-                  }
-                  options={LOOKING_FOR_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
-                />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Select
-                  label="Birth Month"
-                  value={essentials.birthMonth}
-                  onChange={(e) =>
-                    setEssentials((s) => ({ ...s, birthMonth: e.target.value }))
-                  }
-                  options={BIRTH_MONTHS}
-                />
-                <Select
-                  label="Birth Year"
-                  value={essentials.yearOfBirth}
-                  onChange={(e) =>
-                    setEssentials((s) => ({ ...s, yearOfBirth: e.target.value }))
-                  }
-                  options={Array.from({ length: 60 }, (_, i) => {
-                    const year = new Date().getFullYear() - 18 - i;
-                    return { value: String(year), label: String(year) };
-                  })}
-                />
-              </div>
-              <Select
-                label="Current Location"
-                value={essentials.location}
-                onChange={(e) =>
-                  setEssentials((s) => ({ ...s, location: e.target.value }))
-                }
-                options={UK_LOCATIONS.map((l) => ({ value: l, label: l }))}
-              />
-
-              <hr className="border-accent/10" />
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Account credentials
-              </p>
-              <Input
-                ref={emailRef}
-                label="Email"
-                type="email"
-                placeholder="you@example.com"
-                required
-              />
-              <Input
-                ref={passwordRef}
-                label="Password"
-                type="password"
-                placeholder="At least 6 characters"
-                required
-              />
-              <Input
-                ref={confirmPasswordRef}
-                label="Confirm Password"
-                type="password"
-                placeholder="Repeat password"
-                required
-              />
-
-              {error && <p className="feedback-error">{error}</p>}
-
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? "Creating account…" : "Create Account & See Matches"}
-              </Button>
-            </form>
-
-            <p className="mt-6 text-center text-sm text-muted lg:hidden">
-              Already have an account?{" "}
-              <Link href="/login" className="font-medium text-accent">
-                Sign in
-              </Link>
-            </p>
-          </Card>
-        </div>
-      </div>
-    </div>
+      <p className="mt-6 text-center text-sm text-white/70">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="font-medium text-gold transition-colors hover:text-gold-hover"
+        >
+          Sign in
+        </Link>
+      </p>
+    </AuthShell>
   );
 }

@@ -11,6 +11,7 @@ import {
   doc,
   getDoc,
   getDocs,
+  increment,
   query,
   serverTimestamp,
   setDoc,
@@ -195,4 +196,25 @@ export async function touchLastActive(uid: string): Promise<void> {
     { lastActiveAt: serverTimestamp(), updatedAt: serverTimestamp() },
     { merge: true }
   );
+}
+
+/**
+ * Record that `viewerUid` viewed `profileUid`'s profile.
+ * Increments the profile's viewCount in Firestore.
+ * No-ops if viewer is the profile owner.
+ */
+export async function recordProfileView(profileUid: string, viewerUid: string): Promise<void> {
+  if (profileUid === viewerUid) return;
+  const db = getFirebaseDb();
+  await setDoc(
+    doc(db, "profiles", profileUid),
+    { viewCount: increment(1), lastViewedAt: serverTimestamp() },
+    { merge: true }
+  );
+}
+
+export async function getProfileViewCount(profileUid: string): Promise<number> {
+  const snap = await getDoc(doc(getFirebaseDb(), "profiles", profileUid));
+  if (!snap.exists()) return 0;
+  return Number((snap.data() as Record<string, unknown>).viewCount ?? 0);
 }

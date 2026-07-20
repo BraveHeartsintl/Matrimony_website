@@ -18,6 +18,7 @@ import {
 } from "@/lib/firebase/services/interest.service";
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
 import { resolveProfileId } from "@/lib/firebase/services/search.service";
+import { recordProfileView } from "@/lib/firebase/services/profile.service";
 import { canAccess, getNextOnboardingRoute } from "@/lib/onboarding/access";
 import type { FullProfile } from "@/lib/types";
 import {
@@ -48,7 +49,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface ProfileDetailViewProps {
   profile: FullProfile;
@@ -80,6 +81,12 @@ export default function ProfileDetailView({ profile, interestId }: ProfileDetail
   const [statusBusy, setStatusBusy] = useState(false);
   const { session } = useAuth();
   const { sentTo, interestForProfile, interestById } = useInterests(session?.user.id);
+
+  // Record a profile view in Firestore once per page open.
+  useEffect(() => {
+    if (!session?.user.id || !profile.id) return;
+    void recordProfileView(resolveProfileId(profile.id), session.user.id);
+  }, [profile.id, session?.user.id]);
   const interested = sentTo(profile.id);
   const relatedInterest = useMemo(() => {
     if (interestId) {

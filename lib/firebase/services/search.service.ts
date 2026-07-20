@@ -37,55 +37,24 @@ function toSearchProfile(uid: string, data: Record<string, unknown>): SearchProf
   };
 }
 
-function mockToSearchProfile(mock: (typeof MOCK_PROFILES)[number]): SearchProfile {
-  const uid = `seed-${mock.userId}`;
-  return {
-    ...mock,
-    userId: uid,
-    id: uid,
-    photos: mock.photos.length > 0 ? mock.photos : [DEFAULT_PROFILE_PHOTO],
-    email: "",
-  };
-}
-
-function mockProfilesFallback(excludeUserId?: string): SearchProfile[] {
-  return MOCK_PROFILES.map(mockToSearchProfile).filter(
-    (p) => p.userId !== excludeUserId && p.id !== excludeUserId
-  );
-}
-
-function findMockProfile(rawId: string): SearchProfile | null {
-  const uid = resolveProfileId(rawId);
-  const mock = MOCK_PROFILES.find(
-    (p) => `seed-${p.userId}` === uid || p.id === rawId || p.userId === rawId
-  );
-  return mock ? mockToSearchProfile(mock) : null;
-}
 
 export async function fetchSearchProfiles(excludeUserId?: string): Promise<SearchProfile[]> {
   const db = getFirebaseDb();
   const snap = await getDocs(query(collection(db, "profiles"), limit(150)));
-  const profiles = snap.docs
+  return snap.docs
     .filter((docSnap) => isProfileSearchVisible(docSnap.data() as Record<string, unknown>))
     .map((docSnap) => toSearchProfile(docSnap.id, docSnap.data() as Record<string, unknown>))
     .filter((p) => p.userId !== excludeUserId && p.id !== excludeUserId);
-
-  if (profiles.length === 0) {
-    return mockProfilesFallback(excludeUserId);
-  }
-  return profiles;
 }
 
 export async function getPublicSearchProfile(rawId: string): Promise<SearchProfile | null> {
   const uid = resolveProfileId(rawId);
   const db = getFirebaseDb();
   const snap = await getDoc(doc(db, "profiles", uid));
-  if (snap.exists()) {
-    const data = snap.data() as Record<string, unknown>;
-    if (!isProfileSearchVisible(data)) return null;
-    return toSearchProfile(uid, data);
-  }
-  return findMockProfile(rawId);
+  if (!snap.exists()) return null;
+  const data = snap.data() as Record<string, unknown>;
+  if (!isProfileSearchVisible(data)) return null;
+  return toSearchProfile(uid, data);
 }
 
 export async function fetchFeaturedProfiles(limitCount = 6): Promise<SearchProfile[]> {

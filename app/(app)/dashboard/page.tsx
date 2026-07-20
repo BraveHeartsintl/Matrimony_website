@@ -15,6 +15,7 @@ import { useConversations } from "@/hooks/useConversations";
 import { useInterests } from "@/hooks/useInterests";
 import { useSearchProfiles } from "@/hooks/useSearchProfiles";
 import { isInterestReceived } from "@/lib/firebase/services/interest.service";
+import { getProfileViewCount } from "@/lib/firebase/services/profile.service";
 import { canAccess } from "@/lib/onboarding/access";
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
 import { filterCompatibleProfiles } from "@/lib/matchmaking";
@@ -64,6 +65,7 @@ export default function DashboardPage() {
     () => new Map<string, { name: string; photo: string }>()
   );
   const [allProfiles, setAllProfiles] = useState<SearchProfile[]>([]);
+  const [profileViewCount, setProfileViewCount] = useState<number | null>(null);
 
   const { interests } = useInterests(session?.user.id);
   const { conversations } = useConversations(session?.user.id, profileLookup);
@@ -77,6 +79,11 @@ export default function DashboardPage() {
     );
     setProfileLookup(map);
   }, [searchProfiles]);
+
+  useEffect(() => {
+    if (!session?.user.id) return;
+    void getProfileViewCount(session.user.id).then(setProfileViewCount);
+  }, [session?.user.id]);
 
   const userId = session?.user.id;
   const profilesByUserId = useMemo(
@@ -198,7 +205,7 @@ export default function DashboardPage() {
       <OnboardingProgressCard status={profile.onboardingStatus} />
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Profile Views" value="128" icon={Eye} trend="+12 this week" accent="accent" />
+        <StatCard label="Profile Views" value={profileViewCount ?? "—"} icon={Eye} trend="Total views" accent="accent" />
         <StatCard label="Interests" value={interestsEnriched.length} icon={Heart} trend={`${receivedInterests} received`} />
         <StatCard label="Messages" value={unreadMessages} icon={MessageCircle} trend="Unread" />
         <StatCard label="Profile Score" value={`${profile.profileCompletion}%`} icon={Star} accent="accent" />
