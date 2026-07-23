@@ -23,6 +23,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
 } from "firebase/firestore";
 
 export async function isAdminUser(uid: string): Promise<boolean> {
@@ -146,6 +147,32 @@ export async function updateUserAccountStatus(
     accountStatus,
     updatedAt: serverTimestamp(),
   });
+}
+
+export async function deleteAdminUser(userId: string): Promise<void> {
+  const db = getFirebaseDb();
+  const userRef = doc(db, "users", userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error("User not found");
+  }
+
+  if ((userSnap.data() as Record<string, unknown>).role === "admin") {
+    throw new Error("Cannot delete an admin account");
+  }
+
+  const favoritesSnap = await getDocs(collection(db, "users", userId, "favorites"));
+  const batch = writeBatch(db);
+
+  favoritesSnap.docs.forEach((favorite) => batch.delete(favorite.ref));
+  batch.delete(userRef);
+  batch.delete(doc(db, "profiles", userId));
+  batch.delete(doc(db, "subscriptions", userId));
+  batch.delete(doc(db, "verificationRequests", userId));
+
+  await batch.commit();
+  await refreshPlatformStats();
 }
 
 export async function updateReportStatus(

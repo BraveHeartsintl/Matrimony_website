@@ -38,7 +38,7 @@ service cloud.firestore {
     match /verificationRequests/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create, update: if isOwner(userId);
-      allow update: if isAdmin();
+      allow update, delete: if isAdmin();
     }
 
     match /interests/{interestId} {
@@ -65,12 +65,14 @@ service cloud.firestore {
 
     match /users/{userId}/favorites/{favoriteId} {
       allow read, write: if isOwner(userId);
+      allow read, delete: if isAdmin();
     }
 
     match /subscriptions/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create: if isOwner(userId) || isAdmin();
       allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /reports/{reportId} {

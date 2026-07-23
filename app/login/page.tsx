@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
 import { adminLogin } from "@/lib/admin-auth";
-import { ADMIN_CREDENTIALS, matchesAdminCredentials } from "@/lib/admin-config";
+import { matchesAdminCredentials } from "@/lib/admin-config";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -107,20 +107,6 @@ export default function LoginPage() {
           Register Free
         </Link>
       </p>
-
-      <div className="auth-glass-chip mt-6 rounded-xl p-3 text-center text-xs text-white/55">
-        <p className="font-medium uppercase tracking-wider text-white/80">
-          Admin access
-        </p>
-        <p className="mt-1">Email: {ADMIN_CREDENTIALS.email}</p>
-        <p>Password: {ADMIN_CREDENTIALS.password}</p>
-        <p className="mt-2">
-          Or use{" "}
-          <Link href="/admin/login" className="text-gold hover:underline">
-            admin login
-          </Link>
-        </p>
-      </div>
     </AuthShell>
   );
 }

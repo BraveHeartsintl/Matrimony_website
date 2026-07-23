@@ -1,0 +1,22 @@
+# IONOS Apache — Next.js static export + client-route fallback
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Keep real index.html requests as-is
+  RewriteRule ^index\.html$ - [L]
+
+  # Don't rewrite existing files or directories
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Serve clean URLs as matching .html pages (Next.js export)
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.+)$ $1.html [L]
+
+  # SPA-style fallback for unknown client routes
+  RewriteRule . /index.html [L]
+</IfModule>
+
+ErrorDocument 404 /404.html

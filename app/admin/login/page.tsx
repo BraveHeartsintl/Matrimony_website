@@ -3,7 +3,6 @@
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import { ADMIN_CREDENTIALS } from "@/lib/admin-config";
 import { adminLogin, isAdminLoggedIn } from "@/lib/admin-auth";
 import { SITE_NAME } from "@/lib/constants";
 import { Heart, Shield } from "lucide-react";
@@ -13,7 +12,7 @@ import { useEffect, useState } from "react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState<string>(ADMIN_CREDENTIALS.email);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,8 +49,7 @@ export default function AdminLoginPage() {
             Admin Portal
           </h1>
           <p className="mt-4 max-w-md text-muted">
-            Use the demo admin credentials to access the dashboard, manage users, and sync demo
-            matches.
+            Sign in to access the dashboard, manage users, and review matches.
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -75,7 +73,7 @@ export default function AdminLoginPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={ADMIN_CREDENTIALS.email}
+              placeholder="Enter admin email"
             />
             <Input
               label="Password"
@@ -98,12 +96,6 @@ export default function AdminLoginPage() {
               {loading ? "Signing in…" : "Sign In to Admin"}
             </Button>
           </form>
-
-          <div className="mt-6 rounded-[6px] glass-subtle p-3 text-center text-xs text-muted">
-            <p className="font-medium uppercase tracking-wider text-foreground">Demo Admin</p>
-            <p className="mt-1">Email: {ADMIN_CREDENTIALS.email}</p>
-            <p>Password: {ADMIN_CREDENTIALS.password}</p>
-          </div>
 
           <p className="mt-6 text-center text-sm text-muted">
             <Link href="/" className="text-foreground transition-colors hover:text-accent">

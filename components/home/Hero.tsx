@@ -29,34 +29,38 @@ export default function Hero() {
   return (
     <section className="hero-section relative min-h-screen overflow-hidden">
       <Image
-        src="/images/hero/wedding-ceremony.jpg"
-        alt="Traditional Indian wedding ceremony"
+        src="/images/hero/hero_2background.jpeg"
+        alt="Traditional wedding hands adorned with bangles and gold embroidery"
         fill
         priority
         sizes="100vw"
-        className="object-cover object-[center_30%]"
+        className="object-cover object-[center_38%]"
       />
 
-      {/* Readability veil — darker on the left so the couple stays visible */}
+      {/* Veils — darken the left for the glass panel; keep hands & dark suit visible */}
       <div
-        className="absolute inset-0 bg-gradient-to-r from-deepest/85 via-deepest/45 to-deepest/20"
+        className="absolute inset-0 bg-gradient-to-r from-deepest/82 via-deepest/40 to-deepest/15"
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-t from-deepest/70 via-transparent to-deepest/35"
+        className="absolute inset-0 bg-gradient-to-t from-deepest/60 via-transparent to-deepest/30"
+        aria-hidden="true"
+      />
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_62%_42%,transparent_18%,rgba(8,26,51,0.28)_100%)]"
         aria-hidden="true"
       />
 
       <Container className="relative flex min-h-screen flex-col justify-center py-24 lg:py-32">
         <div
-          className="hero-glass animate-fade-in-up w-full max-w-2xl rounded-2xl p-7 sm:p-9 lg:p-11"
+          className="hero-glass animate-fade-in-up w-full max-w-xl rounded-2xl p-7 sm:max-w-2xl sm:p-9 lg:p-11"
           style={{ animationDelay: "0.1s" }}
         >
-          <p className="font-display text-2xl tracking-wide text-gold sm:text-3xl">
+          <p className="font-display text-2xl tracking-wide text-gold sm:text-3xl lg:text-4xl">
             {SITE_NAME}
           </p>
 
-          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/70">
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/65">
             Serving UK&apos;s Indian singles across the United Kingdom
           </p>
 
@@ -69,7 +73,7 @@ export default function Hero() {
             />
           </div>
 
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-white/88 sm:text-lg">
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-white/85 sm:text-lg">
             {SITE_TAGLINE}. Join {stats.members} verified members and start your
             journey to a lifelong partnership.
           </p>
@@ -81,11 +85,11 @@ export default function Hero() {
             <TextCTA href="#featured-profiles">Browse Profiles</TextCTA>
           </div>
 
-          <p className="mt-4 text-sm text-white/55">
+          <p className="mt-4 text-sm text-white/50">
             Free registration · No credit card required · Cancel anytime
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3 border-t border-white/15 pt-7">
+          <div className="mt-8 flex flex-wrap gap-3 border-t border-white/12 pt-7">
             {heroStats.map((stat) => (
               <div
                 key={stat.label}
@@ -94,7 +98,7 @@ export default function Hero() {
                 <p className="font-display text-xl text-gold sm:text-2xl">
                   {stat.value}
                 </p>
-                <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-white/60">
+                <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-white/55">
                   {stat.label}
                 </p>
               </div>
@@ -109,7 +113,7 @@ export default function Hero() {
                 title={label}
               >
                 <Icon className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-                <span className="text-[0.65rem] font-medium uppercase tracking-wider text-white/70">
+                <span className="text-[0.65rem] font-medium uppercase tracking-wider text-white/65">
                   {label}
                 </span>
               </div>

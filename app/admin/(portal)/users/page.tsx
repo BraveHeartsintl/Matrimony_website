@@ -4,7 +4,11 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import { fetchAdminUsers, updateUserAccountStatus } from "@/lib/firebase/services/admin.service";
+import {
+  deleteAdminUser,
+  fetchAdminUsers,
+  updateUserAccountStatus,
+} from "@/lib/firebase/services/admin.service";
 import type { AdminUser } from "@/lib/mock/admin";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -13,6 +17,7 @@ export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -43,6 +48,23 @@ export default function AdminUsersPage() {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, status: next } : u))
     );
+  };
+
+  const handleDelete = async (user: AdminUser) => {
+    const confirmed = window.confirm(
+      `Delete ${user.name} (${user.email})? This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeletingId(user.id);
+    try {
+      await deleteAdminUser(user.id);
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Failed to delete user");
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -92,9 +114,19 @@ export default function AdminUsersPage() {
                     <td className="py-3 pr-4 capitalize text-muted">{user.status}</td>
                     <td className="py-3 pr-4">{user.verified ? "Yes" : "No"}</td>
                     <td className="py-3">
-                      <Button size="sm" variant="outline" onClick={() => void toggleStatus(user.id)}>
-                        {user.status === "suspended" ? "Activate" : "Suspend"}
-                      </Button>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" onClick={() => void toggleStatus(user.id)}>
+                          {user.status === "suspended" ? "Activate" : "Suspend"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={deletingId === user.id}
+                          onClick={() => void handleDelete(user)}
+                        >
+                          {deletingId === user.id ? "Deleting…" : "Delete"}
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
