@@ -12,7 +12,7 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/invalid-email": "Please enter a valid email address",
   "auth/user-disabled": "This account has been disabled",
   "auth/network-request-failed": "Network error. Check your connection and try again.",
-  "auth/invalid-phone-number": "Invalid phone number. Use international format (e.g. +91 86885 38590).",
+  "auth/invalid-phone-number": "Invalid phone number. Use international format (e.g. +91 98765 43210).",
   "auth/invalid-verification-code": "Invalid OTP. Please check the code and try again.",
   "auth/code-expired": "OTP expired. Request a new code.",
   "auth/missing-verification-code": "Enter the 6-digit OTP from your SMS.",

@@ -101,7 +101,7 @@ export async function sendPhoneOtp(
 
   const normalized = normalizePhoneNumber(phoneNumber);
   if (!isValidPhoneNumber(normalized)) {
-    throw new Error("Enter a valid mobile number including country code (e.g. +91 86885 38590).");
+    throw new Error("Enter a valid mobile number including country code (e.g. +91 98765 43210).");
   }
 
   if (isPhoneDemoMode()) {

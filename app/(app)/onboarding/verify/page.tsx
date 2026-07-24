@@ -144,7 +144,7 @@ export default function OnboardingVerifyPage() {
       return;
     }
     if (!isValidPhoneNumber(trimmed)) {
-      setError("Use international format, e.g. +91 86885 38590");
+      setError("Use international format, e.g. +91 98765 43210");
       return;
     }
 
@@ -314,7 +314,7 @@ export default function OnboardingVerifyPage() {
                 autoComplete="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 86885 38590"
+                placeholder="+91 98765 43210"
                 disabled={verification.phoneVerified || otpSent}
               />
               <p className="text-xs text-muted">
