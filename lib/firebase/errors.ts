@@ -22,9 +22,9 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/app-not-authorized":
     "This domain is not authorized for Firebase Auth. Add your current domain in Firebase Console → Authentication → Settings → Authorized domains.",
   "auth/invalid-app-credential":
-    "Phone OTP cannot be sent from localhost (Firebase policy). Open the app on 127.0.0.1 instead of localhost, OR add a test phone number in Firebase Console → Authentication → Sign-in method → Phone → Phone numbers for testing.",
+    "Phone verification failed (reCAPTCHA / app credential). Add this site domain in Firebase Console → Authentication → Settings → Authorized domains, ensure Phone sign-in is enabled, and rebuild without PHONE_TEST_MODE on production. For local testing use 127.0.0.1 or a Firebase test phone number.",
   "auth/missing-app-credential":
-    "reCAPTCHA could not initialise. Refresh the page and try again.",
+    "reCAPTCHA could not initialise. Refresh the page and try again. If this persists on your live domain, add it under Firebase Authorized domains.",
   "auth/quota-exceeded": "SMS limit reached. Please try again later.",
   "auth/user-token-expired": "Session expired. Please log in again.",
   "permission-denied": "Permission denied. Please try again or contact support.",

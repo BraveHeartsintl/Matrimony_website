@@ -55,15 +55,22 @@ export function getFirebaseApp(): FirebaseApp {
   return app;
 }
 
+function isLocalDevHost(): boolean {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1";
+}
+
 export function getFirebaseAuth(): Auth {
   if (!auth) {
     auth = getAuth(getFirebaseApp());
   }
   // Must be applied every call — auth may be cached before this flag is read.
-  // Only takes effect with Firebase test phone numbers configured in the console.
-  if (process.env.NEXT_PUBLIC_FIREBASE_PHONE_TEST_MODE === "true") {
-    auth.settings.appVerificationDisabledForTesting = true;
-  }
+  // ONLY on localhost/127.0.0.1, and only with Firebase Console test phone numbers.
+  // Never disable reCAPTCHA on deployed domains (IONOS etc.) — real numbers fail with
+  // auth/invalid-app-credential when appVerificationDisabledForTesting is true.
+  auth.settings.appVerificationDisabledForTesting =
+    process.env.NEXT_PUBLIC_FIREBASE_PHONE_TEST_MODE === "true" && isLocalDevHost();
   return auth;
 }
 
