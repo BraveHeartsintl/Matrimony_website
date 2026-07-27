@@ -21,9 +21,12 @@ export const REPORT_REASONS = [
   "Other",
 ] as const;
 
-/** Shown when a profile has no uploaded photos */
-export const DEFAULT_PROFILE_PHOTO =
-  "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800&h=1000&fit=crop";
+/** Shown when a profile has no uploaded photos (legacy single default) */
+export const DEFAULT_PROFILE_PHOTO = "/images/avatars/male.png";
+
+/** Gender-specific cartoon placeholders when no photo is uploaded */
+export const DEFAULT_PROFILE_PHOTO_MALE = "/images/avatars/male.png";
+export const DEFAULT_PROFILE_PHOTO_FEMALE = "/images/avatars/female.png";
 
 export const SOCIAL_LINKS = {
   email: "mailto:hello@ukmatrimony.co.uk",
@@ -84,6 +87,7 @@ export const PUBLIC_NAV = [
 export const APP_NAV = [
   { href: "/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
   { href: "/search", label: "Search", icon: "Search" },
+  { href: "/interests", label: "Interests", icon: "Heart" },
   { href: "/profile", label: "Profile", icon: "User" },
   { href: "/messages", label: "Messages", icon: "MessageCircle" },
   { href: "/subscription", label: "Subscription", icon: "Crown" },

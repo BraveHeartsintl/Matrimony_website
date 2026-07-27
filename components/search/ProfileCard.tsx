@@ -9,7 +9,7 @@ import { useInterests } from "@/hooks/useInterests";
 import { toggleFavoriteRemote } from "@/lib/firebase/services/favorite.service";
 import { sendInterest } from "@/lib/firebase/services/interest.service";
 import { canAccess } from "@/lib/onboarding/access";
-import { DEFAULT_PROFILE_PHOTO } from "@/lib/constants";
+import { getDefaultProfilePhoto } from "@/lib/profile-photos";
 import type { MatchScoreResult } from "@/lib/matchmaking/calculateMatchScore";
 import type { OnboardingStatus, SearchProfile } from "@/lib/types";
 import { formatBodyType, formatMaritalStatus } from "@/lib/utils";
@@ -71,7 +71,7 @@ export default function ProfileCard({
       <Link href={`/search/profile?id=${profile.id}`} className="group block">
         <div className="relative h-48 overflow-hidden">
           <Image
-            src={profile.photos[0] || DEFAULT_PROFILE_PHOTO}
+            src={profile.photos[0] || getDefaultProfilePhoto(profile.gender)}
             alt={profile.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"

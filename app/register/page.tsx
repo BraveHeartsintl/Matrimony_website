@@ -14,12 +14,18 @@ import {
 import type { Gender, LookingFor } from "@/lib/types";
 import { calculateAgeFromYearOfBirth } from "@/lib/utils";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useRef, useState } from "react";
 
-export default function RegisterPage() {
+function locationFromParams(raw: string | null): string {
+  if (raw && (UK_LOCATIONS as readonly string[]).includes(raw)) return raw;
+  return "London";
+}
+
+function RegisterForm() {
   const { register } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -33,7 +39,7 @@ export default function RegisterPage() {
     lookingFor: "groom" as LookingFor,
     birthMonth: "6",
     yearOfBirth: String(new Date().getFullYear() - 28),
-    location: "London",
+    location: locationFromParams(searchParams.get("location")),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -223,5 +229,22 @@ export default function RegisterPage() {
         </Link>
       </p>
     </AuthShell>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense
+      fallback={
+        <AuthShell
+          asideTitle="Join in under 60 seconds"
+          asideBody="Create your account with the essentials. Browse matches right away — complete your profile and verify when you're ready to connect."
+        >
+          <div className="py-8 text-center text-sm text-white/60">Loading…</div>
+        </AuthShell>
+      }
+    >
+      <RegisterForm />
+    </Suspense>
   );
 }

@@ -1,21 +1,29 @@
 "use client";
 
-import { DEFAULT_PROFILE_PHOTO } from "@/lib/constants";
+import { getDefaultProfilePhoto } from "@/lib/profile-photos";
+import type { Gender } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
 interface ProfileGalleryProps {
   photos: string[];
   name: string;
+  gender?: Gender | string | null;
 }
 
-export default function ProfileGallery({ photos, name }: ProfileGalleryProps) {
-  const displayPhotos = photos.length > 0 ? photos : [DEFAULT_PROFILE_PHOTO];
+function isAvatarPlaceholder(src: string): boolean {
+  return src.startsWith("/images/avatars/");
+}
+
+export default function ProfileGallery({ photos, name, gender }: ProfileGalleryProps) {
+  const displayPhotos =
+    photos.length > 0 ? photos : [getDefaultProfilePhoto(gender)];
   const [activeIndex, setActiveIndex] = useState(0);
   const hasMultiple = displayPhotos.length > 1;
-  const isPlaceholder = photos.length === 0;
+  const activeSrc = displayPhotos[activeIndex];
+  const showingPlaceholder = isAvatarPlaceholder(activeSrc);
 
   const goTo = (index: number) => {
     setActiveIndex((index + displayPhotos.length) % displayPhotos.length);
@@ -24,22 +32,18 @@ export default function ProfileGallery({ photos, name }: ProfileGalleryProps) {
   return (
     <div className="space-y-4">
       <div className="relative aspect-[4/5] overflow-hidden rounded-[16px] border border-accent/10 bg-surface shadow-[0_12px_40px_rgba(37,42,66,0.1)] sm:aspect-[3/4]">
-        {isPlaceholder ? (
-          <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-surface text-muted">
-            <User className="h-16 w-16 opacity-40" />
-            <span className="text-sm">No photo uploaded</span>
-          </div>
-        ) : (
-          <Image
-            src={displayPhotos[activeIndex]}
-            alt={`${name} — photo ${activeIndex + 1}`}
-            fill
-            className="object-cover transition-opacity duration-300"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            priority
-            unoptimized={displayPhotos[activeIndex].startsWith("data:")}
-          />
-        )}
+        <Image
+          src={activeSrc}
+          alt={showingPlaceholder ? `${name} — avatar placeholder` : `${name} — photo ${activeIndex + 1}`}
+          fill
+          className={cn(
+            "transition-opacity duration-300",
+            showingPlaceholder ? "object-contain bg-[#f5f0e8] p-6 sm:p-8" : "object-cover"
+          )}
+          sizes="(max-width: 1024px) 100vw, 50vw"
+          priority
+          unoptimized={activeSrc.startsWith("data:")}
+        />
 
         {hasMultiple && (
           <>

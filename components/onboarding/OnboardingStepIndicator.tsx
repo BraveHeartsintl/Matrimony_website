@@ -23,7 +23,9 @@ export default function OnboardingStepIndicator({
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold/80">
             {title}
           </p>
-          <h2 className="mt-2 font-display text-2xl font-bold">{subtitle}</h2>
+          <h2 className="mt-2 font-display text-2xl font-bold text-white">
+            {subtitle}
+          </h2>
           <ul className="mt-10 space-y-4">
             {steps.map((label, i) => (
               <li key={label} className="flex items-center gap-3">

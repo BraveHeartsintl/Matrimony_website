@@ -1,7 +1,6 @@
 import { profileFromFirestore } from "@/lib/firebase/converters";
 import { getFirebaseDb } from "@/lib/firebase/config";
-import { DEFAULT_PROFILE_PHOTO } from "@/lib/constants";
-import { photosFromFirestoreData } from "@/lib/profile-photos";
+import { getDefaultProfilePhoto, photosFromFirestoreData } from "@/lib/profile-photos";
 import { MOCK_PROFILES } from "@/lib/mock/profiles";
 import { filterProfiles, type SearchFilters } from "@/lib/search-filters";
 import type { SearchProfile } from "@/lib/types";
@@ -26,7 +25,7 @@ function toSearchProfile(uid: string, data: Record<string, unknown>): SearchProf
   const profile = profileFromFirestore(uid, data);
   const photos = (() => {
     const resolved = photosFromFirestoreData(data);
-    return resolved.length > 0 ? resolved : [DEFAULT_PROFILE_PHOTO];
+    return resolved.length > 0 ? resolved : [getDefaultProfilePhoto(profile.gender)];
   })();
   return {
     ...profile,

@@ -7,7 +7,7 @@ import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import TextCTA from "@/components/ui/TextCTA";
-import { DEFAULT_PROFILE_PHOTO } from "@/lib/constants";
+import { getDefaultProfilePhoto } from "@/lib/profile-photos";
 import { fetchFeaturedProfiles } from "@/lib/firebase/services/search.service";
 import type { SearchProfile } from "@/lib/types";
 import { MapPin, ShieldCheck } from "lucide-react";
@@ -29,7 +29,10 @@ export default function FeaturedProfiles() {
     })();
   }, []);
 
-  if (featured.length === 0) return null;
+  // Keep the section (and #featured-profiles anchor) mounted so hero CTA can scroll here
+  if (featured.length === 0) {
+    return <div id="featured-profiles" className="scroll-mt-20" aria-hidden="true" />;
+  }
 
   return (
     <Section id="featured-profiles" variant="base" className="scroll-mt-20">
@@ -51,7 +54,7 @@ export default function FeaturedProfiles() {
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
-                    src={profile.photos[0] || DEFAULT_PROFILE_PHOTO}
+                    src={profile.photos[0] || getDefaultProfilePhoto(profile.gender)}
                     alt={profile.name}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"

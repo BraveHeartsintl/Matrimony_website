@@ -1,18 +1,29 @@
+"use client";
+
+import { useAuth } from "@/context/AuthContext";
 import { SITE_NAME, SOCIAL_LINKS } from "@/lib/constants";
 import { Mail, MessageCircle, Share2 } from "lucide-react";
 import Link from "next/link";
 
-const socialIcons = [
-  { href: SOCIAL_LINKS.email, icon: Mail, label: "Email" },
-  { href: SOCIAL_LINKS.whatsapp, icon: MessageCircle, label: "WhatsApp" },
-  { href: SOCIAL_LINKS.linkedin, icon: Share2, label: "LinkedIn" },
-];
-
 export default function LeftSidebar() {
+  const { session } = useAuth();
+
+  const quickLinks = session
+    ? [
+        { href: "/dashboard", icon: Mail, label: "Dashboard" },
+        { href: "/messages", icon: MessageCircle, label: "Messages" },
+        { href: "/search", icon: Share2, label: "Search" },
+      ]
+    : [
+        { href: SOCIAL_LINKS.email, icon: Mail, label: "Email" },
+        { href: SOCIAL_LINKS.whatsapp, icon: MessageCircle, label: "WhatsApp" },
+        { href: SOCIAL_LINKS.linkedin, icon: Share2, label: "LinkedIn" },
+      ];
+
   return (
-    <aside className="fixed left-0 top-0 z-30 hidden h-screen w-12 flex-col items-center justify-between border-r glass-sidebar py-8 lg:flex">
+    <aside className="fixed left-0 top-0 z-50 hidden h-screen w-12 flex-col items-center justify-between border-r glass-sidebar py-8 lg:flex">
       <Link
-        href="/"
+        href={session ? "/dashboard" : "/"}
         className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:text-foreground"
         style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
       >
@@ -20,7 +31,7 @@ export default function LeftSidebar() {
       </Link>
 
       <div className="flex flex-col items-center gap-5">
-        {socialIcons.map(({ href, icon: Icon, label }) => (
+        {quickLinks.map(({ href, icon: Icon, label }) => (
           <a
             key={label}
             href={href}

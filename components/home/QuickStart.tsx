@@ -38,7 +38,7 @@ export default function QuickStart() {
                   </Link>
                   <Link href="/login">
                     <Button variant="outline" size="lg">
-                      Member Login
+                      Log In
                     </Button>
                   </Link>
                 </div>

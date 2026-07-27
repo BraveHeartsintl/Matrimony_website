@@ -166,7 +166,7 @@ export default function ProfileDetailView({ profile, interestId }: ProfileDetail
       </Link>
 
       <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-        <ProfileGallery photos={profile.photos} name={profile.name} />
+        <ProfileGallery photos={profile.photos} name={profile.name} gender={profile.gender} />
 
         <div>
           <div className="flex flex-wrap items-start justify-between gap-4">

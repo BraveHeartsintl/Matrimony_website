@@ -8,6 +8,7 @@ import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import { useAuth } from "@/context/AuthContext";
 import {
+  BIRTH_MONTHS,
   EDUCATION_LEVELS,
   FAMILY_TYPES,
   FAMILY_VALUES,
@@ -51,6 +52,7 @@ export default function OnboardingProfilePage() {
 
   const [form, setForm] = useState({
     birthDay: String(profile?.birthDay ?? 15),
+    birthMonth: String(profile?.birthMonth ?? 1),
     heightCm: String(profile?.heightCm || ""),
     maritalStatus: (profile?.maritalStatus ?? "never_married") as MaritalStatus,
     motherTongue: profile?.motherTongue ?? "English",
@@ -112,7 +114,8 @@ export default function OnboardingProfilePage() {
       if (!form.religion) return "Please select your religion";
     }
     if (step === 1) {
-      if (!form.education || !form.occupation) return "Education and occupation are required";
+      if (!form.education) return "Please select your highest education";
+      if (!form.occupation.trim()) return "Please enter your occupation";
     }
     if (step === 2) {
       if (!form.fatherOccupation || !form.motherOccupation)
@@ -145,6 +148,7 @@ export default function OnboardingProfilePage() {
     try {
       await completeOnboardingProfile({
         birthDay: Number(form.birthDay),
+        birthMonth: Number(form.birthMonth),
         heightCm: Number(form.heightCm),
         maritalStatus: form.maritalStatus,
         motherTongue: form.motherTongue,
@@ -231,9 +235,9 @@ export default function OnboardingProfilePage() {
                 />
                 <Select
                   label="Birth Month"
-                  value={String(profile?.birthMonth ?? 1)}
-                  disabled
-                  options={[{ value: String(profile?.birthMonth ?? 1), label: "From signup" }]}
+                  value={form.birthMonth}
+                  onChange={(e) => update("birthMonth", e.target.value)}
+                  options={BIRTH_MONTHS}
                 />
                 <Select
                   label="Birth Year"
@@ -302,7 +306,10 @@ export default function OnboardingProfilePage() {
                 label="Highest Education"
                 value={form.education}
                 onChange={(e) => update("education", e.target.value)}
-                options={EDUCATION_LEVELS.map((e) => ({ value: e, label: e }))}
+                options={[
+                  { value: "", label: "Select option" },
+                  ...EDUCATION_LEVELS.map((e) => ({ value: e, label: e })),
+                ]}
               />
               <Input
                 label="College / University"

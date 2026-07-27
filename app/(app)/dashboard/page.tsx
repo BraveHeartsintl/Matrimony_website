@@ -1,7 +1,6 @@
 "use client";
 
 import SuggestedMatchCard from "@/components/dashboard/SuggestedMatchCard";
-import InterestCard from "@/components/dashboard/InterestCard";
 import OnboardingProgressCard from "@/components/onboarding/OnboardingProgressCard";
 import StatCard from "@/components/dashboard/StatCard";
 import Avatar from "@/components/ui/Avatar";
@@ -127,9 +126,6 @@ export default function DashboardPage() {
   const pendingReceivedInterests = interestsEnriched.filter(
     (i) => isInterestReceived(i, user.id) && i.status === "pending"
   );
-  const otherInterests = interestsEnriched.filter(
-    (i) => !(isInterestReceived(i, user.id) && i.status === "pending")
-  );
   const unreadMessages = conversations.reduce((sum, c) => sum + c.unreadCount, 0);
   const suggestedMatches = filterCompatibleProfiles(allProfiles, profile.gender)
     .slice(0, isLimitedBrowse ? 3 : 4)
@@ -205,10 +201,35 @@ export default function DashboardPage() {
       <OnboardingProgressCard status={profile.onboardingStatus} />
 
       <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Profile Views" value={profileViewCount ?? "—"} icon={Eye} trend="Total views" accent="accent" />
-        <StatCard label="Interests" value={interestsEnriched.length} icon={Heart} trend={`${receivedInterests} received`} />
-        <StatCard label="Messages" value={unreadMessages} icon={MessageCircle} trend="Unread" />
-        <StatCard label="Profile Score" value={`${profile.profileCompletion}%`} icon={Star} accent="accent" />
+        <StatCard
+          label="Profile Views"
+          value={profileViewCount ?? "—"}
+          icon={Eye}
+          trend="Total views"
+          accent="accent"
+          href="/profile"
+        />
+        <StatCard
+          label="Interests"
+          value={interestsEnriched.length}
+          icon={Heart}
+          trend={`${receivedInterests} received`}
+          href="/interests"
+        />
+        <StatCard
+          label="Messages"
+          value={unreadMessages}
+          icon={MessageCircle}
+          trend="Unread"
+          href="/messages"
+        />
+        <StatCard
+          label="Profile Score"
+          value={`${profile.profileCompletion}%`}
+          icon={Star}
+          accent="accent"
+          href="/profile"
+        />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -317,77 +338,44 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <Card hover>
+      <Card hover id="recent-interests">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-[6px] glass-subtle">
               <Heart className="h-5 w-5 text-accent" />
             </div>
             <div>
-              <h3 className="font-display text-lg font-bold text-foreground">Recent Interests</h3>
-              <p className="text-xs text-muted">People connecting with you</p>
+              <h3 className="font-display text-lg font-bold text-foreground">Interest Requests</h3>
+              <p className="text-xs text-muted">Manage all requests on the dedicated page</p>
             </div>
           </div>
-          <Link href="/search">
+          <Link href="/interests">
             <Button variant="ghost" size="sm">
-              Explore
+              View all
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
         </div>
 
-        {interestsEnriched.length === 0 ? (
-          <div className="mt-8 flex flex-col items-center rounded-[6px] glass-subtle py-10 text-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full glass">
-              <Heart className="h-7 w-7 text-accent" />
-            </div>
-            <p className="mt-4 font-medium text-foreground">No interests yet</p>
-            <p className="mt-1 max-w-xs text-sm text-muted">
-              Start browsing profiles and send interests to people you like
-            </p>
-            <Link href="/search" className="mt-4">
-              <Button size="sm">Start Searching</Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="mt-6 space-y-6">
-            {pendingReceivedInterests.length > 0 && (
-              <div>
-                <p className="mb-3 text-sm font-semibold text-accent">
-                  Action required — {pendingReceivedInterests.length} interest
-                  {pendingReceivedInterests.length === 1 ? "" : "s"} waiting for your approval
-                </p>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {pendingReceivedInterests.map((interest) => (
-                    <InterestCard
-                      key={interest.id}
-                      interest={interest}
-                      currentUserId={user.id}
-                      highlight
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {otherInterests.length > 0 && (
-              <div>
-                {pendingReceivedInterests.length > 0 && (
-                  <p className="mb-3 text-sm font-medium text-muted">Your other interests</p>
-                )}
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {otherInterests.map((interest) => (
-                    <InterestCard
-                      key={interest.id}
-                      interest={interest}
-                      currentUserId={user.id}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="mt-6 rounded-[6px] glass-subtle p-5">
+          <p className="text-sm text-muted">
+            {pendingReceivedInterests.length > 0
+              ? `${pendingReceivedInterests.length} request${
+                  pendingReceivedInterests.length === 1 ? "" : "s"
+                } waiting for your approval.`
+              : interestsEnriched.length > 0
+                ? `${interestsEnriched.length} total interest${
+                    interestsEnriched.length === 1 ? "" : "s"
+                  } found.`
+                : "No interests yet. Start browsing and send interest requests."}
+          </p>
+          <Link href="/interests" className="mt-4 inline-block">
+            <Button size="sm">
+              Open Interest Requests
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
       </Card>
 
       <section className="rounded-[6px] glass glass-hover border-accent/20 p-6 sm:p-8">

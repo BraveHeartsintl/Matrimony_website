@@ -17,7 +17,8 @@ import {
 import { partnerGenderFilterForProfile } from "@/lib/matchmaking";
 import { SlidersHorizontal, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 
 const LIMITED_MATCH_COUNT = 5;
 
@@ -25,8 +26,9 @@ function filtersEqual(a: SearchFilters, b: SearchFilters): boolean {
   return JSON.stringify(normalizeFilters(a)) === JSON.stringify(normalizeFilters(b));
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const { session } = useAuth();
+  const searchParams = useSearchParams();
   const status = session?.profile.onboardingStatus ?? "basic_registered";
   const canUseFilters =
     canAccess(status, "advanced_search_limited") || canAccess(status, "advanced_search_full");
@@ -43,11 +45,16 @@ export default function SearchPage() {
   useEffect(() => {
     if (!session || initialized) return;
     const gender = partnerGenderFilterForProfile(session.profile);
-    const browseFilters: SearchFilters = { ...DEFAULT_SEARCH_FILTERS, gender };
+    const location = searchParams.get("location")?.trim() ?? "";
+    const browseFilters: SearchFilters = {
+      ...DEFAULT_SEARCH_FILTERS,
+      gender,
+      ...(location ? { location } : {}),
+    };
     setDraft(browseFilters);
     setApplied(browseFilters);
     setInitialized(true);
-  }, [session, initialized]);
+  }, [session, initialized, searchParams]);
 
   const previewResults = useMemo(
     () => applyClientSearchFilters(allProfiles, draft),
@@ -253,5 +260,19 @@ export default function SearchPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center text-muted">
+          Loading search…
+        </div>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   );
 }
