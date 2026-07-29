@@ -142,20 +142,22 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               <X className="h-6 w-6 text-foreground" />
             </button>
           </div>
-          <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-            {ADMIN_NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={navLinkClass(pathname === item.href)}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </Link>
-            ))}
+          <nav className="flex-1 overflow-y-auto p-4">
+            <div className="space-y-1">
+              {ADMIN_NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={navLinkClass(pathname === item.href)}
+                >
+                  <item.icon className="h-5 w-5" />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </nav>
-          <div className="mt-auto border-t border-border p-4 pb-6">
+          <div className="mt-auto border-t border-border p-4">
             <Link
               href="/"
               onClick={() => setSidebarOpen(false)}

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Separate Firebase Functions TS project (own tsconfig/lint scope, Node-only).
+    "functions/**",
   ]),
 ]);
 

@@ -161,7 +161,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <X className="h-6 w-6 text-foreground" />
             </button>
           </div>
-          <nav className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
+          <nav className="flex-1 overflow-y-auto p-4">
+            <div className="flex flex-col gap-2">
             {APP_NAV.map((item) => {
               const Icon = iconMap[item.icon];
               return (
@@ -176,8 +177,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </Link>
               );
             })}
+            </div>
           </nav>
-          <div className="mt-auto border-t border-border p-4 pb-6">
+          <div className="mt-auto border-t border-border p-4">
             <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
               Log Out

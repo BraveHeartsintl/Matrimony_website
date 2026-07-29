@@ -7,44 +7,79 @@ import { useAuth } from "@/context/AuthContext";
 import {
   SUBSCRIPTION_PLANS,
   getUserSubscription,
-  updateUserSubscriptionPlan,
+  openBillingPortal,
+  startCheckout,
 } from "@/lib/firebase/services/subscription.service";
 import { Check, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
-export default function SubscriptionPage() {
+function SubscriptionContent() {
   const { session } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
   const [currentPlanId, setCurrentPlanId] = useState("free");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
+  const [error, setError] = useState("");
+  const [checkoutNotice, setCheckoutNotice] = useState<"success" | "cancel" | null>(null);
+
+  const refreshSubscription = async (userId: string) => {
+    setLoading(true);
+    const sub = await getUserSubscription(userId);
+    setCurrentPlanId(sub?.planId ?? "free");
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (!session) return;
-    void (async () => {
-      setLoading(true);
-      const sub = await getUserSubscription(session.user.id);
-      setCurrentPlanId(sub?.planId ?? "free");
-      setLoading(false);
-    })();
+    void refreshSubscription(session.user.id);
   }, [session]);
+
+  useEffect(() => {
+    const checkout = searchParams.get("checkout");
+    if (checkout === "success" || checkout === "cancel") {
+      setCheckoutNotice(checkout);
+      // Stripe writes the new plan via webhook asynchronously — re-check shortly after returning.
+      if (checkout === "success" && session) {
+        void refreshSubscription(session.user.id);
+      }
+      router.replace("/subscription");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleSubscribe = (planId: string) => {
     setSelectedPlan(planId);
+    setError("");
     setModalOpen(true);
   };
 
   const confirmPlan = async () => {
-    if (!session || !selectedPlan) return;
-    setSaving(true);
+    if (!session || (selectedPlan !== "silver" && selectedPlan !== "gold")) return;
+    setRedirecting(true);
+    setError("");
     try {
-      await updateUserSubscriptionPlan(session.user.id, selectedPlan, billing);
-      setCurrentPlanId(selectedPlan);
-      setModalOpen(false);
-    } finally {
-      setSaving(false);
+      const url = await startCheckout(selectedPlan, billing);
+      window.location.href = url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not start checkout. Please try again.");
+      setRedirecting(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    setError("");
+    setRedirecting(true);
+    try {
+      const url = await openBillingPortal();
+      window.location.href = url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not open billing portal.");
+      setRedirecting(false);
     }
   };
 
@@ -61,6 +96,17 @@ export default function SubscriptionPage() {
       <div className="mb-8 text-center">
         <h1 className="font-display text-2xl font-bold sm:text-3xl">Choose Your Plan</h1>
         <p className="mt-2 text-muted">Unlock premium features to find your match faster</p>
+
+        {checkoutNotice === "success" && (
+          <p className="mx-auto mt-4 max-w-md rounded-lg bg-accent/10 px-4 py-2 text-sm text-accent">
+            Payment received — your plan will update within a few seconds.
+          </p>
+        )}
+        {checkoutNotice === "cancel" && (
+          <p className="mx-auto mt-4 max-w-md rounded-lg bg-muted/10 px-4 py-2 text-sm text-muted">
+            Checkout was cancelled — no charge was made.
+          </p>
+        )}
 
         <div className="mt-6 inline-flex rounded-lg glass p-1">
           <button
@@ -130,16 +176,39 @@ export default function SubscriptionPage() {
         })}
       </div>
 
+      {currentPlanId !== "free" && (
+        <div className="mt-8 text-center">
+          <Button variant="ghost" onClick={() => void handleManageBilling()} disabled={redirecting}>
+            {redirecting ? "Opening billing portal…" : "Manage billing / cancel subscription"}
+          </Button>
+        </div>
+      )}
+
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Confirm Plan Change">
         <p className="text-sm text-muted">
-          Update your Firestore subscription to{" "}
+          You&apos;ll be redirected to Stripe to securely subscribe to{" "}
           <strong>{SUBSCRIPTION_PLANS.find((p) => p.id === selectedPlan)?.name}</strong> (
-          {billing} billing). Payment processing will be added in a future release.
+          {billing} billing).
         </p>
-        <Button className="mt-4 w-full" onClick={() => void confirmPlan()} disabled={saving}>
-          {saving ? "Saving…" : "Confirm"}
+        {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
+        <Button className="mt-4 w-full" onClick={() => void confirmPlan()} disabled={redirecting}>
+          {redirecting ? "Redirecting to Stripe…" : "Continue to Payment"}
         </Button>
       </Modal>
     </div>
+  );
+}
+
+export default function SubscriptionPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        </div>
+      }
+    >
+      <SubscriptionContent />
+    </Suspense>
   );
 }

@@ -70,8 +70,18 @@ service cloud.firestore {
 
     match /subscriptions/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId) || isAdmin();
-      allow update: if isOwner(userId) || isAdmin();
+      // Members may only ever create their own initial free-tier doc (see
+      // createUserAndProfile in profile.service.ts). Any paid plan change,
+      // status change, or Stripe field must come from the Cloud Functions
+      // backend using the Admin SDK, which bypasses these rules entirely.
+      allow create: if isAdmin()
+        || (isOwner(userId)
+          && request.resource.data.planId == "free"
+          && request.resource.data.status == "active"
+          && !("billing" in request.resource.data)
+          && !("stripeCustomerId" in request.resource.data)
+          && !("stripeSubscriptionId" in request.resource.data));
+      allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 

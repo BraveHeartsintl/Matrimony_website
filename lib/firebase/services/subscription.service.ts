@@ -1,7 +1,8 @@
-import { getFirebaseDb } from "@/lib/firebase/config";
+import { getFirebaseDb, getFirebaseFunctions } from "@/lib/firebase/config";
 import { timestampToIso } from "@/lib/firebase/converters";
 import type { SubscriptionPlan } from "@/lib/types";
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 
 export interface UserSubscription {
   planId: string;
@@ -22,22 +23,41 @@ export async function getUserSubscription(userId: string): Promise<UserSubscript
   };
 }
 
-export async function updateUserSubscriptionPlan(
-  userId: string,
-  planId: string,
+interface CreateCheckoutSessionResponse {
+  url: string;
+}
+
+/**
+ * Starts a Stripe Checkout session for a paid plan. The plan/billing is only
+ * a hint to the backend — the Firebase Cloud Function resolves the actual
+ * Stripe Price ID server-side, so the amount charged can never be tampered
+ * with from the client. Returns the Stripe-hosted URL to redirect to.
+ */
+export async function startCheckout(
+  planId: "silver" | "gold",
   billing: "monthly" | "yearly"
-): Promise<void> {
-  await setDoc(
-    doc(getFirebaseDb(), "subscriptions", userId),
-    {
-      planId,
-      billing,
-      status: "active",
-      updatedAt: serverTimestamp(),
-      renewsAt: serverTimestamp(),
-    },
-    { merge: true }
+): Promise<string> {
+  const createCheckoutSession = httpsCallable<
+    { planId: string; billing: string },
+    CreateCheckoutSessionResponse
+  >(getFirebaseFunctions(), "createCheckoutSession");
+
+  const { data } = await createCheckoutSession({ planId, billing });
+  return data.url;
+}
+
+/**
+ * Opens the Stripe Billing Portal so an existing subscriber can update their
+ * payment method, view invoices, or cancel. Returns the Stripe-hosted URL.
+ */
+export async function openBillingPortal(): Promise<string> {
+  const createPortalSession = httpsCallable<void, CreateCheckoutSessionResponse>(
+    getFirebaseFunctions(),
+    "createPortalSession"
   );
+
+  const { data } = await createPortalSession();
+  return data.url;
 }
 
 export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [

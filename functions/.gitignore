@@ -1,0 +1,15 @@
+# Compiled JS output
+lib/
+
+# Dependency directory
+node_modules/
+
+# Local secrets used by `firebase emulators:start`
+.env
+.env.*
+!.env.example
+.secret.local
+
+# Firebase debug logs
+*.log
+.runtimeconfig.json

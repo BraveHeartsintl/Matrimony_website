@@ -1,6 +1,7 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
+import { getFunctions, type Functions } from "firebase/functions";
 import { getStorage, type FirebaseStorage } from "firebase/storage";
 
 const firebaseConfig = {
@@ -41,6 +42,7 @@ let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let db: Firestore | undefined;
 let storage: FirebaseStorage | undefined;
+let functionsInstance: Functions | undefined;
 
 export function getFirebaseApp(): FirebaseApp {
   if (typeof window === "undefined") {
@@ -86,4 +88,12 @@ export function getFirebaseStorage(): FirebaseStorage {
     storage = getStorage(getFirebaseApp());
   }
   return storage;
+}
+
+/** Callable functions live in the same region the backend was deployed to (see functions/src/index.ts). */
+export function getFirebaseFunctions(): Functions {
+  if (!functionsInstance) {
+    functionsInstance = getFunctions(getFirebaseApp(), "us-central1");
+  }
+  return functionsInstance;
 }
