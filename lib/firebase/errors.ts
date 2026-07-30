@@ -56,6 +56,9 @@ export function mapFirebaseError(
     return AUTH_ERROR_MESSAGES[error.code] ?? fallback;
   }
   if (error instanceof Error) {
+    if (/already been rendered/i.test(error.message)) {
+      return "Security check needs a refresh. Tap Send OTP again — or reload the page if it persists.";
+    }
     return error.message;
   }
   return fallback;

@@ -1,7 +1,6 @@
+import SiteLogo from "@/components/layout/SiteLogo";
 import { SITE_NAME } from "@/lib/constants";
-import { Heart } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 interface AuthShellProps {
@@ -33,14 +32,7 @@ export default function AuthShell({
 
       <div className="relative z-10 flex min-h-dvh w-full flex-col lg:flex-row">
         <aside className="hidden w-[40%] flex-col justify-between px-10 py-10 xl:w-[42%] xl:px-14 lg:flex">
-          <Link href="/" className="inline-flex items-center gap-2.5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 backdrop-blur-md">
-              <Heart className="h-5 w-5 text-gold" aria-hidden="true" />
-            </span>
-            <span className="font-display text-2xl tracking-wide text-white">
-              {SITE_NAME}
-            </span>
-          </Link>
+          <SiteLogo href="/" size="lg" variant="onDark" priority />
 
           <div className="max-w-md">
             {eyebrow && (
@@ -67,10 +59,7 @@ export default function AuthShell({
 
         <div className="flex min-h-dvh flex-1 flex-col">
           <header className="flex h-14 shrink-0 items-center justify-between px-4 sm:h-16 sm:px-6 lg:hidden">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <Heart className="h-5 w-5 text-gold" aria-hidden="true" />
-              <span className="font-display text-lg text-white">{SITE_NAME}</span>
-            </Link>
+            <SiteLogo href="/" size="sm" variant="onDark" priority />
           </header>
 
           <div className="flex flex-1 items-start justify-center px-3 pb-8 pt-2 sm:px-6 sm:pb-10 sm:pt-4 lg:items-center lg:justify-start lg:px-10 lg:py-12 xl:px-16">

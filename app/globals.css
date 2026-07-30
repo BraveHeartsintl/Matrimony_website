@@ -621,6 +621,43 @@
   box-shadow: 0 4px 24px rgba(var(--navy-rgb), 0.06), var(--glass-inset);
 }
 
+/* Sticky public header — darker so page content cannot bleed through */
+.site-header {
+  background: rgba(8, 26, 51, 0.94);
+  backdrop-filter: blur(var(--glass-blur-lg)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--glass-blur-lg)) saturate(140%);
+  border-bottom: 1px solid rgba(var(--gold-rgb), 0.28);
+  box-shadow: 0 8px 28px rgba(8, 26, 51, 0.35);
+}
+
+.site-header .nav-link {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.site-header .nav-link:hover,
+.site-header .nav-link.active,
+.site-header .nav-link.text-foreground {
+  color: #fff8e7;
+}
+
+.site-header-ghost {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.site-header-ghost:hover {
+  color: #fff8e7 !important;
+}
+
+.site-header-cta {
+  background: var(--gold) !important;
+  color: var(--navy-deep) !important;
+  box-shadow: 0 4px 18px rgba(var(--gold-rgb), 0.35) !important;
+}
+
+.site-header-cta:hover {
+  background: var(--gold-hover) !important;
+}
+
 .glass-sidebar {
   background: rgba(244, 247, 251, 0.78);
   backdrop-filter: blur(var(--glass-blur-lg)) saturate(140%);

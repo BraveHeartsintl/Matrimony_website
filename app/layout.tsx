@@ -1,5 +1,5 @@
 import Providers from "@/components/providers/Providers";
-import { SITE_NAME } from "@/lib/constants";
+import { SITE_LOGO, SITE_NAME } from "@/lib/constants";
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -32,6 +32,10 @@ export const metadata: Metadata = {
     "matchmaking UK",
     "shaadi UK alternative",
   ],
+  icons: {
+    icon: SITE_LOGO,
+    apple: SITE_LOGO,
+  },
   openGraph: {
     title: `${SITE_NAME} — The UK's Trusted UK's Indian Matchmaking Service`,
     description:
@@ -39,6 +43,7 @@ export const metadata: Metadata = {
     locale: "en_GB",
     type: "website",
     siteName: SITE_NAME,
+    images: [{ url: SITE_LOGO, alt: SITE_NAME }],
   },
 };
 

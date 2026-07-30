@@ -55,6 +55,18 @@ export default function FilterPanel({
       </div>
 
       <div className="space-y-4">
+        {(filterMode === "full" || filterMode === "limited") && (
+          <Select
+            label="Gender"
+            value={draft.gender}
+            onChange={(e) => update("gender", e.target.value)}
+            options={[
+              { value: "", label: "All Genders" },
+              ...GENDERS,
+            ]}
+          />
+        )}
+
         {filterMode === "full" && (
           <div className="grid grid-cols-2 gap-3">
             <Select
@@ -70,15 +82,6 @@ export default function FilterPanel({
               options={ageOptions}
             />
           </div>
-        )}
-
-        {filterMode === "full" && (
-          <Select
-            label="Gender"
-            value={draft.gender}
-            onChange={(e) => update("gender", e.target.value)}
-            options={[{ value: "", label: "All Genders" }, ...GENDERS]}
-          />
         )}
 
         <Select
@@ -134,7 +137,8 @@ export default function FilterPanel({
 
         {filterMode === "limited" && (
           <p className="text-xs text-muted">
-            Complete verification to unlock age, gender, education, and verified-only filters.
+            Complete verification to unlock age, education, marital status, and verified-only
+            filters.
           </p>
         )}
       </div>

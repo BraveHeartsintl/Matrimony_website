@@ -1,15 +1,18 @@
 "use client";
 
-import { SITE_NAME, PUBLIC_NAV } from "@/lib/constants";
+import { useAuth } from "@/context/AuthContext";
+import { APP_NAV, PUBLIC_NAV } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { Heart, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Button from "../ui/Button";
+import SiteLogo from "./SiteLogo";
 
 export default function Header() {
   const pathname = usePathname();
+  const { session, isLoading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -23,24 +26,24 @@ export default function Header() {
     };
   }, [mobileOpen]);
 
+  const memberLinks = APP_NAV.filter((item) =>
+    ["/dashboard", "/search", "/profile"].includes(item.href)
+  );
+
+  const homeHref = session ? "/dashboard" : "/";
+
   return (
     <>
-      <header className="sticky top-0 z-40 border-b glass-nav">
+      <header className="site-header sticky top-0 z-40">
         <div className="container-site flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-accent" />
-            <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
-          </Link>
+          <SiteLogo href={homeHref} size="md" variant="onDark" priority />
 
           <nav className="hidden items-center gap-8 md:flex">
             {PUBLIC_NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  "nav-link",
-                  pathname === item.href && "text-foreground"
-                )}
+                className={cn("nav-link", pathname === item.href && "active")}
               >
                 {item.label}
               </Link>
@@ -48,18 +51,38 @@ export default function Header() {
           </nav>
 
           <div className="hidden items-center gap-3 md:flex">
-            <Link href="/login">
-              <Button variant="ghost" size="sm">
-                Log In
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="sm">Register Free</Button>
-            </Link>
+            {!isLoading &&
+              (session ? (
+                <>
+                  <Link href="/search">
+                    <Button variant="ghost" size="sm" className="site-header-ghost">
+                      Search
+                    </Button>
+                  </Link>
+                  <Link href="/dashboard">
+                    <Button size="sm" className="site-header-cta">
+                      Dashboard
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="ghost" size="sm" className="site-header-ghost">
+                      Log In
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button size="sm" className="site-header-cta">
+                      Register Free
+                    </Button>
+                  </Link>
+                </>
+              ))}
           </div>
 
           <button
-            className="p-2 text-foreground md:hidden"
+            className="p-2 text-white md:hidden"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
@@ -71,14 +94,7 @@ export default function Header() {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex flex-col glass-strong mobile-menu-enter md:hidden">
           <div className="container-site flex h-16 items-center justify-between">
-            <Link
-              href="/"
-              className="flex items-center gap-2"
-              onClick={() => setMobileOpen(false)}
-            >
-              <Heart className="h-6 w-6 text-accent" />
-              <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
-            </Link>
+            <SiteLogo href={homeHref} size="md" onClick={() => setMobileOpen(false)} />
             <button
               className="p-2 text-foreground"
               onClick={() => setMobileOpen(false)}
@@ -88,7 +104,7 @@ export default function Header() {
             </button>
           </div>
 
-          <nav className="flex flex-1 flex-col justify-center gap-6 px-6">
+          <nav className="flex flex-1 flex-col justify-center gap-8 px-6">
             {PUBLIC_NAV.map((item) => (
               <Link
                 key={item.href}
@@ -102,17 +118,46 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
+            {session &&
+              memberLinks.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "text-2xl font-display font-bold uppercase tracking-[0.08em] transition-colors",
+                    pathname === item.href ? "text-accent" : "text-foreground"
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
           </nav>
 
           <div className="container-site flex flex-col gap-3 pb-10">
-            <Link href="/login" onClick={() => setMobileOpen(false)}>
-              <Button variant="outline" className="w-full">
-                Log In
-              </Button>
-            </Link>
-            <Link href="/register" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full">Register Free</Button>
-            </Link>
+            {session ? (
+              <>
+                <Link href="/search" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" className="w-full">
+                    Search Profiles
+                  </Button>
+                </Link>
+                <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full">Go to Dashboard</Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="outline" className="w-full">
+                    Log In
+                  </Button>
+                </Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)}>
+                  <Button className="w-full">Register Free</Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

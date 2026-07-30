@@ -11,6 +11,7 @@ import { canAccess } from "@/lib/onboarding/access";
 import { applyClientSearchFilters } from "@/lib/firebase/services/search.service";
 import {
   DEFAULT_SEARCH_FILTERS,
+  initialSearchFilters,
   normalizeFilters,
   type SearchFilters,
 } from "@/lib/search-filters";
@@ -42,19 +43,34 @@ function SearchPageContent() {
 
   const { profiles: allProfiles, loading, error, reload } = useSearchProfiles(session?.user.id);
 
+  const filterMode = canAccess(status, "advanced_search_full")
+    ? "full"
+    : canAccess(status, "advanced_search_limited")
+      ? "limited"
+      : "none";
+
   useEffect(() => {
     if (!session || initialized) return;
-    const gender = partnerGenderFilterForProfile(session.profile);
+
     const location = searchParams.get("location")?.trim() ?? "";
-    const browseFilters: SearchFilters = {
-      ...DEFAULT_SEARCH_FILTERS,
-      gender,
-      ...(location ? { location } : {}),
-    };
+
+    if (filterMode === "none") {
+      const browseFilters: SearchFilters = {
+        ...DEFAULT_SEARCH_FILTERS,
+        gender: partnerGenderFilterForProfile(session.profile),
+        ...(location ? { location } : {}),
+      };
+      setDraft(browseFilters);
+      setApplied(browseFilters);
+      setInitialized(true);
+      return;
+    }
+
+    const browseFilters = initialSearchFilters(session.profile, filterMode, location);
     setDraft(browseFilters);
     setApplied(browseFilters);
     setInitialized(true);
-  }, [session, initialized, searchParams]);
+  }, [session, initialized, searchParams, filterMode]);
 
   const previewResults = useMemo(
     () => applyClientSearchFilters(allProfiles, draft),
@@ -78,12 +94,6 @@ function SearchPageContent() {
   );
   const hasPendingChanges = !filtersEqual(draft, applied);
 
-  const filterMode = canAccess(status, "advanced_search_full")
-    ? "full"
-    : canAccess(status, "advanced_search_limited")
-      ? "limited"
-      : "none";
-
   const applyFilters = () => {
     const normalized = normalizeFilters(draft);
     setDraft(normalized);
@@ -92,9 +102,21 @@ function SearchPageContent() {
   };
 
   const resetFilters = () => {
-    const resetTo = session
-      ? { ...DEFAULT_SEARCH_FILTERS, gender: partnerGenderFilterForProfile(session.profile) }
-      : DEFAULT_SEARCH_FILTERS;
+    if (!session) {
+      setDraft(DEFAULT_SEARCH_FILTERS);
+      setApplied(DEFAULT_SEARCH_FILTERS);
+      setMobileFiltersOpen(false);
+      return;
+    }
+
+    const resetTo =
+      filterMode === "none"
+        ? {
+            ...DEFAULT_SEARCH_FILTERS,
+            gender: partnerGenderFilterForProfile(session.profile),
+          }
+        : initialSearchFilters(session.profile, filterMode);
+
     setDraft(resetTo);
     setApplied(resetTo);
     setMobileFiltersOpen(false);
@@ -104,6 +126,13 @@ function SearchPageContent() {
     setApplied(filters);
     setDraft(filters);
   };
+
+  const preferredGenderLabel = (() => {
+    if (!session) return "";
+    const gender = partnerGenderFilterForProfile(session.profile);
+    if (!gender) return "";
+    return gender.charAt(0).toUpperCase() + gender.slice(1);
+  })();
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -176,11 +205,16 @@ function SearchPageContent() {
             />
           )}
 
-          {session && initialized && canUseFilters && !filtersEqual(applied, DEFAULT_SEARCH_FILTERS) && (
-            <p className="mb-4 rounded-[6px] glass-subtle px-3 py-2 text-xs text-accent">
-              Filters pre-filled from your partner preferences. Adjust and click Apply Filters.
-            </p>
-          )}
+          {session &&
+            initialized &&
+            canUseFilters &&
+            !filtersEqual(applied, DEFAULT_SEARCH_FILTERS) && (
+              <p className="mb-4 rounded-[6px] glass-subtle px-3 py-2 text-xs text-accent">
+                {preferredGenderLabel
+                  ? `Pre-filled for ${preferredGenderLabel.toLowerCase()} matches based on who you're looking for. Adjust filters and click Apply.`
+                  : "Filters pre-filled from your partner preferences. Adjust and click Apply Filters."}
+              </p>
+            )}
 
           {loading ? (
             <div className="flex items-center justify-center py-16">

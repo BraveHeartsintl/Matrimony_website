@@ -10,6 +10,8 @@ import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import Textarea from "@/components/ui/Textarea";
 import { submitContactMessage } from "@/lib/firebase/services/report.service";
+import { SOCIAL_LINKS } from "@/lib/constants";
+import { FacebookIcon, InstagramIcon } from "@/components/icons/SocialBrandIcons";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useState } from "react";
 
@@ -72,6 +74,36 @@ export default function ContactPage() {
                   <br />
                   United Kingdom
                 </p>
+              </Card>
+              <Card>
+                <h3 className="font-semibold text-foreground">Follow Us</h3>
+                <p className="mt-1 text-sm text-muted">
+                  Stay updated with matchmaking tips and community news.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-4">
+                  <a
+                    href={SOCIAL_LINKS.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-foreground"
+                  >
+                    <FacebookIcon className="h-5 w-5" />
+                    Facebook
+                  </a>
+                  {SOCIAL_LINKS.instagram ? (
+                    <a
+                      href={SOCIAL_LINKS.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Instagram"
+                      className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-foreground"
+                    >
+                      <InstagramIcon className="h-5 w-5" />
+                      Instagram
+                    </a>
+                  ) : null}
+                </div>
               </Card>
             </div>
 

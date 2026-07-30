@@ -29,6 +29,7 @@ import Image from "next/image";
 import { reload } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 const STEPS = [
   "Mobile OTP",
@@ -55,6 +56,7 @@ export default function OnboardingVerifyPage() {
   const [verificationId, setVerificationId] = useState<string | null>(null);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [recaptchaKey, setRecaptchaKey] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
   const [aiChecking, setAiChecking] = useState(false);
   const [aiProgress, setAiProgress] = useState(0);
@@ -137,6 +139,13 @@ export default function OnboardingVerifyPage() {
 
   const phoneDemoMode = isPhoneDemoMode();
 
+  const remountRecaptcha = () => {
+    clearPhoneRecaptcha();
+    flushSync(() => {
+      setRecaptchaKey((k) => k + 1);
+    });
+  };
+
   const handlePhoneVerify = async () => {
     const trimmed = phone.trim();
     if (!trimmed) {
@@ -152,13 +161,20 @@ export default function OnboardingVerifyPage() {
     setError("");
     try {
       const normalized = normalizePhoneNumber(trimmed);
-      const containerId = phoneDemoMode ? "recaptcha-skip" : "recaptcha-container";
-      const id = await sendPhoneOtp(normalized, containerId);
+      // Fresh host node before each send — prevents "already rendered" conflicts.
+      if (!phoneDemoMode) {
+        remountRecaptcha();
+      }
+      const id = await sendPhoneOtp(
+        normalized,
+        phoneDemoMode ? "recaptcha-skip" : "recaptcha-container"
+      );
       setVerificationId(id);
       updateVerification({ phone: normalized });
       setOtpSent(true);
       setOtpCode("");
     } catch (err) {
+      remountRecaptcha();
       setError(err instanceof Error ? err.message : "Failed to send OTP");
     } finally {
       setSendingOtp(false);
@@ -177,6 +193,7 @@ export default function OnboardingVerifyPage() {
       await verifyPhoneOtp(verificationId, otpCode);
       updateVerification({ phoneVerified: true });
       setVerificationId(null);
+      remountRecaptcha();
       goToStep(1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "OTP verification failed");
@@ -189,7 +206,7 @@ export default function OnboardingVerifyPage() {
     setOtpSent(false);
     setOtpCode("");
     setVerificationId(null);
-    clearPhoneRecaptcha();
+    remountRecaptcha();
     setError("");
   };
 
@@ -305,7 +322,12 @@ export default function OnboardingVerifyPage() {
           {step === 0 && (
             <>
               {!phoneDemoMode && (
-                <div id="recaptcha-container" />
+                <div
+                  key={recaptchaKey}
+                  id="recaptcha-container"
+                  className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
+                  aria-hidden
+                />
               )}
               <Input
                 label="Mobile Number"

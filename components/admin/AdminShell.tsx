@@ -1,14 +1,13 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { SITE_NAME } from "@/lib/constants";
+import SiteLogo from "@/components/layout/SiteLogo";
 import { adminLogout, ensureAdminFirebaseAuth, isAdminLoggedIn } from "@/lib/admin-auth";
 import { cn } from "@/lib/utils";
 import {
   AlertTriangle,
   BarChart3,
   CreditCard,
-  Heart,
   LogOut,
   Menu,
   ShieldCheck,
@@ -82,10 +81,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     <div className="flex min-h-screen lg:pl-64">
       <aside className="glass-sidebar fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r lg:flex">
         <div>
-          <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-            <Heart className="h-6 w-6 text-accent" />
+          <div className="flex h-16 items-center gap-3 border-b border-border px-6">
+            <SiteLogo href="/admin" size="sm" />
             <div>
-              <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
               <p className="text-[10px] uppercase tracking-widest text-accent">Admin Portal</p>
             </div>
           </div>
@@ -137,7 +135,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       {sidebarOpen && (
         <div className="glass-strong fixed inset-0 z-50 flex flex-col lg:hidden">
           <div className="flex h-14 items-center justify-between border-b border-border px-4">
-            <span className="font-display font-bold text-foreground">Admin</span>
+            <SiteLogo href="/admin" size="sm" onClick={() => setSidebarOpen(false)} />
             <button onClick={() => setSidebarOpen(false)}>
               <X className="h-6 w-6 text-foreground" />
             </button>

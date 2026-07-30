@@ -8,12 +8,18 @@ import {
   RecaptchaVerifier,
 } from "firebase/auth";
 
-// Single module-level verifier — always cleared before each send to avoid
-// "reCAPTCHA has already been rendered in this element" errors.
+/**
+ * Module-level verifier state.
+ * We always mount into a *new child node* under the host so grecaptcha never
+ * sees "already rendered in this element" on a reused DOM node.
+ */
 let activeVerifier: RecaptchaVerifier | undefined;
-let activeContainerId: string | undefined;
+let activeWidgetEl: HTMLElement | undefined;
+let sendInFlight = false;
+let widgetSeq = 0;
 
 const DEMO_VERIFICATION_PREFIX = "demo-otp:";
+const RECAPTCHA_HOST_ID = "recaptcha-container";
 
 export function isPhoneDemoMode(): boolean {
   return process.env.NEXT_PUBLIC_FIREBASE_PHONE_DEMO_MODE === "true";
@@ -46,11 +52,6 @@ export function isValidPhoneNumber(input: string): boolean {
   return /^\+\d{10,15}$/.test(normalized);
 }
 
-function clearContainerHtml(containerId: string): void {
-  const el = document.getElementById(containerId);
-  if (el) el.innerHTML = "";
-}
-
 export function clearPhoneRecaptcha(): void {
   if (activeVerifier) {
     try {
@@ -60,39 +61,70 @@ export function clearPhoneRecaptcha(): void {
     }
     activeVerifier = undefined;
   }
-  if (activeContainerId) {
-    clearContainerHtml(activeContainerId);
-    activeContainerId = undefined;
+
+  if (activeWidgetEl?.parentNode) {
+    activeWidgetEl.parentNode.removeChild(activeWidgetEl);
   }
+  activeWidgetEl = undefined;
+
+  const host = document.getElementById(RECAPTCHA_HOST_ID);
+  if (host) host.innerHTML = "";
+}
+
+function isAlreadyRenderedError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  return /already been rendered/i.test(message);
 }
 
 /**
- * Always creates a fresh RecaptchaVerifier.
- * Clears any existing widget first so we never hit
- * "reCAPTCHA has already been rendered in this element".
+ * Creates a RecaptchaVerifier on a brand-new DOM node under the host.
+ * Never reuses a node that grecaptcha has already rendered into.
  */
-function createFreshVerifier(containerId: string): RecaptchaVerifier {
-  // Destroy the old one unconditionally before creating a new one.
+function createFreshVerifier(hostId: string): RecaptchaVerifier {
   clearPhoneRecaptcha();
 
-  const el = document.getElementById(containerId);
-  if (!el) {
-    throw new Error(`reCAPTCHA container #${containerId} not found in DOM.`);
+  const host = document.getElementById(hostId);
+  if (!host) {
+    throw new Error(
+      "Security check container is missing. Refresh the page and try again."
+    );
   }
-  el.innerHTML = "";
 
-  const verifier = new RecaptchaVerifier(getFirebaseAuth(), containerId, {
+  host.innerHTML = "";
+  const widget = document.createElement("div");
+  widget.id = `recaptcha-widget-${++widgetSeq}`;
+  host.appendChild(widget);
+  activeWidgetEl = widget;
+
+  // Pass the HTMLElement (not an id string) so Firebase binds to this exact node.
+  const verifier = new RecaptchaVerifier(getFirebaseAuth(), widget, {
     size: "invisible",
+    callback: () => {
+      // Token ready — verifyPhoneNumber continues automatically
+    },
+    "expired-callback": () => {
+      clearPhoneRecaptcha();
+    },
   });
 
   activeVerifier = verifier;
-  activeContainerId = containerId;
   return verifier;
+}
+
+async function requestOtpWithVerifier(
+  phoneNumber: string,
+  hostId: string
+): Promise<string> {
+  const auth = getFirebaseAuth();
+  const verifier = createFreshVerifier(hostId);
+  const provider = new PhoneAuthProvider(auth);
+  // Do NOT call verifier.render() separately — verifyPhoneNumber renders once.
+  return provider.verifyPhoneNumber(phoneNumber, verifier);
 }
 
 export async function sendPhoneOtp(
   phoneNumber: string,
-  containerId: string,
+  containerId: string = RECAPTCHA_HOST_ID
 ): Promise<string> {
   const auth = getFirebaseAuth();
   if (!auth.currentUser) {
@@ -101,7 +133,9 @@ export async function sendPhoneOtp(
 
   const normalized = normalizePhoneNumber(phoneNumber);
   if (!isValidPhoneNumber(normalized)) {
-    throw new Error("Enter a valid mobile number including country code (e.g. +91 98765 43210).");
+    throw new Error(
+      "Enter a valid mobile number including country code (e.g. +91 98765 43210)."
+    );
   }
 
   if (isPhoneDemoMode()) {
@@ -109,17 +143,46 @@ export async function sendPhoneOtp(
     return `${DEMO_VERIFICATION_PREFIX}${normalized}`;
   }
 
+  if (sendInFlight) {
+    throw new Error("OTP request already in progress. Please wait a moment.");
+  }
+
+  sendInFlight = true;
   try {
-    const verifier = createFreshVerifier(containerId);
-    const provider = new PhoneAuthProvider(auth);
-    return await provider.verifyPhoneNumber(normalized, verifier);
+    try {
+      return await requestOtpWithVerifier(normalized, containerId);
+    } catch (error) {
+      // One automatic recovery if a stale widget was left on the host.
+      if (isAlreadyRenderedError(error)) {
+        clearPhoneRecaptcha();
+        await new Promise((r) => setTimeout(r, 150));
+        return await requestOtpWithVerifier(normalized, containerId);
+      }
+      throw error;
+    }
   } catch (error) {
     clearPhoneRecaptcha();
-    // Log the raw Firebase error code to help diagnose reCAPTCHA/backend issues.
     if (error instanceof Error && "code" in error) {
-      console.error("[phone-otp] Firebase error code:", (error as { code?: string }).code, error.message);
+      console.error(
+        "[phone-otp] Firebase error code:",
+        (error as { code?: string }).code,
+        error.message
+      );
+    } else if (error instanceof Error) {
+      console.error("[phone-otp]", error.message);
     }
-    throw new Error(mapFirebaseError(error, "Failed to send OTP. Please try again.", "phone"));
+
+    if (isAlreadyRenderedError(error)) {
+      throw new Error(
+        "Security check failed to reset. Refresh the page, then tap Send OTP again."
+      );
+    }
+
+    throw new Error(
+      mapFirebaseError(error, "Failed to send OTP. Please try again.", "phone")
+    );
+  } finally {
+    sendInFlight = false;
   }
 }
 
@@ -127,7 +190,10 @@ function isDemoVerificationId(verificationId: string): boolean {
   return verificationId.startsWith(DEMO_VERIFICATION_PREFIX);
 }
 
-export async function verifyPhoneOtp(verificationId: string, otpCode: string): Promise<void> {
+export async function verifyPhoneOtp(
+  verificationId: string,
+  otpCode: string
+): Promise<void> {
   const auth = getFirebaseAuth();
   if (!auth.currentUser) {
     throw new Error("You must be logged in to verify your phone number.");
@@ -148,10 +214,14 @@ export async function verifyPhoneOtp(verificationId: string, otpCode: string): P
   try {
     const credential = PhoneAuthProvider.credential(verificationId, code);
     await linkWithCredential(auth.currentUser, credential);
+    clearPhoneRecaptcha();
   } catch (error) {
     if (error instanceof FirebaseError && error.code === "auth/provider-already-linked") {
+      clearPhoneRecaptcha();
       return;
     }
-    throw new Error(mapFirebaseError(error, "Invalid or expired OTP. Please try again.", "phone"));
+    throw new Error(
+      mapFirebaseError(error, "Invalid or expired OTP. Please try again.", "phone")
+    );
   }
 }

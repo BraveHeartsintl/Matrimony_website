@@ -4,11 +4,13 @@ import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import FadeIn from "@/components/ui/FadeIn";
 import SplitHeadline from "@/components/ui/SplitHeadline";
+import { useAuth } from "@/context/AuthContext";
 import { usePlatformContent } from "@/hooks/usePlatformContent";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function CTA() {
+  const { session } = useAuth();
   const { stats } = usePlatformContent();
 
   return (
@@ -42,25 +44,47 @@ export default function CTA() {
               </div>
 
               <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:mt-6 sm:text-lg">
-                Join {stats.members} UK&apos;s Indian singles on the UK&apos;s dedicated
-                matrimony platform. Registration is free and takes less than 5 minutes.
+                {session
+                  ? `Continue browsing matches across the UK — ${stats.members} members are waiting to connect.`
+                  : `Join ${stats.members} UK's Indian singles on the UK's dedicated matrimony platform. Registration is free and takes less than 5 minutes.`}
               </p>
 
               <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:mt-10 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
-                <Link href="/register" className="sm:inline-flex">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Register Free
-                  </Button>
-                </Link>
-                <Link href="/login" className="sm:inline-flex">
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="cta-ghost-btn w-full sm:w-auto"
-                  >
-                    Member Login
-                  </Button>
-                </Link>
+                {session ? (
+                  <>
+                    <Link href="/dashboard" className="sm:inline-flex">
+                      <Button size="lg" className="w-full sm:w-auto">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/search" className="sm:inline-flex">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="cta-ghost-btn w-full sm:w-auto"
+                      >
+                        Search Profiles
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/register" className="sm:inline-flex">
+                      <Button size="lg" className="w-full sm:w-auto">
+                        Register Free
+                      </Button>
+                    </Link>
+                    <Link href="/login" className="sm:inline-flex">
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="cta-ghost-btn w-full sm:w-auto"
+                      >
+                        Member Login
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
 
               <p className="mt-6 text-xs tracking-wide text-white/55">

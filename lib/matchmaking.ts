@@ -33,5 +33,8 @@ export function filterCompatibleConversations(
 }
 
 export function partnerGenderFilterForProfile(profile: Profile): string {
+  // Prefer explicit "looking for" over inferred opposite gender
+  if (profile.lookingFor === "bride") return "female";
+  if (profile.lookingFor === "groom") return "male";
   return preferredPartnerGender(profile.gender) ?? "";
 }

@@ -7,6 +7,7 @@ import Section from "@/components/ui/Section";
 import SectionLabel from "@/components/ui/SectionLabel";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import TextCTA from "@/components/ui/TextCTA";
+import { useAuth } from "@/context/AuthContext";
 import { getDefaultProfilePhoto } from "@/lib/profile-photos";
 import { fetchFeaturedProfiles } from "@/lib/firebase/services/search.service";
 import type { SearchProfile } from "@/lib/types";
@@ -16,6 +17,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function FeaturedProfiles() {
+  const { session } = useAuth();
   const [featured, setFeatured] = useState<SearchProfile[]>([]);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function FeaturedProfiles() {
             <FadeIn key={profile.id} delay={i * 100} direction="scale">
               <Link
                 href={`/search/profile?id=${profile.id}`}
-                className="group block overflow-hidden rounded-[14px] glass glass-hover shadow-sm transition-all duration-300 hover:border-accent/30 hover:shadow-md"
+                className="group flex h-full flex-col overflow-hidden rounded-[14px] glass glass-hover shadow-sm transition-all duration-300 hover:border-accent/30 hover:shadow-md"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <Image
@@ -77,7 +79,7 @@ export default function FeaturedProfiles() {
                     </div>
                   </div>
                 </div>
-                <div className="p-4">
+                <div className="flex flex-1 flex-col p-4">
                   <p className="text-sm text-muted">{profile.occupation}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     <Badge>{profile.religion}</Badge>
@@ -91,13 +93,19 @@ export default function FeaturedProfiles() {
 
         <FadeIn delay={150}>
           <div className="mt-12 flex flex-col items-center gap-4">
-            <TextCTA href="/register">Register to View All Profiles</TextCTA>
-            <p className="text-sm text-muted">
-              Already a member?{" "}
-              <Link href="/login" className="text-foreground transition-colors hover:text-accent">
-                Log in
-              </Link>
-            </p>
+            {session ? (
+              <TextCTA href="/search">Search Profiles</TextCTA>
+            ) : (
+              <>
+                <TextCTA href="/register">Register to View All Profiles</TextCTA>
+                <p className="text-sm text-muted">
+                  Already a member?{" "}
+                  <Link href="/login" className="text-foreground transition-colors hover:text-accent">
+                    Log in
+                  </Link>
+                </p>
+              </>
+            )}
           </div>
         </FadeIn>
       </Container>

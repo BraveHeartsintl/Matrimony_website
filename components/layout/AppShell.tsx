@@ -3,10 +3,11 @@
 import PhaseBanner from "@/components/onboarding/PhaseBanner";
 import { useAuth } from "@/context/AuthContext";
 import { canAccess, getOnboardingStatusLabel } from "@/lib/onboarding/access";
-import { APP_NAV, SITE_NAME } from "@/lib/constants";
+import { APP_NAV } from "@/lib/constants";
 import { getProfilePhotoUrl } from "@/lib/profile-photos";
 import { cn } from "@/lib/utils";
 import {
+  ArrowLeft,
   Crown,
   Heart,
   LayoutDashboard,
@@ -22,6 +23,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Avatar from "../ui/Avatar";
 import Button from "../ui/Button";
+import SiteLogo from "./SiteLogo";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
@@ -75,9 +77,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen lg:pl-64">
       <aside className="glass-sidebar fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r lg:flex">
         <div>
-          <div className="flex h-16 items-center gap-2 border-b border-border px-6">
-            <Heart className="h-6 w-6 text-accent" />
-            <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
+          <div className="flex h-16 items-center border-b border-border px-6">
+            <SiteLogo href="/dashboard" size="md" />
           </div>
 
           <nav className="space-y-1 p-4">
@@ -112,6 +113,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </p>
             </div>
           </div>
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="w-full justify-start">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Website
+            </Button>
+          </Link>
           <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
             Log Out
@@ -124,7 +131,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button onClick={() => setSidebarOpen(true)} aria-label="Open menu">
             <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
+          <SiteLogo href="/dashboard" size="sm" />
           <Avatar src={profilePhoto} name={session.user.name} size="sm" />
         </header>
 
@@ -156,7 +163,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {sidebarOpen && (
         <div className="glass-strong fixed inset-0 z-50 flex flex-col lg:hidden">
           <div className="flex h-14 items-center justify-between border-b border-border px-4">
-            <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
+            <SiteLogo href="/dashboard" size="sm" onClick={() => setSidebarOpen(false)} />
             <button onClick={() => setSidebarOpen(false)}>
               <X className="h-6 w-6 text-foreground" />
             </button>
@@ -180,6 +187,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </nav>
           <div className="mt-auto border-t border-border p-4">
+            <Link href="/" onClick={() => setSidebarOpen(false)}>
+              <Button variant="ghost" size="sm" className="w-full justify-start">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Website
+              </Button>
+            </Link>
             <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
               Log Out

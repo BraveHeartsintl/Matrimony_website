@@ -38,6 +38,29 @@ export function filtersFromPreferences(profile: Profile): SearchFilters {
   };
 }
 
+/** Prefill available filters for the current search access level. */
+export function initialSearchFilters(
+  profile: Profile,
+  filterMode: "limited" | "full",
+  locationParam = ""
+): SearchFilters {
+  const fromPrefs = filtersFromPreferences(profile);
+  const withLocation = locationParam
+    ? { ...fromPrefs, location: locationParam }
+    : fromPrefs;
+
+  if (filterMode === "limited") {
+    return {
+      ...DEFAULT_SEARCH_FILTERS,
+      gender: withLocation.gender,
+      location: withLocation.location,
+      religion: withLocation.religion,
+    };
+  }
+
+  return withLocation;
+}
+
 export function normalizeFilters(filters: SearchFilters): SearchFilters {
   const ageMin = Math.min(filters.ageMin, filters.ageMax);
   const ageMax = Math.max(filters.ageMin, filters.ageMax);
@@ -91,7 +114,7 @@ export function getActiveFilterChips(filters: SearchFilters): ActiveFilterChip[]
   if (filters.gender) {
     chips.push({
       key: "gender",
-      label: filters.gender.charAt(0).toUpperCase() + filters.gender.slice(1),
+      label: `Looking for ${filters.gender.charAt(0).toUpperCase() + filters.gender.slice(1)}`,
     });
   }
   if (filters.location) {

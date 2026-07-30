@@ -1,4 +1,6 @@
-export const SITE_NAME = "UK Matrimony";
+export const SITE_NAME = "UK Indians Matrimony";
+
+export const SITE_LOGO = "/images/brand/uk-matrimony-logo.png?v=2";
 
 export const SITE_TAGLINE =
   "The UK's trusted matchmaking service for UK's Indian singles";
@@ -31,6 +33,9 @@ export const DEFAULT_PROFILE_PHOTO_FEMALE = "/images/avatars/female.png";
 export const SOCIAL_LINKS = {
   email: "mailto:hello@ukmatrimony.co.uk",
   whatsapp: "https://wa.me/447000000000",
+  facebook: "https://www.facebook.com/share/1AxHdaktzJ/?mibextid=wwXIfr",
+  /** Official Instagram profile */
+  instagram: "https://www.instagram.com/ukindiansmatrimony?igsh=MnJsOTkwZjhnNTJr&utm_source=qr",
   linkedin: "https://linkedin.com/company/ukmatrimony",
 };
 

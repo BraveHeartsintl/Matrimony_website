@@ -3,10 +3,12 @@
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import FadeIn from "@/components/ui/FadeIn";
+import { useAuth } from "@/context/AuthContext";
 import { usePlatformContent } from "@/hooks/usePlatformContent";
 import Link from "next/link";
 
 export default function MatchStats() {
+  const { session } = useAuth();
   const { stats } = usePlatformContent();
 
   return (
@@ -19,16 +21,22 @@ export default function MatchStats() {
               Your story is waiting to happen
             </p>
             <h2 className="mt-4 font-display text-3xl font-bold text-foreground lg:text-5xl">
-              Over {stats.matches} UK's Indian Matches
+              Over {stats.matches} UK&apos;s Indian Matches
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-muted">
               Real couples. Real families. Real weddings — all starting with a single profile on
               UK Matrimony.
             </p>
             <div className="mt-8">
-              <Link href="/register">
-                <Button size="lg">Get Started — Register Free</Button>
-              </Link>
+              {session ? (
+                <Link href="/search">
+                  <Button size="lg">Find Your Match — Search Profiles</Button>
+                </Link>
+              ) : (
+                <Link href="/register">
+                  <Button size="lg">Get Started — Register Free</Button>
+                </Link>
+              )}
             </div>
           </div>
         </FadeIn>

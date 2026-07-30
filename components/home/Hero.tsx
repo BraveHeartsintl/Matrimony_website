@@ -2,10 +2,12 @@
 
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
+import SiteLogo from "@/components/layout/SiteLogo";
 import SplitHeadline from "@/components/ui/SplitHeadline";
 import TextCTA from "@/components/ui/TextCTA";
+import { useAuth } from "@/context/AuthContext";
 import { usePlatformContent } from "@/hooks/usePlatformContent";
-import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
+import { SITE_TAGLINE } from "@/lib/constants";
 import { Award, Lock, Shield, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -18,6 +20,7 @@ const trustBadges = [
 ];
 
 export default function Hero() {
+  const { session } = useAuth();
   const { stats } = usePlatformContent();
 
   const heroStats = [
@@ -56,9 +59,7 @@ export default function Hero() {
           className="hero-glass animate-fade-in-up w-full max-w-xl rounded-2xl p-7 sm:max-w-2xl sm:p-9 lg:p-11"
           style={{ animationDelay: "0.1s" }}
         >
-          <p className="font-display text-2xl tracking-wide text-gold sm:text-3xl lg:text-4xl">
-            {SITE_NAME}
-          </p>
+          <SiteLogo href={null} size="xl" variant="onDark" className="mb-1" priority />
 
           <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/65">
             Serving UK&apos;s Indian singles across the United Kingdom
@@ -79,15 +80,28 @@ export default function Hero() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-5">
-            <Link href="/register">
-              <Button size="lg">Register Free</Button>
-            </Link>
-            <TextCTA href="#featured-profiles">Browse Profiles</TextCTA>
+            {session ? (
+              <>
+                <Link href="/dashboard">
+                  <Button size="lg">Go to Dashboard</Button>
+                </Link>
+                <TextCTA href="/search">Search Profiles</TextCTA>
+              </>
+            ) : (
+              <>
+                <Link href="/register">
+                  <Button size="lg">Register Free</Button>
+                </Link>
+                <TextCTA href="#featured-profiles">Browse Profiles</TextCTA>
+              </>
+            )}
           </div>
 
-          <p className="mt-4 text-sm text-white/50">
-            Free registration · No credit card required · Cancel anytime
-          </p>
+          {!session && (
+            <p className="mt-4 text-sm text-white/50">
+              Free registration · No credit card required · Cancel anytime
+            </p>
+          )}
 
           <div className="mt-8 flex flex-wrap gap-3 border-t border-white/12 pt-7">
             {heroStats.map((stat) => (

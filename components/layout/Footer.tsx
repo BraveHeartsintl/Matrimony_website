@@ -1,13 +1,9 @@
-import { SITE_NAME, SITE_TAGLINE, SOCIAL_LINKS } from "@/lib/constants";
-import { Heart, Mail, MessageCircle, Share2 } from "lucide-react";
+import { SITE_NAME, SITE_TAGLINE } from "@/lib/constants";
 import Link from "next/link";
 import Container from "../ui/Container";
-
-const socialIcons = [
-  { href: SOCIAL_LINKS.email, icon: Mail, label: "Email" },
-  { href: SOCIAL_LINKS.whatsapp, icon: MessageCircle, label: "WhatsApp" },
-  { href: SOCIAL_LINKS.linkedin, icon: Share2, label: "LinkedIn" },
-];
+import ShareButton from "./ShareButton";
+import SiteLogo from "./SiteLogo";
+import SocialLinks from "./SocialLinks";
 
 const helpLinks = [
   { href: "/login", label: "Member Login" },
@@ -30,28 +26,17 @@ export default function Footer() {
       <Container className="py-12">
         <div className="grid gap-8 md:grid-cols-4">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2">
-              <Heart className="h-6 w-6 text-accent" />
-              <span className="font-display text-lg font-bold text-foreground">{SITE_NAME}</span>
-            </div>
+            <SiteLogo href="/" size="md" />
             <p className="mt-3 max-w-sm text-sm text-muted">{SITE_TAGLINE}.</p>
             <p className="mt-2 max-w-sm text-sm text-muted">
               Connecting UK&apos;s Indian singles across England, Scotland, Wales, and Northern
               Ireland with verified profiles, privacy controls, and dedicated support.
             </p>
-            <div className="mt-6 flex gap-5 lg:hidden">
-              {socialIcons.map(({ href, icon: Icon, label }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target={href.startsWith("http") ? "_blank" : undefined}
-                  rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  aria-label={label}
-                  className="text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  <Icon className="h-5 w-5" />
-                </a>
-              ))}
+            <div className="mt-6 flex items-center gap-5">
+              <SocialLinks />
+              <div className="lg:hidden">
+                <ShareButton placement="top" />
+              </div>
             </div>
           </div>
 

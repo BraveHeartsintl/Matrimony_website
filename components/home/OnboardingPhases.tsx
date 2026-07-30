@@ -44,7 +44,7 @@ export default function OnboardingPhases() {
                   </div>
 
                   <p className="text-sm font-medium text-accent/80">{phase.subtitle}</p>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-muted">
+                  <p className="mt-3 text-sm leading-relaxed text-muted">
                     {phase.description}
                   </p>
 
@@ -81,7 +81,7 @@ export default function OnboardingPhases() {
                   </div>
 
                   {phase.id === 1 && (
-                    <div className="mt-6 border-t border-accent/10 pt-5">
+                    <div className="mt-auto border-t border-accent/10 pt-5">
                       <Link href={phase.route}>
                         <Button size="sm" className="w-full">
                           Start Phase 1 — Register Free
@@ -98,16 +98,16 @@ export default function OnboardingPhases() {
         <FadeIn delay={200}>
           <div className="glass-floating mt-12 overflow-hidden rounded-[12px]">
             <div className="border-b border-accent/10 px-6 py-4">
-              <p className="text-sm font-semibold text-foreground">What you get at each phase</p>
+              <p className="text-sm font-semibold text-foreground">What you get with each plan</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-accent/10 bg-surface/50">
                     <th className="px-6 py-3 font-medium text-muted">Feature</th>
-                    <th className="px-4 py-3 text-center font-medium text-muted">Phase 1</th>
-                    <th className="px-4 py-3 text-center font-medium text-muted">Phase 2</th>
-                    <th className="px-4 py-3 text-center font-medium text-muted">Phase 3</th>
+                    <th className="px-4 py-3 text-center font-medium text-muted">Free</th>
+                    <th className="px-4 py-3 text-center font-medium text-muted">Silver</th>
+                    <th className="px-4 py-3 text-center font-medium text-muted">Gold</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-accent/10">
