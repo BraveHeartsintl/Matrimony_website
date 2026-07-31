@@ -59,7 +59,7 @@ export default function SiteLogo({
             variant === "onDark" ? "text-[#fff8e7]" : "text-foreground"
           )}
         >
-          <span className="block sm:inline">UK Indians</span>
+          <span className="block sm:inline">UK Indian</span>
           <span
             className={cn(
               "sm:ml-1",

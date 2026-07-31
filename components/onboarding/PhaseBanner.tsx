@@ -22,30 +22,34 @@ export default function PhaseBanner({ status }: PhaseBannerProps) {
   }
 
   return (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[6px] border border-accent/20 bg-accent-soft px-4 py-3">
-      <p className="text-sm text-foreground">{message}</p>
-      <div className="flex items-center gap-2">
-        {nextRoute && (
-          <Link href={nextRoute}>
-            <Button size="sm">Continue</Button>
-          </Link>
-        )}
-        {optionalVerifyRoute && (
-          <Link href={optionalVerifyRoute}>
-            <Button size="sm" variant="outline">
-              Verify Identity
-            </Button>
-          </Link>
-        )}
+    <div className="mb-6 rounded-[6px] border border-accent/20 bg-accent-soft px-3 py-3 sm:px-4">
+      <div className="flex items-start gap-2">
+        <p className="min-w-0 flex-1 text-sm leading-snug text-foreground">{message}</p>
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          className="rounded p-1 text-muted hover:text-foreground"
+          className="shrink-0 rounded p-1.5 text-muted hover:text-foreground"
           aria-label="Dismiss"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
+      {(nextRoute || optionalVerifyRoute) && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {nextRoute && (
+            <Link href={nextRoute}>
+              <Button size="sm">Continue</Button>
+            </Link>
+          )}
+          {optionalVerifyRoute && (
+            <Link href={optionalVerifyRoute}>
+              <Button size="sm" variant="outline">
+                Verify Identity
+              </Button>
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

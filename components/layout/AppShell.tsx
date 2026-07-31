@@ -135,25 +135,32 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Avatar src={profilePhoto} name={session.user.name} size="sm" />
         </header>
 
-        <main className="flex-1 overflow-auto p-4 pb-20 lg:p-8 lg:pb-8">
+        <main className="flex-1 overflow-auto p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-8">
           <PhaseBanner status={status} />
           {children}
         </main>
 
-        <nav className="glass-nav fixed bottom-0 left-0 right-0 z-40 flex border-t lg:hidden">
-          {APP_NAV.map((item) => {
+        <nav className="glass-nav fixed bottom-0 left-0 right-0 z-40 flex border-t pb-[env(safe-area-inset-bottom)] lg:hidden">
+          {APP_NAV.filter((item) => item.href !== "/subscription").map((item) => {
             const Icon = iconMap[item.icon];
+            const active = pathname === item.href;
+            const locked = item.href === "/messages" && messagesLocked;
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-label={item.label}
                 className={cn(
-                  "flex flex-1 flex-col items-center gap-0.5 py-2 text-[0.65rem] uppercase tracking-wider",
-                  pathname === item.href ? "text-accent" : "text-muted"
+                  "relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-1 pb-1.5 pt-2 text-[0.625rem] font-medium uppercase leading-none tracking-wide",
+                  active ? "text-accent" : "text-muted",
+                  locked && "opacity-60"
                 )}
               >
-                <Icon className="h-5 w-5" />
-                <span>{item.label}</span>
+                {active && (
+                  <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent" />
+                )}
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="w-full truncate text-center">{item.shortLabel}</span>
               </Link>
             );
           })}

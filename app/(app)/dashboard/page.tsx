@@ -149,29 +149,29 @@ export default function DashboardPage() {
   const pendingTips = PROFILE_TIPS.filter((tip) => !isTipDone(tip.key, profile));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
-      <section className="rounded-[6px] glass px-6 py-8 sm:px-10 sm:py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+    <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
+      <section className="rounded-[6px] glass px-4 py-5 sm:px-10 sm:py-10">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
           <div className="max-w-xl">
             <SectionLabel>Dashboard</SectionLabel>
-            <h1 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">
+            <h1 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-4xl">
               {getGreeting()}, {firstName}!
             </h1>
-            <p className="mt-3 text-base text-muted sm:text-lg">
+            <p className="mt-2 text-sm text-muted sm:mt-3 sm:text-lg">
               You have{" "}
               <span className="font-semibold text-accent">{receivedInterests} new interests</span> and{" "}
               <span className="font-semibold text-accent">{unreadMessages} unread messages</span>{" "}
               waiting for you today.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/search">
-                <Button size="lg">
+            <div className="mt-4 grid grid-cols-1 gap-2.5 sm:mt-6 sm:flex sm:flex-wrap sm:gap-3">
+              <Link href="/search" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full tracking-wide sm:w-auto">
                   <Search className="h-4 w-4" />
                   Find Matches
                 </Button>
               </Link>
-              <Link href="/messages">
-                <Button variant="outline" size="lg">
+              <Link href="/messages" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full tracking-wide sm:w-auto">
                   <MessageCircle className="h-4 w-4" />
                   View Messages
                 </Button>
@@ -179,13 +179,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-4 rounded-[6px] glass p-4 lg:p-5">
+          <div className="flex shrink-0 items-center gap-3 rounded-[6px] glass p-3 sm:gap-4 sm:p-4 lg:p-5">
             <Avatar src={profilePhoto} name={user.name} size="xl" />
-            <div>
-              <p className="font-semibold text-foreground">{user.name}</p>
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-foreground">{user.name}</p>
               <div className="mt-0.5 flex items-center gap-1 text-sm text-muted">
-                <MapPin className="h-3.5 w-3.5" />
-                {profile.location}
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{profile.location}</span>
               </div>
               {profile.verified && (
                 <Badge variant="accent" className="mt-2">
@@ -200,7 +200,7 @@ export default function DashboardPage() {
 
       <OnboardingProgressCard status={profile.onboardingStatus} />
 
-      <section className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           label="Profile Views"
           value={profileViewCount ?? "—"}

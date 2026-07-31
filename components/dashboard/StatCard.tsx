@@ -20,18 +20,18 @@ export default function StatCard({
   href,
 }: StatCardProps) {
   const content = (
-    <div className="glass glass-hover h-full rounded-[10px] p-5 transition-colors">
+    <div className="glass glass-hover h-full rounded-[10px] p-4 transition-colors sm:p-5">
       <div
         className={cn(
-          "glass-subtle flex h-11 w-11 items-center justify-center rounded-[8px]",
+          "glass-subtle flex h-10 w-10 items-center justify-center rounded-[8px] sm:h-11 sm:w-11",
           accent === "accent" && "glass-accent"
         )}
       >
         <Icon className={cn("h-5 w-5 text-foreground", accent === "accent" && "text-accent")} />
       </div>
-      <p className="mt-4 text-2xl font-bold tracking-tight text-foreground">{value}</p>
-      <p className="mt-0.5 text-sm text-muted">{label}</p>
-      {trend && <p className="mt-2 text-xs font-medium text-accent">{trend}</p>}
+      <p className="mt-3 text-xl font-bold tracking-tight text-foreground sm:mt-4 sm:text-2xl">{value}</p>
+      <p className="mt-0.5 text-xs text-muted sm:text-sm">{label}</p>
+      {trend && <p className="mt-1.5 text-xs font-medium text-accent sm:mt-2">{trend}</p>}
     </div>
   );
 

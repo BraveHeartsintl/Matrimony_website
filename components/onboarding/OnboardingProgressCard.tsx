@@ -39,8 +39,8 @@ export default function OnboardingProgressCard({ status }: OnboardingProgressCar
 
   return (
     <Card className="mb-8" padding="lg">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
           <p className="section-label">Your Progress</p>
           <h2 className="mt-1 font-display text-xl font-bold">
             Complete your profile journey
@@ -52,51 +52,60 @@ export default function OnboardingProgressCard({ status }: OnboardingProgressCar
             </span>
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {nextRoute && (
-            <Link href={nextRoute}>
-              <Button>Continue Setup</Button>
-            </Link>
-          )}
-          {optionalVerifyRoute && (
-            <Link href={optionalVerifyRoute}>
-              <Button variant="outline">Verify Identity (optional)</Button>
-            </Link>
-          )}
-        </div>
+        {nextRoute && (
+          <Link href={nextRoute} className="shrink-0 self-start sm:self-auto">
+            <Button>Continue Setup</Button>
+          </Link>
+        )}
       </div>
 
-      <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+      <ol className="mt-6 grid gap-3 sm:grid-cols-3 sm:gap-4">
         {ONBOARDING_PHASES.map((phase) => {
           const done = phaseComplete(phase.id, status);
           const active = phaseActive(phase.id, status);
+          const canVerify = phase.id === 3 && !!optionalVerifyRoute && !done;
+          const tile = (
+            <div className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                  done
+                    ? "bg-accent text-white"
+                    : active || canVerify
+                      ? "bg-accent text-white"
+                      : "bg-accent/10 text-muted"
+                )}
+              >
+                {done ? <Check className="h-3.5 w-3.5" /> : phase.id}
+              </span>
+              <span className="text-sm font-semibold">{phase.label}</span>
+              {canVerify && (
+                <span className="ml-auto text-[0.65rem] font-medium uppercase tracking-wider text-accent">
+                  Optional
+                </span>
+              )}
+            </div>
+          );
+
           return (
             <li
               key={phase.id}
               className={cn(
                 "rounded-[8px] border px-4 py-3",
-                active
+                active || canVerify
                   ? "border-accent bg-accent-soft"
                   : done
                     ? "border-accent/30 bg-surface"
                     : "border-accent/10 bg-surface/50"
               )}
             >
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
-                    done
-                      ? "bg-accent text-white"
-                      : active
-                        ? "bg-accent text-white"
-                        : "bg-accent/10 text-muted"
-                  )}
-                >
-                  {done ? <Check className="h-3.5 w-3.5" /> : phase.id}
-                </span>
-                <span className="text-sm font-semibold">{phase.label}</span>
-              </div>
+              {canVerify && optionalVerifyRoute ? (
+                <Link href={optionalVerifyRoute} className="block">
+                  {tile}
+                </Link>
+              ) : (
+                tile
+              )}
             </li>
           );
         })}

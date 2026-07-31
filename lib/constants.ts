@@ -1,6 +1,6 @@
-export const SITE_NAME = "UK Indians Matrimony";
+export const SITE_NAME = "UK Indian Matrimony";
 
-export const SITE_LOGO = "/images/brand/uk-matrimony-logo.png?v=2";
+export const SITE_LOGO = "/images/brand/uk-matrimony-logo.png?v=3";
 
 export const SITE_TAGLINE =
   "The UK's trusted matchmaking service for UK's Indian singles";
@@ -90,12 +90,12 @@ export const PUBLIC_NAV = [
 ];
 
 export const APP_NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
-  { href: "/search", label: "Search", icon: "Search" },
-  { href: "/interests", label: "Interests", icon: "Heart" },
-  { href: "/profile", label: "Profile", icon: "User" },
-  { href: "/messages", label: "Messages", icon: "MessageCircle" },
-  { href: "/subscription", label: "Subscription", icon: "Crown" },
+  { href: "/dashboard", label: "Dashboard", shortLabel: "Home", icon: "LayoutDashboard" },
+  { href: "/search", label: "Search", shortLabel: "Search", icon: "Search" },
+  { href: "/interests", label: "Interests", shortLabel: "Interest", icon: "Heart" },
+  { href: "/profile", label: "Profile", shortLabel: "Profile", icon: "User" },
+  { href: "/messages", label: "Messages", shortLabel: "Chat", icon: "MessageCircle" },
+  { href: "/subscription", label: "Subscription", shortLabel: "Plans", icon: "Crown" },
 ];
 
 export const UK_LOCATIONS = [
