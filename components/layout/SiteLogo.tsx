@@ -15,7 +15,7 @@ type SiteLogoProps = {
   size?: keyof typeof sizes;
   /** Show site name beside the mark. Default true so “Matrimony” is always readable. */
   withText?: boolean;
-  /** `onDark` = cream/white text for navy headers; `onLight` = navy text. */
+  /** `onDark` = ice text for dark panels; `onLight` = slate text for white headers. */
   variant?: "onDark" | "onLight";
   className?: string;
   priority?: boolean;
@@ -52,23 +52,15 @@ export default function SiteLogo({
         />
       </span>
       {withText && (
-        <span
-          className={cn(
-            "font-display font-bold tracking-wide leading-tight",
-            s.text,
-            variant === "onDark" ? "text-[#fff8e7]" : "text-foreground"
-          )}
-        >
-          <span className="block sm:inline">UK Indian</span>
           <span
             className={cn(
-              "sm:ml-1",
-              variant === "onDark" ? "text-gold" : "text-accent"
+              "font-display font-bold tracking-wide leading-tight",
+              s.text,
+              variant === "onDark" ? "text-cream" : "text-foreground"
             )}
           >
-            Matrimony
+            UK Indian Matrimony
           </span>
-        </span>
       )}
     </span>
   );

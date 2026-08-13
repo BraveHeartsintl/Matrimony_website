@@ -30,20 +30,21 @@ export default function Header() {
     ["/dashboard", "/search", "/profile"].includes(item.href)
   );
 
-  const homeHref = session ? "/dashboard" : "/";
-
   return (
     <>
-      <header className="site-header sticky top-0 z-40">
+      <header className="site-header sticky top-0 z-40 border-b border-gold/30 bg-deepest/92 backdrop-blur-xl">
         <div className="container-site flex h-16 items-center justify-between">
-          <SiteLogo href={homeHref} size="md" variant="onDark" priority />
+          <SiteLogo href="/" size="md" variant="onDark" priority />
 
           <nav className="hidden items-center gap-8 md:flex">
             {PUBLIC_NAV.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn("nav-link", pathname === item.href && "active")}
+                className={cn(
+                  "nav-link !text-cream/75 hover:!text-gold",
+                  pathname === item.href && "active !text-gold !font-bold"
+                )}
               >
                 {item.label}
               </Link>
@@ -55,12 +56,12 @@ export default function Header() {
               (session ? (
                 <>
                   <Link href="/search">
-                    <Button variant="ghost" size="sm" className="site-header-ghost">
+                    <Button variant="ghost" size="sm" className="!text-cream/85 hover:!text-gold">
                       Search
                     </Button>
                   </Link>
                   <Link href="/dashboard">
-                    <Button size="sm" className="site-header-cta">
+                    <Button size="sm">
                       Dashboard
                     </Button>
                   </Link>
@@ -68,12 +69,12 @@ export default function Header() {
               ) : (
                 <>
                   <Link href="/login">
-                    <Button variant="ghost" size="sm" className="site-header-ghost">
+                    <Button variant="ghost" size="sm" className="!text-cream/85 hover:!text-gold">
                       Log In
                     </Button>
                   </Link>
                   <Link href="/register">
-                    <Button size="sm" className="site-header-cta">
+                    <Button size="sm">
                       Register Free
                     </Button>
                   </Link>
@@ -82,7 +83,7 @@ export default function Header() {
           </div>
 
           <button
-            className="p-2 text-white md:hidden"
+            className="p-2 text-cream md:hidden"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
@@ -94,9 +95,9 @@ export default function Header() {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex flex-col glass-strong mobile-menu-enter md:hidden">
           <div className="container-site flex h-16 items-center justify-between">
-            <SiteLogo href={homeHref} size="md" onClick={() => setMobileOpen(false)} />
+            <SiteLogo href="/" size="md" variant="onDark" onClick={() => setMobileOpen(false)} />
             <button
-              className="p-2 text-foreground"
+              className="p-2 text-cream"
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >

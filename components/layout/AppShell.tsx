@@ -42,7 +42,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && !session) {
-      router.replace("/login");
+      router.replace("/login/");
     }
   }, [isLoading, session, router]);
 
@@ -78,7 +78,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <aside className="glass-sidebar fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r lg:flex">
         <div>
           <div className="flex h-16 items-center border-b border-border px-6">
-            <SiteLogo href="/dashboard" size="md" />
+            <SiteLogo href="/" size="md" variant="onDark" />
           </div>
 
           <nav className="space-y-1 p-4">
@@ -131,7 +131,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <button onClick={() => setSidebarOpen(true)} aria-label="Open menu">
             <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <SiteLogo href="/dashboard" size="sm" />
+          <SiteLogo href="/" size="sm" variant="onDark" />
           <Avatar src={profilePhoto} name={session.user.name} size="sm" />
         </header>
 
@@ -170,7 +170,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {sidebarOpen && (
         <div className="glass-strong fixed inset-0 z-50 flex flex-col lg:hidden">
           <div className="flex h-14 items-center justify-between border-b border-border px-4">
-            <SiteLogo href="/dashboard" size="sm" onClick={() => setSidebarOpen(false)} />
+            <SiteLogo href="/" size="sm" variant="onDark" onClick={() => setSidebarOpen(false)} />
             <button onClick={() => setSidebarOpen(false)}>
               <X className="h-6 w-6 text-foreground" />
             </button>

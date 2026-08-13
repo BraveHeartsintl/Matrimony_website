@@ -41,7 +41,7 @@ export default function AuthShell({
               </p>
             )}
             {asideTitle && (
-              <h1 className="mt-4 font-display text-4xl leading-tight text-[#fff8e7] xl:text-5xl">
+              <h1 className="mt-4 font-display text-4xl leading-tight text-cream xl:text-5xl">
                 {asideTitle}
               </h1>
             )}

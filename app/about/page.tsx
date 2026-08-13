@@ -8,6 +8,7 @@ import SplitHeadline from "@/components/ui/SplitHeadline";
 import { SITE_TAGLINE } from "@/lib/constants";
 import { Heart, Shield, Target, Users } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -54,22 +55,43 @@ export default function AboutPage() {
       </Section>
 
       <Section variant="base">
-        <Container className="max-w-3xl">
-          <SectionLabel>Our Mission</SectionLabel>
-          <h2 className="font-display text-2xl font-bold text-foreground">Our Mission</h2>
-          <p className="mt-4 leading-relaxed text-muted">
-            UK Matrimony was founded with a clear mission: to provide a safe, respectful, and
-            effective platform where British Asian singles and their families can find meaningful,
-            lifelong partnerships. We understand that finding a life partner is one of the most
-            important decisions you will ever make — and we are committed to supporting you every
-            step of the way.
-          </p>
-          <p className="mt-4 leading-relaxed text-muted">
-            Our platform combines modern technology with traditional values, offering advanced
-            search filters by faith, city, education, and profession, alongside profile verification,
-            privacy controls, and a dedicated UK-based support team. Whether you are Hindu, Sikh,
-            Muslim, or Christian — we help UK's Indian families connect with confidence.
-          </p>
+        <Container>
+          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+            <div>
+              <SectionLabel>Our Mission</SectionLabel>
+              <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+                Our Mission
+              </h2>
+              <p className="mt-4 leading-relaxed text-muted">
+                UK Matrimony was founded with a clear mission: to provide a safe, respectful, and
+                effective platform where British Asian singles and their families can find meaningful,
+                lifelong partnerships. We understand that finding a life partner is one of the most
+                important decisions you will ever make — and we are committed to supporting you every
+                step of the way.
+              </p>
+              <p className="mt-4 leading-relaxed text-muted">
+                Our platform combines modern technology with traditional values, offering advanced
+                search filters by faith, city, education, and profession, alongside profile verification,
+                privacy controls, and a dedicated UK-based support team. Whether you are Hindu, Sikh,
+                Muslim, or Christian — we help UK&apos;s Indian families connect with confidence.
+              </p>
+            </div>
+
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-gold/25 shadow-[0_20px_60px_rgba(0,0,0,0.35)] lg:aspect-[5/4]">
+              <Image
+                src="/images/hero/wedding-ceremony.jpg"
+                alt="A groom in a gold sherwani and red turban placing a floral garland on a bride during a traditional Indian wedding ceremony"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover object-center"
+                priority
+              />
+              <div
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-deepest/45 via-transparent to-transparent"
+                aria-hidden
+              />
+            </div>
+          </div>
         </Container>
       </Section>
 

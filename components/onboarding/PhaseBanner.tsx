@@ -22,13 +22,13 @@ export default function PhaseBanner({ status }: PhaseBannerProps) {
   }
 
   return (
-    <div className="mb-6 rounded-[6px] border border-accent/20 bg-accent-soft px-3 py-3 sm:px-4">
+    <div className="mb-6 rounded-[6px] border border-gold/35 bg-navy-royal px-3 py-3 sm:px-4">
       <div className="flex items-start gap-2">
-        <p className="min-w-0 flex-1 text-sm leading-snug text-foreground">{message}</p>
+        <p className="min-w-0 flex-1 text-sm leading-snug text-cream">{message}</p>
         <button
           type="button"
           onClick={() => setDismissed(true)}
-          className="shrink-0 rounded p-1.5 text-muted hover:text-foreground"
+          className="shrink-0 rounded p-1.5 text-cream/60 hover:text-gold"
           aria-label="Dismiss"
         >
           <X className="h-4 w-4" />

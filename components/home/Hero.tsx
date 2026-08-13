@@ -50,7 +50,7 @@ export default function Hero() {
         aria-hidden="true"
       />
       <div
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_62%_42%,transparent_18%,rgba(8,26,51,0.28)_100%)]"
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_62%_42%,transparent_18%,rgba(0,16,48,0.28)_100%)]"
         aria-hidden="true"
       />
 
@@ -61,7 +61,7 @@ export default function Hero() {
         >
           <SiteLogo href={null} size="xl" variant="onDark" className="mb-1" priority />
 
-          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/65">
+          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-cream/65">
             Serving UK&apos;s Indian singles across the United Kingdom
           </p>
 
@@ -74,7 +74,7 @@ export default function Hero() {
             />
           </div>
 
-          <p className="mt-5 max-w-lg text-base leading-relaxed text-white/85 sm:text-lg">
+          <p className="mt-5 max-w-lg text-base leading-relaxed text-cream/85 sm:text-lg">
             {SITE_TAGLINE}. Join {stats.members} verified members and start your
             journey to a lifelong partnership.
           </p>
@@ -98,12 +98,12 @@ export default function Hero() {
           </div>
 
           {!session && (
-            <p className="mt-4 text-sm text-white/50">
+            <p className="mt-4 text-sm text-cream/50">
               Free registration · No credit card required · Cancel anytime
             </p>
           )}
 
-          <div className="mt-8 flex flex-wrap gap-3 border-t border-white/12 pt-7">
+          <div className="mt-8 flex flex-wrap gap-3 border-t border-cream/12 pt-7">
             {heroStats.map((stat) => (
               <div
                 key={stat.label}
@@ -112,7 +112,7 @@ export default function Hero() {
                 <p className="font-display text-xl text-gold sm:text-2xl">
                   {stat.value}
                 </p>
-                <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-white/55">
+                <p className="mt-0.5 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-cream/55">
                   {stat.label}
                 </p>
               </div>
@@ -127,7 +127,7 @@ export default function Hero() {
                 title={label}
               >
                 <Icon className="h-3.5 w-3.5 text-gold" aria-hidden="true" />
-                <span className="text-[0.65rem] font-medium uppercase tracking-wider text-white/65">
+                <span className="text-[0.65rem] font-medium uppercase tracking-wider text-cream/65">
                   {label}
                 </span>
               </div>

@@ -10,14 +10,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", type = "button", children, ...props }, ref) => {
     const variants = {
       primary:
-        "bg-accent text-accent-foreground hover:bg-accent-hover uppercase tracking-[0.06em] font-semibold shadow-[0_4px_24px_rgba(13,35,64,0.25)]",
+        "bg-gold text-white hover:bg-gold-hover uppercase tracking-[0.06em] font-semibold shadow-[0_4px_24px_rgba(212,168,92,0.4)]",
       secondary:
         "glass text-foreground border border-accent/20 hover:border-accent/40 glass-hover uppercase tracking-[0.06em] font-semibold",
       outline:
-        "glass-subtle glass-btn-outline border border-accent/40 text-accent uppercase tracking-[0.06em] font-semibold",
-      ghost: "text-muted hover:text-accent uppercase tracking-[0.06em] font-medium",
+        "glass-subtle glass-btn-outline border border-gold/45 text-gold uppercase tracking-[0.06em] font-semibold",
+      ghost: "text-muted hover:text-gold uppercase tracking-[0.06em] font-medium",
       accent:
-        "bg-accent text-accent-foreground hover:bg-accent-hover uppercase tracking-[0.06em] font-semibold shadow-[0_4px_20px_rgba(13,35,64,0.2)]",
+        "bg-gold text-white hover:bg-gold-hover uppercase tracking-[0.06em] font-semibold shadow-[0_4px_20px_rgba(212,168,92,0.35)]",
     };
 
     const sizes = {

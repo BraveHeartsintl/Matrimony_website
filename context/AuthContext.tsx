@@ -18,7 +18,7 @@ import {
   updateProfile as updateProfileInFirestore,
 } from "@/lib/firebase/services/profile.service";
 import { saveVerificationFields } from "@/lib/firebase/services/verification.service";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
+import { getFirebaseAuth, isFirebaseConfigured } from "@/lib/firebase/config";
 import type { AuthSession, MatrimonyDetails, Profile, VerificationData } from "@/lib/types";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 
@@ -73,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      setIsLoading(true);
       try {
         const nextSession = await buildSession(
           firebaseUser.uid,
@@ -80,8 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           firebaseUser.displayName
         );
         setSession(nextSession);
+        sessionRef.current = nextSession;
       } catch {
         setSession(null);
+        sessionRef.current = null;
         await signOutUser();
       } finally {
         setIsLoading(false);
@@ -130,8 +133,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         error: "Firebase is not configured on this deployment. Add environment variables in Vercel.",
       };
     }
+    setIsLoading(true);
     const result = await signInWithEmail(email, password);
-    return result;
+    if (!result.success) {
+      setIsLoading(false);
+      return result;
+    }
+
+    try {
+      const firebaseUser = getFirebaseAuth().currentUser;
+      if (!firebaseUser) {
+        setIsLoading(false);
+        return { success: false, error: "Login succeeded but session could not be started. Please try again." };
+      }
+      const nextSession = await buildSession(
+        firebaseUser.uid,
+        firebaseUser.email ?? email.trim(),
+        firebaseUser.displayName
+      );
+      setSession(nextSession);
+      sessionRef.current = nextSession;
+      setIsLoading(false);
+      return { success: true };
+    } catch {
+      setSession(null);
+      sessionRef.current = null;
+      setIsLoading(false);
+      await signOutUser();
+      return { success: false, error: "Could not load your profile. Please try again." };
+    }
   }, []);
 
   const register = useCallback(
@@ -142,7 +172,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           error: "Firebase is not configured on this deployment. Add environment variables in Vercel.",
         };
       }
-      return registerWithEmail(data.name, data.email, data.password, data.profile);
+      setIsLoading(true);
+      const result = await registerWithEmail(data.name, data.email, data.password, data.profile);
+      if (!result.success) {
+        setIsLoading(false);
+        return result;
+      }
+
+      try {
+        const firebaseUser = getFirebaseAuth().currentUser;
+        if (!firebaseUser) {
+          setIsLoading(false);
+          return { success: false, error: "Account created but session could not be started. Please log in." };
+        }
+        const nextSession = await buildSession(
+          firebaseUser.uid,
+          firebaseUser.email ?? data.email.trim(),
+          firebaseUser.displayName ?? data.name
+        );
+        setSession(nextSession);
+        sessionRef.current = nextSession;
+        setIsLoading(false);
+        return { success: true };
+      } catch {
+        setSession(null);
+        sessionRef.current = null;
+        setIsLoading(false);
+        return { success: false, error: "Account created but profile could not be loaded. Please log in." };
+      }
     },
     []
   );

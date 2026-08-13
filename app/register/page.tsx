@@ -15,7 +15,7 @@ import type { Gender, LookingFor } from "@/lib/types";
 import { calculateAgeFromYearOfBirth } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 function locationFromParams(raw: string | null): string {
   if (raw && (UK_LOCATIONS as readonly string[]).includes(raw)) return raw;
@@ -23,11 +23,12 @@ function locationFromParams(raw: string | null): string {
 }
 
 function RegisterForm() {
-  const { register } = useAuth();
+  const { register, session } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const pendingDashboard = useRef(false);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -42,8 +43,16 @@ function RegisterForm() {
     location: locationFromParams(searchParams.get("location")),
   });
 
+  useEffect(() => {
+    if (pendingDashboard.current && session) {
+      pendingDashboard.current = false;
+      router.replace("/dashboard/");
+    }
+  }, [session, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError("");
 
     const name = (nameRef.current?.value ?? "").trim();
@@ -76,32 +85,35 @@ function RegisterForm() {
     }
 
     setLoading(true);
-    const result = await register({
-      name,
-      email,
-      password,
-      profile: {
-        gender: essentials.gender,
-        lookingFor: essentials.lookingFor,
-        birthMonth: Number(essentials.birthMonth),
-        yearOfBirth: year,
-        age,
-        location: essentials.location,
-        preferences: {
-          ageMin: Math.max(18, age - 5),
-          ageMax: age + 8,
-          religions: [],
-          locations: [essentials.location],
+    try {
+      const result = await register({
+        name,
+        email,
+        password,
+        profile: {
+          gender: essentials.gender,
+          lookingFor: essentials.lookingFor,
+          birthMonth: Number(essentials.birthMonth),
+          yearOfBirth: year,
+          age,
+          location: essentials.location,
+          preferences: {
+            ageMin: Math.max(18, age - 5),
+            ageMax: age + 8,
+            religions: [],
+            locations: [essentials.location],
+          },
+          onboardingStatus: "basic_registered",
         },
-        onboardingStatus: "basic_registered",
-      },
-    });
-    setLoading(false);
+      });
 
-    if (result.success) {
-      router.push("/dashboard");
-    } else {
-      setError(result.error || "Registration failed");
+      if (result.success) {
+        pendingDashboard.current = true;
+      } else {
+        setError(result.error || "Registration failed");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -113,7 +125,7 @@ function RegisterForm() {
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold">
         Quick registration
       </p>
-      <h2 className="mt-2 font-display text-3xl leading-tight text-[#fff8e7]">
+      <h2 className="mt-2 font-display text-3xl leading-tight text-cream">
         Create your account
       </h2>
       <p className="mt-2 text-sm text-white/70">

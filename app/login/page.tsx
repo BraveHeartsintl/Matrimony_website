@@ -8,18 +8,28 @@ import { adminLogin } from "@/lib/admin-auth";
 import { matchesAdminCredentials } from "@/lib/admin-config";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, session } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const pendingDashboard = useRef(false);
+
+  useEffect(() => {
+    if (pendingDashboard.current && session) {
+      pendingDashboard.current = false;
+      router.replace("/dashboard/");
+    }
+  }, [session, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loading) return;
+
     setError("");
     setLoading(true);
 
@@ -27,24 +37,27 @@ export default function LoginPage() {
     const loginEmail = String(fd.get("email") ?? email).trim();
     const loginPassword = String(fd.get("password") ?? password);
 
-    if (matchesAdminCredentials(loginEmail, loginPassword)) {
-      const adminResult = await adminLogin(loginEmail, loginPassword);
-      setLoading(false);
-      if (adminResult.success) {
-        router.push("/admin");
-      } else {
-        setError(adminResult.error || "Admin login failed");
+    try {
+      if (matchesAdminCredentials(loginEmail, loginPassword)) {
+        const adminResult = await adminLogin(loginEmail, loginPassword);
+        if (adminResult.success) {
+          router.replace("/admin/");
+        } else {
+          setError(adminResult.error || "Admin login failed");
+        }
+        return;
       }
-      return;
-    }
 
-    const result = await login(loginEmail, loginPassword);
-    setLoading(false);
+      const result = await login(loginEmail, loginPassword);
 
-    if (result.success) {
-      router.push("/dashboard");
-    } else {
-      setError(result.error || "Login failed");
+      if (result.success) {
+        pendingDashboard.current = true;
+        // Session is usually ready from AuthContext.login; navigate when it is.
+      } else {
+        setError(result.error || "Login failed");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,7 +69,7 @@ export default function LoginPage() {
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gold">
         Sign in
       </p>
-      <h2 className="mt-2 font-display text-3xl leading-tight text-[#fff8e7]">
+      <h2 className="mt-2 font-display text-3xl leading-tight text-cream">
         Log in to your account
       </h2>
       <p className="mt-2 text-sm text-white/70">
