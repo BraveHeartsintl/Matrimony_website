@@ -1,5 +1,4 @@
 import { MOCK_OTP_CODE } from "@/lib/constants";
-import { FirebaseError } from "firebase/app";
 import { mapFirebaseError } from "@/lib/firebase/errors";
 import { getFirebaseAuth } from "@/lib/firebase/config";
 import {
@@ -7,6 +6,27 @@ import {
   PhoneAuthProvider,
   RecaptchaVerifier,
 } from "firebase/auth";
+
+function getAuthErrorCode(error: unknown): string | undefined {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === "string" ? code : undefined;
+  }
+  return undefined;
+}
+
+/**
+ * These mean Firebase already accepted the SMS code. Linking to the email
+ * account can still fail (phone used on another Auth user, stale session, etc.)
+ * — identity verification only needs proof of possession.
+ */
+const OTP_ACCEPTED_LINK_CODES = new Set([
+  "auth/provider-already-linked",
+  "auth/requires-recent-login",
+  "auth/unverified-email",
+  "auth/credential-already-in-use",
+  "auth/account-exists-with-different-credential",
+]);
 
 /**
  * Module-level verifier state.
@@ -103,7 +123,8 @@ function createFreshVerifier(hostId: string): RecaptchaVerifier {
       // Token ready — verifyPhoneNumber continues automatically
     },
     "expired-callback": () => {
-      clearPhoneRecaptcha();
+      // Do not destroy the verifier here. Clearing it after SMS is sent
+      // invalidates the verification session and makes a valid OTP fail.
     },
   });
 
@@ -216,10 +237,14 @@ export async function verifyPhoneOtp(
     await linkWithCredential(auth.currentUser, credential);
     clearPhoneRecaptcha();
   } catch (error) {
-    if (error instanceof FirebaseError && error.code === "auth/provider-already-linked") {
+    const errCode = getAuthErrorCode(error);
+    console.error("[phone-otp] verify failed:", errCode ?? "unknown", error);
+
+    if (errCode && OTP_ACCEPTED_LINK_CODES.has(errCode)) {
       clearPhoneRecaptcha();
       return;
     }
+
     throw new Error(
       mapFirebaseError(error, "Invalid or expired OTP. Please try again.", "phone")
     );

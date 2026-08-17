@@ -322,12 +322,7 @@ export default function OnboardingVerifyPage() {
           {step === 0 && (
             <>
               {!phoneDemoMode && (
-                <div
-                  key={recaptchaKey}
-                  id="recaptcha-container"
-                  className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
-                  aria-hidden
-                />
+                <div key={recaptchaKey} id="recaptcha-container" />
               )}
               <Input
                 label="Mobile Number"

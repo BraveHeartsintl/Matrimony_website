@@ -16,8 +16,15 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/invalid-verification-code": "Invalid OTP. Please check the code and try again.",
   "auth/code-expired": "OTP expired. Request a new code.",
   "auth/missing-verification-code": "Enter the 6-digit OTP from your SMS.",
+  "auth/invalid-verification-id": "Verification session expired. Tap Resend OTP and enter the new code.",
+  "auth/missing-verification-id": "Request a new OTP, then try again.",
+  "auth/rejected-credential": "Invalid or expired OTP. Request a new code.",
   "auth/credential-already-in-use": "This phone number is already linked to another account.",
+  "auth/account-exists-with-different-credential":
+    "This phone number is already linked to another account.",
   "auth/provider-already-linked": "This phone number is already verified on your account.",
+  "auth/requires-recent-login": "Session expired. Please log in again, then verify your phone.",
+  "auth/unverified-email": "Verify your email, then try phone verification again.",
   "auth/captcha-check-failed": "Security check failed. Refresh the page and try again.",
   "auth/app-not-authorized":
     "This domain is not authorized for Firebase Auth. Add your current domain in Firebase Console → Authentication → Settings → Authorized domains.",
@@ -44,16 +51,29 @@ function operationNotAllowedMessage(context?: FirebaseErrorContext): string {
   return "Sign-in is not enabled. Enable Email/Password in Firebase Console → Authentication → Sign-in method.";
 }
 
+function getErrorCode(error: unknown): string | undefined {
+  if (typeof error === "object" && error !== null && "code" in error) {
+    const code = (error as { code?: unknown }).code;
+    return typeof code === "string" ? code : undefined;
+  }
+  return undefined;
+}
+
 export function mapFirebaseError(
   error: unknown,
   fallback = "Something went wrong. Please try again.",
   context?: FirebaseErrorContext
 ): string {
-  if (error instanceof FirebaseError) {
-    if (error.code === "auth/operation-not-allowed") {
+  const code = getErrorCode(error) ?? (error instanceof FirebaseError ? error.code : undefined);
+
+  if (code) {
+    if (code === "auth/operation-not-allowed") {
       return operationNotAllowedMessage(context);
     }
-    return AUTH_ERROR_MESSAGES[error.code] ?? fallback;
+    if (context === "phone" && code === "auth/invalid-credential") {
+      return "Invalid OTP. Please check the code and try again.";
+    }
+    return AUTH_ERROR_MESSAGES[code] ?? fallback;
   }
   if (error instanceof Error) {
     if (/already been rendered/i.test(error.message)) {
