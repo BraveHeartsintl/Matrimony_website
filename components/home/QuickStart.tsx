@@ -19,7 +19,7 @@ export default function QuickStart() {
         <FadeIn>
           <div className="glass-floating glass-shimmer overflow-hidden rounded-[16px]">
             <div className="grid items-center gap-0 lg:grid-cols-2">
-              <div className="p-8 lg:p-12">
+              <div className="p-5 sm:p-8 lg:p-12">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gold">
                   {session ? "Continue Your Journey" : "Get Started Today"}
                 </p>
@@ -65,7 +65,7 @@ export default function QuickStart() {
                 </div>
               </div>
 
-              <div className="glass-subtle border-t border-accent/10 p-8 lg:border-l lg:border-t-0 lg:p-12">
+              <div className="glass-subtle border-t border-accent/10 p-5 sm:p-8 lg:border-l lg:border-t-0 lg:p-12">
                 <p className="text-sm font-semibold uppercase tracking-[0.1em] text-accent">
                   {session ? "What you can do next" : "What you get for free"}
                 </p>

@@ -74,7 +74,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     );
 
   return (
-    <div className="flex min-h-screen lg:pl-64">
+    <div className="flex min-h-screen min-w-0 w-full overflow-x-hidden lg:pl-64">
       <aside className="glass-sidebar fixed left-0 top-0 z-30 hidden h-screen w-64 flex-col border-r lg:flex">
         <div>
           <div className="flex h-16 items-center border-b border-border px-6">
@@ -126,16 +126,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col">
-        <header className="glass-nav flex h-14 items-center justify-between border-b px-4 lg:hidden">
-          <button onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="glass-nav flex h-14 items-center justify-between gap-2 border-b px-3 sm:px-4 lg:hidden">
+          <button onClick={() => setSidebarOpen(true)} aria-label="Open menu" className="shrink-0">
             <Menu className="h-6 w-6 text-foreground" />
           </button>
-          <SiteLogo href="/" size="sm" variant="onDark" />
+          <SiteLogo href="/" size="sm" variant="onDark" className="min-w-0" />
           <Avatar src={profilePhoto} name={session.user.name} size="sm" />
         </header>
 
-        <main className="flex-1 overflow-auto p-4 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-8">
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-3 pb-[calc(5rem+env(safe-area-inset-bottom))] sm:p-4 lg:p-8 lg:pb-8">
           <PhaseBanner status={status} />
           {children}
         </main>

@@ -30,7 +30,7 @@ export default function Hero() {
   ];
 
   return (
-    <section className="hero-section relative min-h-screen overflow-hidden">
+    <section className="hero-section relative min-h-[100svh] overflow-hidden">
       <Image
         src="/images/hero/hero_2background.jpeg"
         alt="Traditional wedding hands adorned with bangles and gold embroidery"
@@ -54,9 +54,9 @@ export default function Hero() {
         aria-hidden="true"
       />
 
-      <Container className="relative flex min-h-screen flex-col justify-center py-24 lg:py-32">
+      <Container className="relative flex min-h-[100svh] flex-col justify-center py-16 sm:py-24 lg:py-32">
         <div
-          className="hero-glass animate-fade-in-up w-full max-w-xl rounded-2xl p-7 sm:max-w-2xl sm:p-9 lg:p-11"
+          className="hero-glass animate-fade-in-up w-full min-w-0 max-w-xl rounded-2xl p-5 sm:max-w-2xl sm:p-9 lg:p-11"
           style={{ animationDelay: "0.1s" }}
         >
           <SiteLogo href={null} size="xl" variant="onDark" className="mb-1" priority />

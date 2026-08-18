@@ -55,8 +55,8 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="mx-auto min-w-0 max-w-3xl">
+      <div className="mb-5 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold">My Profile</h1>
           <p className="text-sm text-muted">Manage your profile information and privacy</p>

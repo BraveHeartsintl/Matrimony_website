@@ -27,7 +27,7 @@ export default function UKCoverage() {
           </p>
         </FadeIn>
 
-        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
           {regions.map((region, i) => {
             const href = session
               ? `/search?location=${encodeURIComponent(region.city)}`

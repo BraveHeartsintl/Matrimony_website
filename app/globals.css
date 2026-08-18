@@ -84,6 +84,9 @@
     color-scheme: dark;
     scroll-behavior: smooth;
     background-color: var(--bg-base);
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -93,6 +96,8 @@
     font-size: 1rem;
     line-height: 1.75;
     min-height: 100%;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   body.site-ambient {
@@ -235,10 +240,18 @@
 .container-site {
   width: 100%;
   max-width: 1440px;
+  min-width: 0;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 24px;
-  padding-right: 24px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 640px) {
+  .container-site {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -249,8 +262,15 @@
 }
 
 .section-pad {
-  padding-top: 80px;
-  padding-bottom: 80px;
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+@media (min-width: 640px) {
+  .section-pad {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -298,6 +318,7 @@
 
 .accent-glow {
   position: relative;
+  overflow: hidden;
 }
 
 .accent-glow::before {
@@ -681,6 +702,15 @@
   border: 1px solid rgba(248, 240, 224, 0.12);
   color: var(--cream);
   box-shadow: var(--glass-inset);
+}
+
+@media (max-width: 640px) {
+  input.glass-input,
+  select.glass-input,
+  textarea.glass-input {
+    font-size: 16px;
+    min-height: 44px;
+  }
 }
 
 .glass-input:focus {

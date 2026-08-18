@@ -149,7 +149,7 @@ export default function DashboardPage() {
   const pendingTips = PROFILE_TIPS.filter((tip) => !isTipDone(tip.key, profile));
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
+    <div className="mx-auto min-w-0 max-w-6xl space-y-5 sm:space-y-8">
       <section className="rounded-[6px] glass px-4 py-5 sm:px-10 sm:py-10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
           <div className="max-w-xl">
@@ -331,7 +331,7 @@ export default function DashboardPage() {
             <ArrowRight className="h-4 w-4 text-accent" />
           </Link>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
+        <div className="-mx-1 flex min-w-0 gap-4 overflow-x-auto pb-2 scrollbar-thin">
           {suggestedMatches.map(({ profile: match, matchResult }) => (
             <SuggestedMatchCard key={match.id} profile={match} matchResult={matchResult} />
           ))}
@@ -339,8 +339,8 @@ export default function DashboardPage() {
       </section>
 
       <Card hover id="recent-interests">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-[6px] glass-subtle">
               <Heart className="h-5 w-5 text-accent" />
             </div>
@@ -349,7 +349,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted">Manage all requests on the dedicated page</p>
             </div>
           </div>
-          <Link href="/interests">
+          <Link href="/interests" className="shrink-0">
             <Button variant="ghost" size="sm">
               View all
               <ArrowRight className="h-4 w-4" />

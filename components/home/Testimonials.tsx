@@ -26,7 +26,7 @@ export default function Testimonials() {
           </p>
         </FadeIn>
 
-        <div className="mt-16 grid gap-8 md:grid-cols-3">
+        <div className="mt-8 grid gap-8 md:mt-16 md:grid-cols-3">
           {testimonials.map((t, i) => (
             <FadeIn key={t.name} delay={i * 120} direction={i === 1 ? "scale" : "up"}>
               <Card hover className="group relative h-full overflow-hidden p-0">
@@ -43,7 +43,7 @@ export default function Testimonials() {
                     {t.community}
                   </span>
                 </div>
-                <div className="p-8">
+                <div className="p-5 sm:p-8">
                   <Quote className="h-8 w-8 text-muted-foreground" />
                   <p className="mt-4 text-sm leading-relaxed text-muted">&ldquo;{t.text}&rdquo;</p>
                   <div className="mt-6 border-t border-border pt-4">

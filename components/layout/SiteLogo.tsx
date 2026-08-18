@@ -34,7 +34,7 @@ export default function SiteLogo({
   const s = sizes[size];
 
   const mark = (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
+    <span className={cn("inline-flex min-w-0 items-center gap-2 sm:gap-2.5", className)}>
       <span
         className={cn(
           "relative shrink-0 overflow-hidden rounded-xl border border-gold/35 bg-deepest shadow-sm",
@@ -54,7 +54,7 @@ export default function SiteLogo({
       {withText && (
           <span
             className={cn(
-              "font-display font-bold tracking-wide leading-tight",
+              "min-w-0 font-display font-bold tracking-wide leading-tight",
               s.text,
               variant === "onDark" ? "text-cream" : "text-foreground"
             )}

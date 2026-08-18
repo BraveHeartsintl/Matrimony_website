@@ -18,7 +18,9 @@ const playfair = Playfair_Display({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
   viewportFit: "cover",
+  themeColor: "#001030",
 };
 
 export const metadata: Metadata = {
@@ -61,11 +63,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfair.variable} h-full antialiased`}
+      className={`${inter.variable} ${playfair.variable} h-full overflow-x-hidden antialiased`}
       suppressHydrationWarning
     >
       <body
-        className="site-ambient min-h-full flex flex-col font-sans bg-background text-muted"
+        className="site-ambient min-h-full flex min-w-0 flex-col overflow-x-hidden font-sans bg-background text-muted"
         suppressHydrationWarning
       >
         <Providers>{children}</Providers>

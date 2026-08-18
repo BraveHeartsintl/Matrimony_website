@@ -16,7 +16,7 @@ export default function MatchStats() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(177,139,103,0.12)_0%,transparent_70%)]" />
       <Container className="relative text-center">
         <FadeIn direction="scale">
-          <div className="glass-floating mx-auto max-w-3xl rounded-[20px] px-8 py-12 lg:px-16 lg:py-14">
+          <div className="glass-floating mx-auto max-w-3xl rounded-[20px] px-5 py-8 sm:px-8 sm:py-12 lg:px-16 lg:py-14">
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gold">
               Your story is waiting to happen
             </p>

@@ -38,7 +38,7 @@ export default function TrustBadges() {
           <SplitHeadline primary="Built on Trust" muted="Privacy & Safety" />
         </FadeIn>
 
-        <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-8 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
           {badges.map((badge, i) => (
             <FadeIn key={badge.title} delay={i * 100} direction="up">
               <Card hover className="h-full">

@@ -25,7 +25,7 @@ export default function OnboardingPhases() {
           </p>
         </FadeIn>
 
-        <div className="mt-16 grid gap-8 lg:grid-cols-3">
+        <div className="mt-8 grid gap-8 lg:mt-16 lg:grid-cols-3">
           {ONBOARDING_PHASES.map((phase, i) => {
             const Icon = phaseIcons[i];
             return (
@@ -100,7 +100,7 @@ export default function OnboardingPhases() {
             <div className="border-b border-accent/10 px-6 py-4">
               <p className="text-sm font-semibold text-foreground">What you get with each plan</p>
             </div>
-            <div className="overflow-x-auto">
+            <div className="max-w-full overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-accent/10 bg-surface/50">

@@ -33,8 +33,8 @@ export default function Header() {
   return (
     <>
       <header className="site-header sticky top-0 z-40 border-b border-gold/30 bg-deepest/92 backdrop-blur-xl">
-        <div className="container-site flex h-16 items-center justify-between">
-          <SiteLogo href="/" size="md" variant="onDark" priority />
+        <div className="container-site flex h-16 min-w-0 items-center justify-between gap-3">
+          <SiteLogo href="/" size="md" variant="onDark" priority className="min-w-0" />
 
           <nav className="hidden items-center gap-8 md:flex">
             {PUBLIC_NAV.map((item) => (
