@@ -56,23 +56,19 @@ export default function ContactPage() {
               <Card>
                 <Mail className="h-6 w-6 text-accent" />
                 <h3 className="mt-2 font-semibold text-foreground">Email</h3>
-                <p className="text-sm text-muted">support@ukmatrimony.co.uk</p>
+                <p className="text-sm text-muted">info@ukindiansmatrimony.co.uk</p>
               </Card>
               <Card>
                 <Phone className="h-6 w-6 text-accent" />
                 <h3 className="mt-2 font-semibold text-foreground">Phone</h3>
-                <p className="text-sm text-muted">+44 20 7946 0958</p>
+                <p className="text-sm text-muted">02045774187</p>
                 <p className="text-xs text-muted-foreground">Mon–Fri, 9am–6pm GMT</p>
               </Card>
               <Card>
                 <MapPin className="h-6 w-6 text-accent" />
                 <h3 className="mt-2 font-semibold text-foreground">Office</h3>
                 <p className="text-sm text-muted">
-                  123 Kensington High Street
-                  <br />
-                  London, W8 6SH
-                  <br />
-                  United Kingdom
+                  494 Green Lane, IG3 9LQ
                 </p>
               </Card>
               <Card>

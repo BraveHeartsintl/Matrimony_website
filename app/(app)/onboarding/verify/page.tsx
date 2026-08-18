@@ -58,6 +58,7 @@ export default function OnboardingVerifyPage() {
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [recaptchaKey, setRecaptchaKey] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const [aiChecking, setAiChecking] = useState(false);
   const [aiProgress, setAiProgress] = useState(0);
   const [uploadingDoc, setUploadingDoc] = useState(false);
@@ -87,6 +88,21 @@ export default function OnboardingVerifyPage() {
       clearPhoneRecaptcha();
     };
   }, []);
+
+  useEffect(() => {
+    if (step !== 1) return;
+    const user = getFirebaseAuth().currentUser;
+    if (!user) return;
+    void reload(user)
+      .then(() => {
+        if (isAuthEmailVerified()) {
+          void updateVerification({ emailVerified: true });
+        }
+      })
+      .catch(() => {
+        // Auth reload failed — user can still confirm manually
+      });
+  }, [step, updateVerification]);
 
   if (!session || !verification) return null;
 
@@ -211,13 +227,20 @@ export default function OnboardingVerifyPage() {
   };
 
   const handleEmailVerify = async () => {
-    setEmailSent(true);
+    setSendingEmail(true);
     setError("");
     try {
-      await sendAccountVerificationEmail();
+      const result = await sendAccountVerificationEmail();
+      if (result.alreadyVerified) {
+        await updateVerification({ emailVerified: true });
+        goToStep(2);
+        return;
+      }
+      setEmailSent(true);
     } catch (err) {
-      setEmailSent(false);
       setError(err instanceof Error ? err.message : "Failed to send verification email");
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -394,13 +417,23 @@ export default function OnboardingVerifyPage() {
               </p>
               {!verification.emailVerified ? (
                 <div className="space-y-3">
-                  <Button onClick={() => void handleEmailVerify()} disabled={emailSent}>
-                    {emailSent ? "Email Sent" : "Send Verification Email"}
+                  <Button onClick={() => void handleEmailVerify()} disabled={sendingEmail}>
+                    {sendingEmail
+                      ? "Sending…"
+                      : emailSent
+                        ? "Resend Verification Email"
+                        : "Send Verification Email"}
                   </Button>
                   {emailSent && (
-                    <Button variant="outline" onClick={() => void handleEmailConfirmed()}>
-                      I&apos;ve verified my email
-                    </Button>
+                    <>
+                      <p className="rounded-[6px] glass-subtle px-3 py-2 text-xs text-muted">
+                        Email queued. Check inbox, Spam, and Promotions for a message from
+                        a noreply@…firebaseapp.com address. It can take a few minutes.
+                      </p>
+                      <Button variant="outline" onClick={() => void handleEmailConfirmed()}>
+                        I&apos;ve verified my email
+                      </Button>
+                    </>
                   )}
                 </div>
               ) : (

@@ -47,7 +47,7 @@ const sections = [
   {
     title: "8. Contact",
     content:
-      "For privacy-related enquiries, contact our Data Protection Officer at privacy@ukmatrimony.co.uk or write to us at 123 Kensington High Street, London, W8 6SH.",
+      "For privacy-related enquiries, contact our Data Protection Officer at info@ukindiansmatrimony.co.uk or write to us at 494 Green Lane, IG3 9LQ.",
   },
 ];
 
