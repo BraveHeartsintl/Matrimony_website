@@ -1,6 +1,6 @@
 {
   "name": "functions",
-  "description": "Server-side Stripe billing + webhook handling for the matrimony app (Firebase Cloud Functions, 2nd gen).",
+  "description": "Server-side billing, webhooks, and branded auth email for the matrimony app (Firebase Cloud Functions, 2nd gen).",
   "private": true,
   "engines": {
     "node": "20"
@@ -18,9 +18,11 @@
   "dependencies": {
     "firebase-admin": "^13.0.2",
     "firebase-functions": "^6.1.1",
+    "nodemailer": "^6.9.16",
     "stripe": "^17.4.0"
   },
   "devDependencies": {
+    "@types/nodemailer": "^6.4.17",
     "typescript": "^5.6.3"
   }
 }

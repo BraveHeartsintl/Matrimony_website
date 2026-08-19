@@ -19,6 +19,8 @@ import {
 } from "./planConfig";
 import { getStripeClient } from "./stripeClient";
 
+export { sendVerificationEmail } from "./verificationEmail";
+
 initializeApp();
 setGlobalOptions({ region: "us-central1", maxInstances: 10 });
 

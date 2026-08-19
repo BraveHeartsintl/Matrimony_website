@@ -427,8 +427,9 @@ export default function OnboardingVerifyPage() {
                   {emailSent && (
                     <>
                       <p className="rounded-[6px] glass-subtle px-3 py-2 text-xs text-muted">
-                        Email queued. Check inbox, Spam, and Promotions for a message from
-                        a noreply@…firebaseapp.com address. It can take a few minutes.
+                        We sent a message from UK Indian Matrimony. Open it and tap
+                        <span className="font-semibold text-foreground"> Verify email address</span>.
+                        If it is not in your inbox within a minute, check Spam and Promotions.
                       </p>
                       <Button variant="outline" onClick={() => void handleEmailConfirmed()}>
                         I&apos;ve verified my email

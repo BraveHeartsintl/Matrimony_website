@@ -12,6 +12,12 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/invalid-email": "Please enter a valid email address",
   "auth/user-disabled": "This account has been disabled",
   "auth/network-request-failed": "Network error. Check your connection and try again.",
+  "auth/invalid-action-code": "This verification link is invalid or has already been used. Request a new email.",
+  "auth/expired-action-code": "This verification link has expired. Request a new email.",
+  "functions/not-found":
+    "Verification email is not set up yet. Deploy the sendVerificationEmail Cloud Function and SMTP settings.",
+  "functions/unavailable": "Email service is temporarily unavailable. Please try again shortly.",
+  "functions/unauthenticated": "You must be logged in to verify your email.",
   "auth/invalid-phone-number": "Invalid phone number. Use international format (e.g. +91 98765 43210).",
   "auth/invalid-verification-code": "Invalid OTP. Please check the code and try again.",
   "auth/code-expired": "OTP expired. Request a new code.",
