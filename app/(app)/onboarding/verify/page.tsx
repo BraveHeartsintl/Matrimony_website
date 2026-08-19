@@ -7,7 +7,7 @@ import Input from "@/components/ui/Input";
 import ProgressBar from "@/components/ui/ProgressBar";
 import Select from "@/components/ui/Select";
 import { useAuth } from "@/context/AuthContext";
-import { ID_DOCUMENT_TYPES, MOCK_OTP_CODE } from "@/lib/constants";
+import { ID_DOCUMENT_ACCEPT, ID_DOCUMENT_TYPES, MOCK_OTP_CODE } from "@/lib/constants";
 import {
   clearPhoneRecaptcha,
   isPhoneDemoMode,
@@ -24,12 +24,12 @@ import { uploadVerificationDoc } from "@/lib/firebase/services/storage.service";
 import { getFirebaseAuth } from "@/lib/firebase/config";
 import { profileHasPhoto } from "@/lib/profile-photos";
 import type { IdDocumentType } from "@/lib/types";
-import { Check, Clock, Upload } from "lucide-react";
+import { Check, Clock, FileText, Upload } from "lucide-react";
 import Image from "next/image";
 import { reload } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import { documentKindLabel, isAllowedIdDocumentFile, isRasterImageSrc } from "@/lib/utils";
 
 const STEPS = [
   "Mobile OTP",
@@ -266,6 +266,11 @@ export default function OnboardingVerifyPage() {
   const handleIdUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !verification.idDocumentType || !session) return;
+    if (!isAllowedIdDocumentFile(file)) {
+      setError("Upload an image (PNG, JPG), PDF, or Word document (DOC, DOCX).");
+      e.target.value = "";
+      return;
+    }
     setUploadingDoc(true);
     setError("");
     try {
@@ -461,21 +466,39 @@ export default function OnboardingVerifyPage() {
               <input
                 ref={idInputRef}
                 type="file"
-                accept="image/*"
+                accept={ID_DOCUMENT_ACCEPT}
                 className="hidden"
                 onChange={handleIdUpload}
               />
+              <p className="text-xs text-muted">
+                PNG, JPG, PDF, or DOC/DOCX. Max 10 MB.
+              </p>
               {idDocumentPreview ? (
                 <div className="space-y-3">
-                  <div className="relative h-40 overflow-hidden rounded-lg border">
-                    <Image
-                      src={idDocumentPreview}
-                      alt="ID document"
-                      fill
-                      className="object-contain"
-                      unoptimized
-                    />
-                  </div>
+                  {isRasterImageSrc(idDocumentPreview) ? (
+                    <div className="relative h-40 overflow-hidden rounded-lg border">
+                      <Image
+                        src={idDocumentPreview}
+                        alt="ID document"
+                        fill
+                        className="object-contain"
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <a
+                      href={idDocumentPreview}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 rounded-lg border border-border px-4 py-3 text-sm text-foreground hover:border-accent"
+                    >
+                      <FileText className="h-8 w-8 shrink-0 text-accent" />
+                      <span>
+                        {documentKindLabel(idDocumentPreview)} saved.
+                        <span className="mt-0.5 block text-xs text-muted">Tap to open</span>
+                      </span>
+                    </a>
+                  )}
                   <p className="flex items-center gap-2 text-sm text-accent">
                     <Check className="h-4 w-4" /> ID document saved to your account
                   </p>

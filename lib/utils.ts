@@ -82,3 +82,43 @@ export function formatRelativeTime(dateStr: string): string {
   if (diffDays < 7) return `${diffDays}d ago`;
   return formatDate(dateStr);
 }
+
+const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"] as const;
+const ID_DOCUMENT_EXTENSIONS = [...IMAGE_EXTENSIONS, "pdf", "doc", "docx"] as const;
+
+function fileExtensionFromName(name: string): string {
+  return name.split(".").pop()?.toLowerCase() ?? "";
+}
+
+function fileExtensionFromSrc(src: string): string {
+  try {
+    const path = src.split("?")[0];
+    return fileExtensionFromName(decodeURIComponent(path));
+  } catch {
+    return fileExtensionFromName(src.split("?")[0]);
+  }
+}
+
+export function isAllowedIdDocumentFile(file: File): boolean {
+  const ext = fileExtensionFromName(file.name);
+  if ((ID_DOCUMENT_EXTENSIONS as readonly string[]).includes(ext)) return true;
+  if (file.type.startsWith("image/")) return true;
+  return (
+    file.type === "application/pdf" ||
+    file.type === "application/msword" ||
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  );
+}
+
+export function isRasterImageSrc(src: string): boolean {
+  if (src.startsWith("data:image")) return true;
+  return (IMAGE_EXTENSIONS as readonly string[]).includes(fileExtensionFromSrc(src));
+}
+
+export function documentKindLabel(src: string): string {
+  const ext = fileExtensionFromSrc(src);
+  if (ext === "pdf") return "PDF document";
+  if (ext === "doc" || ext === "docx") return "Word document";
+  if (ext) return `${ext.toUpperCase()} file`;
+  return "Document";
+}

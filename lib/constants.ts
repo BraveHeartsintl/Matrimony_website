@@ -188,6 +188,10 @@ export const ID_DOCUMENT_TYPES = [
   { value: "voter_id", label: "Voter ID" },
 ] as const;
 
+/** File picker types for identity documents (images, PDF, Word). */
+export const ID_DOCUMENT_ACCEPT =
+  "image/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
 export const FAMILY_TYPES = ["Nuclear", "Joint", "Extended"] as const;
 
 export const FAMILY_VALUES = [

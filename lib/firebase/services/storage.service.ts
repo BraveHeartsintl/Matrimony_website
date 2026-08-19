@@ -12,6 +12,10 @@ function extensionForFile(file: File): string {
   if (file.type === "image/png") return "png";
   if (file.type === "image/webp") return "webp";
   if (file.type === "application/pdf") return "pdf";
+  if (file.type === "application/msword") return "doc";
+  if (file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+    return "docx";
+  }
   return "jpg";
 }
 
@@ -113,7 +117,6 @@ export async function uploadVerificationDoc(
 ): Promise<string> {
   const isImage =
     file.type.startsWith("image/") ||
-    kind === "id" ||
     kind === "selfie" ||
     ["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"].includes(
       file.name.split(".").pop()?.toLowerCase() ?? ""

@@ -9,7 +9,8 @@ import {
 } from "@/lib/firebase/services/admin.service";
 import { getPendingVerifications } from "@/lib/firebase/services/profile.service";
 import type { PendingVerificationSubmission } from "@/lib/auth";
-import { Check, X } from "lucide-react";
+import { isRasterImageSrc } from "@/lib/utils";
+import { Check, FileText, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
@@ -132,13 +133,25 @@ function DocPreview({
           round ? "h-48 w-48 rounded-full" : "h-40 w-full rounded-lg"
         }`}
       >
-        <Image
-          src={src}
-          alt={label}
-          fill
-          className={round ? "object-cover" : "object-contain"}
-          unoptimized
-        />
+        {round || isRasterImageSrc(src) ? (
+          <Image
+            src={src}
+            alt={label}
+            fill
+            className={round ? "object-cover" : "object-contain"}
+            unoptimized
+          />
+        ) : (
+          <a
+            href={src}
+            target="_blank"
+            rel="noreferrer"
+            className="flex h-full w-full flex-col items-center justify-center gap-2 px-3 text-center text-sm text-foreground hover:text-accent"
+          >
+            <FileText className="h-8 w-8 text-accent" />
+            Open document
+          </a>
+        )}
       </div>
     </div>
   );
