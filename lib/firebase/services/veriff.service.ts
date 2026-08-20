@@ -1,5 +1,6 @@
 import { mapFirebaseError } from "@/lib/firebase/errors";
 import { getFirebaseFunctions } from "@/lib/firebase/config";
+import type { IdDocumentType } from "@/lib/types";
 import { httpsCallable } from "firebase/functions";
 
 export type CreateVeriffSessionResponse = {
@@ -8,13 +9,17 @@ export type CreateVeriffSessionResponse = {
 };
 
 /** Starts a Veriff hosted ID + selfie session; open `sessionUrl` in the browser. */
-export async function startVeriffSession(): Promise<CreateVeriffSessionResponse> {
+export async function startVeriffSession(
+  documentType?: IdDocumentType
+): Promise<CreateVeriffSessionResponse> {
   try {
-    const createVeriffSession = httpsCallable<void, CreateVeriffSessionResponse>(
-      getFirebaseFunctions(),
-      "createVeriffSession"
+    const createVeriffSession = httpsCallable<
+      { documentType?: IdDocumentType },
+      CreateVeriffSessionResponse
+    >(getFirebaseFunctions(), "createVeriffSession");
+    const { data } = await createVeriffSession(
+      documentType ? { documentType } : {}
     );
-    const { data } = await createVeriffSession();
     if (!data?.sessionUrl || !data?.sessionId) {
       throw new Error("Veriff did not return a session URL.");
     }

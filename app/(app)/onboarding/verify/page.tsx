@@ -5,7 +5,9 @@ import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/context/AuthContext";
-import { MOCK_OTP_CODE } from "@/lib/constants";
+import { MOCK_OTP_CODE, ID_DOCUMENT_TYPES } from "@/lib/constants";
+import type { IdDocumentType } from "@/lib/types";
+import Select from "@/components/ui/Select";
 import {
   clearPhoneRecaptcha,
   isPhoneDemoMode,
@@ -30,7 +32,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 const STEPS = [
   "Mobile OTP",
   "Email Verification",
-  "Identity Verification",
+  "ID Document",
   "Optional Documents",
   "Review & Submit",
 ] as const;
@@ -242,10 +244,14 @@ function OnboardingVerifyContent() {
   };
 
   const handleStartVeriff = async () => {
+    if (!verification.idDocumentType) {
+      setError("Select an ID document type first (e.g. Passport)");
+      return;
+    }
     setStartingVeriff(true);
     setError("");
     try {
-      const { sessionId, sessionUrl } = await startVeriffSession();
+      const { sessionId, sessionUrl } = await startVeriffSession(verification.idDocumentType);
       await updateVerification({
         veriffSessionId: sessionId,
         veriffStatus: "started",
@@ -272,7 +278,7 @@ function OnboardingVerifyContent() {
     }
     setError("");
     try {
-      if (veriffApproved || status === "verified") {
+      if (veriffApproved) {
         router.push("/dashboard");
         return;
       }
@@ -406,9 +412,24 @@ function OnboardingVerifyContent() {
 
           {step === 2 && (
             <>
+              <Select
+                label="ID Document Type"
+                value={verification.idDocumentType ?? ""}
+                onChange={(e) =>
+                  updateVerification({ idDocumentType: e.target.value as IdDocumentType })
+                }
+                options={[
+                  { value: "", label: "Select document" },
+                  ...ID_DOCUMENT_TYPES.map((d) => ({ value: d.value, label: d.label })),
+                ]}
+              />
               <p className="text-sm text-muted">
-                Verify your passport (or other ID) and take a live selfie with Veriff.
-                Photos are checked securely — you do not upload files on this page.
+                You will be taken to Veriff to scan your{" "}
+                {verification.idDocumentType
+                  ? ID_DOCUMENT_TYPES.find((d) => d.value === verification.idDocumentType)?.label.toLowerCase() ??
+                    "document"
+                  : "document"}{" "}
+                and take a live selfie. No file upload on this page.
               </p>
               {veriffApproved ? (
                 <p className="flex items-center gap-2 text-sm text-accent">
@@ -417,21 +438,31 @@ function OnboardingVerifyContent() {
               ) : identityDone ? (
                 <div className="space-y-3">
                   <p className="flex items-center gap-2 text-sm text-accent">
-                    <Clock className="h-4 w-4" /> Veriff session started
+                    <Clock className="h-4 w-4" /> Veriff check in progress
                     {verification.veriffStatus ? ` (${verification.veriffStatus})` : ""}
                   </p>
                   <p className="text-xs text-muted">
-                    If you finished in Veriff, continue — approval usually arrives within a few minutes.
-                    You can also open Veriff again if you need to resubmit.
+                    If you finished in Veriff, continue. Or open Veriff again to resubmit.
                   </p>
-                  <Button variant="outline" onClick={() => void handleStartVeriff()} disabled={startingVeriff}>
+                  <Button
+                    variant="outline"
+                    onClick={() => void handleStartVeriff()}
+                    disabled={startingVeriff || !verification.idDocumentType}
+                  >
                     {startingVeriff ? "Opening Veriff…" : "Open Veriff again"}
                   </Button>
                 </div>
               ) : (
-                <Button onClick={() => void handleStartVeriff()} disabled={startingVeriff}>
+                <Button
+                  onClick={() => void handleStartVeriff()}
+                  disabled={startingVeriff || !verification.idDocumentType}
+                >
                   <ShieldCheck className="h-4 w-4" />
-                  {startingVeriff ? "Opening Veriff…" : "Verify with Veriff"}
+                  {startingVeriff
+                    ? "Opening Veriff…"
+                    : verification.idDocumentType === "passport"
+                      ? "Verify passport with Veriff"
+                      : "Verify ID with Veriff"}
                 </Button>
               )}
             </>

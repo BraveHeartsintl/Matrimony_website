@@ -60,6 +60,21 @@ function splitName(fullName: string): { firstName: string; lastName: string } {
   return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
 }
 
+function mapToVeriffDocumentType(docType: unknown): string | undefined {
+  if (typeof docType !== "string") return undefined;
+  switch (docType) {
+    case "passport":
+      return "PASSPORT";
+    case "driving_license":
+      return "DRIVERS_LICENSE";
+    case "aadhaar":
+    case "voter_id":
+      return "ID_CARD";
+    default:
+      return undefined;
+  }
+}
+
 function mapIdDocumentType(veriffType: string | null | undefined): string | null {
   if (!veriffType) return null;
   const t = veriffType.toLowerCase();
@@ -91,6 +106,8 @@ export const createVeriffSession = onCall(
     const uid = requireUid(request);
     const userRecord = await getAuth().getUser(uid);
     const { firstName, lastName } = splitName(userRecord.displayName ?? "Member");
+    const requestedType = (request.data as { documentType?: unknown } | undefined)?.documentType;
+    const veriffDocType = mapToVeriffDocumentType(requestedType);
 
     const origin = appUrl.value().replace(/\/$/, "");
     const callback = `${origin}/onboarding/verify/?veriff=returned`;
@@ -103,6 +120,13 @@ export const createVeriffSession = onCall(
           firstName,
           lastName,
         },
+        ...(veriffDocType
+          ? {
+              document: {
+                type: veriffDocType,
+              },
+            }
+          : {}),
       },
     };
 
