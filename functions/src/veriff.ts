@@ -85,6 +85,19 @@ function mapIdDocumentType(veriffType: string | null | undefined): string | null
   return null;
 }
 
+/** Veriff only accepts public https callbacks — never localhost/http. */
+function toPublicCallbackUrl(origin: string): string | undefined {
+  try {
+    const url = new URL(origin);
+    const host = url.hostname.toLowerCase();
+    if (url.protocol !== "https:") return undefined;
+    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) return undefined;
+    return `${origin.replace(/\/$/, "")}/onboarding/verify/?veriff=returned`;
+  } catch {
+    return undefined;
+  }
+}
+
 function verifyVeriffSignature(rawBody: Buffer | string, signatureHeader: string | undefined): boolean {
   if (!signatureHeader) return false;
   const expected = createHmac("sha256", veriffSharedSecret.value())
@@ -110,11 +123,12 @@ export const createVeriffSession = onCall(
     const veriffDocType = mapToVeriffDocumentType(requestedType);
 
     const origin = appUrl.value().replace(/\/$/, "");
-    const callback = `${origin}/onboarding/verify/?veriff=returned`;
+    // Veriff rejects non-public / http localhost callbacks (returns 400).
+    const callback = toPublicCallbackUrl(origin);
 
     const body = {
       verification: {
-        callback,
+        ...(callback ? { callback } : {}),
         vendorData: uid,
         person: {
           firstName,
@@ -146,10 +160,19 @@ export const createVeriffSession = onCall(
       throw new HttpsError("unavailable", "Could not reach Veriff. Try again shortly.");
     }
 
-    const payload = (await response.json()) as VeriffSessionResponse;
+    const payload = (await response.json().catch(() => ({}))) as VeriffSessionResponse & {
+      message?: string;
+      error?: string;
+    };
     if (!response.ok || !payload.verification?.id || !payload.verification?.url) {
       logger.error("Veriff session create failed", { status: response.status, payload });
-      throw new HttpsError("internal", "Veriff could not start identity verification.");
+      const detail =
+        payload.message ||
+        payload.error ||
+        (response.status === 400
+          ? "Veriff rejected the session request (check callback URL / API keys)."
+          : "Veriff could not start identity verification.");
+      throw new HttpsError("internal", detail);
     }
 
     const sessionId = payload.verification.id;

@@ -72,6 +72,26 @@ export function mapFirebaseError(
 ): string {
   const code = getErrorCode(error) ?? (error instanceof FirebaseError ? error.code : undefined);
 
+  // Prefer Cloud Function HttpsError messages over generic code fallbacks.
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
+  ) {
+    const message = (error as { message: string }).message.trim();
+    // Firebase wraps as "INTERNAL: actual message" or "functions/internal"
+    const unwrapped = message.replace(/^(INTERNAL|UNKNOWN|ERROR):\s*/i, "").trim();
+    if (
+      unwrapped &&
+      !/^firebase\b/i.test(unwrapped) &&
+      code?.startsWith("functions/") &&
+      unwrapped.toLowerCase() !== code.toLowerCase()
+    ) {
+      return unwrapped;
+    }
+  }
+
   if (code) {
     if (code === "auth/operation-not-allowed") {
       return operationNotAllowedMessage(context);
