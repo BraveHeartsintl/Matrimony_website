@@ -14,12 +14,14 @@ export async function startVeriffSession(
 ): Promise<CreateVeriffSessionResponse> {
   try {
     const createVeriffSession = httpsCallable<
-      { documentType?: IdDocumentType },
+      { documentType?: IdDocumentType; returnOrigin?: string },
       CreateVeriffSessionResponse
     >(getFirebaseFunctions(), "createVeriffSession");
-    const { data } = await createVeriffSession(
-      documentType ? { documentType } : {}
-    );
+    const { data } = await createVeriffSession({
+      ...(documentType ? { documentType } : {}),
+      // Public https only — localhost is ignored server-side; production callback is used.
+      returnOrigin: typeof window !== "undefined" ? window.location.origin : undefined,
+    });
     if (!data?.sessionUrl || !data?.sessionId) {
       throw new Error("Veriff did not return a session URL.");
     }

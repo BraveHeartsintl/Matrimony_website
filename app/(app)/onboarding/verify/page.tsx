@@ -429,7 +429,7 @@ function OnboardingVerifyContent() {
                   ? ID_DOCUMENT_TYPES.find((d) => d.value === verification.idDocumentType)?.label.toLowerCase() ??
                     "document"
                   : "document"}{" "}
-                and take a live selfie. After finishing, return to this page (or wait to be redirected).
+                and take a live selfie. When finished, Veriff sends you back to the website automatically.
               </p>
               {veriffApproved ? (
                 <p className="flex items-center gap-2 text-sm text-accent">

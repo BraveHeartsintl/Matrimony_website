@@ -5,7 +5,7 @@ import { HttpsError, onCall, onRequest, type CallableRequest } from "firebase-fu
 import * as logger from "firebase-functions/logger";
 
 import { appUrl } from "./planConfig";
-import { veriffApiKey, veriffBaseUrl, veriffSharedSecret } from "./veriffConfig";
+import { veriffApiKey, veriffBaseUrl, veriffCallbackOrigin, veriffSharedSecret } from "./veriffConfig";
 
 /** Lazy — must not run at module load (initializeApp lives in index.ts). */
 function db(): Firestore {
@@ -86,16 +86,39 @@ function mapIdDocumentType(veriffType: string | null | undefined): string | null
 }
 
 /** Veriff only accepts public https callbacks — never localhost/http. */
-function toPublicCallbackUrl(origin: string): string | undefined {
+function isPublicHttpsOrigin(origin: string): boolean {
   try {
     const url = new URL(origin);
     const host = url.hostname.toLowerCase();
-    if (url.protocol !== "https:") return undefined;
-    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) return undefined;
-    return `${origin.replace(/\/$/, "")}/onboarding/verify/?veriff=returned`;
+    if (url.protocol !== "https:") return false;
+    if (host === "localhost" || host === "127.0.0.1" || host.endsWith(".local")) return false;
+    return true;
   } catch {
-    return undefined;
+    return false;
   }
+}
+
+function buildCallbackUrl(origin: string): string {
+  return `${origin.replace(/\/$/, "")}/onboarding/verify/?veriff=returned`;
+}
+
+/**
+ * Prefer the browser's public https origin; otherwise configured
+ * VERIFF_CALLBACK_URL / APP_URL; finally the production default.
+ */
+function resolveVeriffCallback(clientOrigin: unknown): string {
+  const candidates = [
+    typeof clientOrigin === "string" ? clientOrigin.trim() : "",
+    veriffCallbackOrigin.value().trim(),
+    appUrl.value().trim(),
+    "https://ukmatrimony.co.uk",
+  ];
+  for (const origin of candidates) {
+    if (origin && isPublicHttpsOrigin(origin)) {
+      return buildCallbackUrl(origin);
+    }
+  }
+  return buildCallbackUrl("https://ukmatrimony.co.uk");
 }
 
 function verifyVeriffSignature(rawBody: Buffer | string, signatureHeader: string | undefined): boolean {
@@ -119,16 +142,15 @@ export const createVeriffSession = onCall(
     const uid = requireUid(request);
     const userRecord = await getAuth().getUser(uid);
     const { firstName, lastName } = splitName(userRecord.displayName ?? "Member");
-    const requestedType = (request.data as { documentType?: unknown } | undefined)?.documentType;
+    const requestedType = (request.data as { documentType?: unknown; returnOrigin?: unknown } | undefined)
+      ?.documentType;
+    const returnOrigin = (request.data as { returnOrigin?: unknown } | undefined)?.returnOrigin;
     const veriffDocType = mapToVeriffDocumentType(requestedType);
-
-    const origin = appUrl.value().replace(/\/$/, "");
-    // Veriff rejects non-public / http localhost callbacks (returns 400).
-    const callback = toPublicCallbackUrl(origin);
+    const callback = resolveVeriffCallback(returnOrigin);
 
     const body = {
       verification: {
-        ...(callback ? { callback } : {}),
+        callback,
         vendorData: uid,
         person: {
           firstName,

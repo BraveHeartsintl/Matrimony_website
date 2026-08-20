@@ -13,3 +13,12 @@ export const veriffSharedSecret = defineSecret("VERIFF_SHARED_SECRET");
 export const veriffBaseUrl = defineString("VERIFF_BASE_URL", {
   default: "https://stationapi.veriff.com",
 });
+
+/**
+ * Public https origin Veriff redirects to after the user finishes.
+ * Must NOT be localhost — Veriff rejects http://localhost callbacks.
+ * Example: https://ukmatrimony.co.uk
+ */
+export const veriffCallbackOrigin = defineString("VERIFF_CALLBACK_URL", {
+  default: "https://ukmatrimony.co.uk",
+});
