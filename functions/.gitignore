@@ -9,6 +9,7 @@ node_modules/
 .env.*
 !.env.example
 .secret.local
+PASTE_VERIFF_KEYS_HERE.env
 
 # Firebase debug logs
 *.log

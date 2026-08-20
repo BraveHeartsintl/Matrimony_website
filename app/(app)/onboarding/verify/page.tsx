@@ -4,10 +4,8 @@ import OnboardingShell from "@/components/onboarding/OnboardingShell";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
-import ProgressBar from "@/components/ui/ProgressBar";
-import Select from "@/components/ui/Select";
 import { useAuth } from "@/context/AuthContext";
-import { ID_DOCUMENT_ACCEPT, ID_DOCUMENT_TYPES, MOCK_OTP_CODE } from "@/lib/constants";
+import { MOCK_OTP_CODE } from "@/lib/constants";
 import {
   clearPhoneRecaptcha,
   isPhoneDemoMode,
@@ -21,33 +19,32 @@ import {
   sendAccountVerificationEmail,
 } from "@/lib/firebase/services/email.service";
 import { uploadVerificationDoc } from "@/lib/firebase/services/storage.service";
+import { startVeriffSession } from "@/lib/firebase/services/veriff.service";
 import { getFirebaseAuth } from "@/lib/firebase/config";
-import { profileHasPhoto } from "@/lib/profile-photos";
-import type { IdDocumentType } from "@/lib/types";
-import { Check, Clock, FileText, Upload } from "lucide-react";
-import Image from "next/image";
+import { Check, Clock, ShieldCheck, Upload } from "lucide-react";
 import { reload } from "firebase/auth";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { documentKindLabel, isAllowedIdDocumentFile, isRasterImageSrc } from "@/lib/utils";
+import { useRouter, useSearchParams } from "next/navigation";
+import { flushSync } from "react-dom";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 const STEPS = [
   "Mobile OTP",
   "Email Verification",
-  "ID Document",
-  "Selfie Verification",
+  "Identity Verification",
   "Optional Documents",
   "Review & Submit",
 ] as const;
 
-export default function OnboardingVerifyPage() {
-  const {
-    session,
-    updateProfile,
-    updateVerification,
-    submitVerificationRequest,
-  } = useAuth();
+function isVeriffIdentityDone(status: string | undefined, sessionId: string | undefined): boolean {
+  if (!sessionId) return false;
+  const s = (status ?? "").toLowerCase();
+  return ["approved", "started", "submitted", "review", "resubmission_requested"].includes(s) || s.length > 0;
+}
+
+function OnboardingVerifyContent() {
+  const { session, updateVerification, submitVerificationRequest } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [error, setError] = useState("");
   const [phone, setPhone] = useState("");
@@ -59,14 +56,9 @@ export default function OnboardingVerifyPage() {
   const [recaptchaKey, setRecaptchaKey] = useState(0);
   const [emailSent, setEmailSent] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
-  const [aiChecking, setAiChecking] = useState(false);
-  const [aiProgress, setAiProgress] = useState(0);
   const [uploadingDoc, setUploadingDoc] = useState(false);
-  const [selfiePreviewLocal, setSelfiePreviewLocal] = useState<string | null>(null);
-  const [idPreviewLocal, setIdPreviewLocal] = useState<string | null>(null);
+  const [startingVeriff, setStartingVeriff] = useState(false);
 
-  const idInputRef = useRef<HTMLInputElement>(null);
-  const selfieInputRef = useRef<HTMLInputElement>(null);
   const eduInputRef = useRef<HTMLInputElement>(null);
   const empInputRef = useRef<HTMLInputElement>(null);
 
@@ -104,6 +96,17 @@ export default function OnboardingVerifyPage() {
       });
   }, [step, updateVerification]);
 
+  useEffect(() => {
+    if (searchParams.get("veriff") !== "returned") return;
+    setStep(2);
+    setError("");
+    if (session?.profile.verification.veriffSessionId) {
+      void updateVerification({
+        veriffStatus: session.profile.verification.veriffStatus ?? "submitted",
+      });
+    }
+  }, [searchParams, session?.profile.verification.veriffSessionId, session?.profile.verification.veriffStatus, updateVerification]);
+
   if (!session || !verification) return null;
 
   if (status === "verification_pending") {
@@ -113,14 +116,11 @@ export default function OnboardingVerifyPage() {
           <Clock className="mx-auto h-12 w-12 text-accent" />
           <h1 className="mt-4 font-display text-2xl font-bold">Verification Pending</h1>
           <p className="mt-2 text-sm text-muted">
-            Your documents were submitted on{" "}
+            Your identity check was submitted
             {verification.submittedAt
-              ? new Date(verification.submittedAt).toLocaleDateString()
-              : "recently"}
-            . Our team will review your submission within 24–48 hours.
-          </p>
-          <p className="mt-4 text-sm text-muted">
-            You will be notified once your profile is verified.
+              ? ` on ${new Date(verification.submittedAt).toLocaleDateString()}`
+              : ""}
+            . You will be notified once it is complete.
           </p>
         </Card>
       </div>
@@ -133,24 +133,6 @@ export default function OnboardingVerifyPage() {
     setError("");
     setStep(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const runAiCheck = async (onComplete: () => void | Promise<void>) => {
-    setAiChecking(true);
-    setAiProgress(0);
-    setError("");
-    try {
-      for (let i = 0; i <= 100; i += 20) {
-        await new Promise((r) => setTimeout(r, 200));
-        setAiProgress(i);
-      }
-      await onComplete();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed. Please try again.");
-      throw err;
-    } finally {
-      setAiChecking(false);
-    }
   };
 
   const phoneDemoMode = isPhoneDemoMode();
@@ -177,7 +159,6 @@ export default function OnboardingVerifyPage() {
     setError("");
     try {
       const normalized = normalizePhoneNumber(trimmed);
-      // Fresh host node before each send — prevents "already rendered" conflicts.
       if (!phoneDemoMode) {
         remountRecaptcha();
       }
@@ -260,68 +241,41 @@ export default function OnboardingVerifyPage() {
     }
   };
 
-  const idDocumentPreview = idPreviewLocal ?? verification.idDocumentPreview;
-  const selfiePreview = selfiePreviewLocal ?? verification.selfiePreview;
-
-  const handleIdUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !verification.idDocumentType || !session) return;
-    if (!isAllowedIdDocumentFile(file)) {
-      setError("Upload an image (PNG, JPG), PDF, or Word document (DOC, DOCX).");
-      e.target.value = "";
-      return;
-    }
-    setUploadingDoc(true);
+  const handleStartVeriff = async () => {
+    setStartingVeriff(true);
     setError("");
     try {
-      await runAiCheck(async () => {
-        const url = await uploadVerificationDoc(session.user.id, file, "id");
-        await updateVerification({ idDocumentPreview: url });
-        setIdPreviewLocal(url);
+      const { sessionId, sessionUrl } = await startVeriffSession();
+      await updateVerification({
+        veriffSessionId: sessionId,
+        veriffStatus: "started",
+        rejectionReason: undefined,
       });
+      window.location.assign(sessionUrl);
     } catch (err) {
-      setIdPreviewLocal(null);
-      setError(err instanceof Error ? err.message : "Failed to save ID document");
-    } finally {
-      setUploadingDoc(false);
-      e.target.value = "";
+      setError(err instanceof Error ? err.message : "Could not start Veriff");
+      setStartingVeriff(false);
     }
   };
 
-  const handleSelfieUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !session) return;
-    setUploadingDoc(true);
-    setError("");
-    try {
-      await runAiCheck(async () => {
-        const url = await uploadVerificationDoc(session.user.id, file, "selfie");
-        await updateVerification({ selfiePreview: url });
-        if (!profileHasPhoto(session.profile)) {
-          await updateProfile({ photos: [url] });
-        }
-        setSelfiePreviewLocal(url);
-      });
-    } catch (err) {
-      setSelfiePreviewLocal(null);
-      setError(err instanceof Error ? err.message : "Failed to save selfie");
-    } finally {
-      setUploadingDoc(false);
-      e.target.value = "";
-    }
-  };
+  const identityDone = isVeriffIdentityDone(verification.veriffStatus, verification.veriffSessionId);
+  const veriffApproved = (verification.veriffStatus ?? "").toLowerCase() === "approved";
 
   const handleSubmit = async () => {
     if (!verification.phoneVerified || !verification.emailVerified) {
       setError("Complete phone and email verification first");
       return;
     }
-    if (!idDocumentPreview || !selfiePreview) {
-      setError("ID document and selfie are required");
+    if (!identityDone) {
+      setError("Complete identity verification with Veriff first");
       return;
     }
     setError("");
     try {
+      if (veriffApproved || status === "verified") {
+        router.push("/dashboard");
+        return;
+      }
       await submitVerificationRequest();
       router.push("/dashboard");
     } catch (err) {
@@ -452,142 +406,38 @@ export default function OnboardingVerifyPage() {
 
           {step === 2 && (
             <>
-              <Select
-                label="ID Document Type"
-                value={verification.idDocumentType ?? ""}
-                onChange={(e) =>
-                  updateVerification({ idDocumentType: e.target.value as IdDocumentType })
-                }
-                options={[
-                  { value: "", label: "Select document" },
-                  ...ID_DOCUMENT_TYPES.map((d) => ({ value: d.value, label: d.label })),
-                ]}
-              />
-              <input
-                ref={idInputRef}
-                type="file"
-                accept={ID_DOCUMENT_ACCEPT}
-                className="hidden"
-                onChange={handleIdUpload}
-              />
-              <p className="text-xs text-muted">
-                PNG, JPG, PDF, or DOC/DOCX. Max 10 MB.
+              <p className="text-sm text-muted">
+                Verify your passport (or other ID) and take a live selfie with Veriff.
+                Photos are checked securely — you do not upload files on this page.
               </p>
-              {idDocumentPreview ? (
+              {veriffApproved ? (
+                <p className="flex items-center gap-2 text-sm text-accent">
+                  <Check className="h-4 w-4" /> Identity verified with Veriff
+                </p>
+              ) : identityDone ? (
                 <div className="space-y-3">
-                  {isRasterImageSrc(idDocumentPreview) ? (
-                    <div className="relative h-40 overflow-hidden rounded-lg border">
-                      <Image
-                        src={idDocumentPreview}
-                        alt="ID document"
-                        fill
-                        className="object-contain"
-                        unoptimized
-                      />
-                    </div>
-                  ) : (
-                    <a
-                      href={idDocumentPreview}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center gap-3 rounded-lg border border-border px-4 py-3 text-sm text-foreground hover:border-accent"
-                    >
-                      <FileText className="h-8 w-8 shrink-0 text-accent" />
-                      <span>
-                        {documentKindLabel(idDocumentPreview)} saved.
-                        <span className="mt-0.5 block text-xs text-muted">Tap to open</span>
-                      </span>
-                    </a>
-                  )}
                   <p className="flex items-center gap-2 text-sm text-accent">
-                    <Check className="h-4 w-4" /> ID document saved to your account
+                    <Clock className="h-4 w-4" /> Veriff session started
+                    {verification.veriffStatus ? ` (${verification.veriffStatus})` : ""}
                   </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => idInputRef.current?.click()}
-                    disabled={aiChecking || uploadingDoc}
-                  >
-                    Replace document
+                  <p className="text-xs text-muted">
+                    If you finished in Veriff, continue — approval usually arrives within a few minutes.
+                    You can also open Veriff again if you need to resubmit.
+                  </p>
+                  <Button variant="outline" onClick={() => void handleStartVeriff()} disabled={startingVeriff}>
+                    {startingVeriff ? "Opening Veriff…" : "Open Veriff again"}
                   </Button>
                 </div>
               ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => idInputRef.current?.click()}
-                  disabled={!verification.idDocumentType || aiChecking || uploadingDoc}
-                >
-                  <Upload className="h-4 w-4" />
-                  {uploadingDoc ? "Uploading…" : "Upload ID Document"}
+                <Button onClick={() => void handleStartVeriff()} disabled={startingVeriff}>
+                  <ShieldCheck className="h-4 w-4" />
+                  {startingVeriff ? "Opening Veriff…" : "Verify with Veriff"}
                 </Button>
-              )}
-              {aiChecking && (
-                <div>
-                  <p className="mb-2 text-xs text-muted">AI quality check…</p>
-                  <ProgressBar value={aiProgress} />
-                </div>
               )}
             </>
           )}
 
           {step === 3 && (
-            <>
-              <p className="text-sm text-muted">
-                Upload a clear selfie for face matching with your profile photo.
-              </p>
-              <input
-                ref={selfieInputRef}
-                type="file"
-                accept="image/*"
-                capture="user"
-                className="hidden"
-                onChange={handleSelfieUpload}
-              />
-              {selfiePreview ? (
-                <div className="space-y-3">
-                  <div className="relative mx-auto h-48 w-48 overflow-hidden rounded-full border">
-                    <Image
-                      src={selfiePreview}
-                      alt="Selfie"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                  <p className="flex items-center justify-center gap-2 text-sm text-accent">
-                    <Check className="h-4 w-4" /> Selfie saved to your account
-                  </p>
-                  <p className="text-center text-xs text-muted">Face match: pending admin review</p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="mx-auto block"
-                    onClick={() => selfieInputRef.current?.click()}
-                    disabled={aiChecking || uploadingDoc}
-                  >
-                    Replace selfie
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => selfieInputRef.current?.click()}
-                  disabled={aiChecking || uploadingDoc}
-                >
-                  <Upload className="h-4 w-4" />
-                  {uploadingDoc ? "Uploading…" : "Upload Selfie"}
-                </Button>
-              )}
-              {aiChecking && (
-                <div>
-                  <p className="mb-2 text-xs text-muted">AI quality check…</p>
-                  <ProgressBar value={aiProgress} />
-                </div>
-              )}
-            </>
-          )}
-
-          {step === 4 && (
             <>
               <p className="text-sm text-muted">Optional — improves trust score</p>
               <input
@@ -633,17 +483,27 @@ export default function OnboardingVerifyPage() {
                 }}
               />
               <div className="flex flex-wrap gap-3">
-                <Button variant="outline" onClick={() => eduInputRef.current?.click()}>
+                <Button
+                  variant="outline"
+                  onClick={() => eduInputRef.current?.click()}
+                  disabled={uploadingDoc}
+                >
+                  <Upload className="h-4 w-4" />
                   {verification.educationDocPreview ? "Education ✓" : "Education Certificate"}
                 </Button>
-                <Button variant="outline" onClick={() => empInputRef.current?.click()}>
+                <Button
+                  variant="outline"
+                  onClick={() => empInputRef.current?.click()}
+                  disabled={uploadingDoc}
+                >
+                  <Upload className="h-4 w-4" />
                   {verification.employmentDocPreview ? "Employment ✓" : "Employment Proof"}
                 </Button>
               </div>
             </>
           )}
 
-          {step === 5 && (
+          {step === 4 && (
             <div className="space-y-3 text-sm">
               <p className="flex items-center gap-2">
                 {verification.phoneVerified ? (
@@ -662,20 +522,13 @@ export default function OnboardingVerifyPage() {
                 Email verified
               </p>
               <p className="flex items-center gap-2">
-                {idDocumentPreview ? (
+                {identityDone ? (
                   <Check className="h-4 w-4 text-accent" />
                 ) : (
                   <span className="h-4 w-4" />
                 )}
-                ID document uploaded
-              </p>
-              <p className="flex items-center gap-2">
-                {selfiePreview ? (
-                  <Check className="h-4 w-4 text-accent" />
-                ) : (
-                  <span className="h-4 w-4" />
-                )}
-                Selfie uploaded
+                Identity (Veriff)
+                {verification.veriffStatus ? ` — ${verification.veriffStatus}` : ""}
               </p>
             </div>
           )}
@@ -683,20 +536,19 @@ export default function OnboardingVerifyPage() {
           {error && <p className="feedback-error">{error}</p>}
 
           <div className="flex gap-3 pt-4">
-            {step > 0 && step < 5 && (
+            {step > 0 && step < 4 && (
               <Button variant="outline" onClick={() => goToStep(step - 1)}>
                 Back
               </Button>
             )}
-            {step < 5 ? (
+            {step < 4 ? (
               <Button
                 className="flex-1"
                 onClick={() => {
                   if (step === 0 && verification.phoneVerified) goToStep(1);
                   else if (step === 1 && verification.emailVerified) goToStep(2);
-                  else if (step === 2 && idDocumentPreview) goToStep(3);
-                  else if (step === 3 && selfiePreview) goToStep(4);
-                  else if (step === 4) goToStep(5);
+                  else if (step === 2 && identityDone) goToStep(3);
+                  else if (step === 3) goToStep(4);
                   else setError("Complete this step before continuing");
                 }}
               >
@@ -704,11 +556,11 @@ export default function OnboardingVerifyPage() {
               </Button>
             ) : (
               <Button className="flex-1" onClick={() => void handleSubmit()}>
-                Submit for Review
+                {veriffApproved ? "Continue to dashboard" : "Submit for Review"}
               </Button>
             )}
-            {step === 4 && (
-              <Button variant="ghost" onClick={() => goToStep(5)}>
+            {step === 3 && (
+              <Button variant="ghost" onClick={() => goToStep(4)}>
                 Skip
               </Button>
             )}
@@ -716,5 +568,19 @@ export default function OnboardingVerifyPage() {
         </div>
       </Card>
     </OnboardingShell>
+  );
+}
+
+export default function OnboardingVerifyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-lg py-12 text-center text-sm text-muted">
+          Loading verification…
+        </div>
+      }
+    >
+      <OnboardingVerifyContent />
+    </Suspense>
   );
 }

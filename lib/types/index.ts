@@ -20,6 +20,10 @@ export interface VerificationData {
   employmentDocPreview?: string;
   submittedAt?: string;
   rejectionReason?: string;
+  /** Veriff hosted session id (passport + selfie). */
+  veriffSessionId?: string;
+  /** started | approved | declined | resubmission_requested | review | … */
+  veriffStatus?: string;
 }
 
 export interface User {

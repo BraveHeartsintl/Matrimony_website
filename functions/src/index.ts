@@ -24,6 +24,9 @@ export { sendVerificationEmail } from "./verificationEmail";
 initializeApp();
 setGlobalOptions({ region: "us-central1", maxInstances: 10 });
 
+// Re-export after initializeApp so analyzers can load Veriff modules safely.
+export { createVeriffSession, veriffWebhook } from "./veriff";
+
 const db = getFirestore();
 const subscriptionsCollection = () => db.collection("subscriptions");
 
