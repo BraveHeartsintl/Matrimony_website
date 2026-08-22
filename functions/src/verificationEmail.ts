@@ -3,6 +3,14 @@ import { HttpsError, onCall, type CallableRequest } from "firebase-functions/v2/
 import * as logger from "firebase-functions/logger";
 import nodemailer from "nodemailer";
 
+import {
+  mailFromAddress,
+  mailFromName,
+  smtpHost,
+  smtpPass,
+  smtpPort,
+  smtpUser,
+} from "./mailConfig";
 import { appUrl } from "./planConfig";
 
 /** Must match Firebase Console → Authentication → Authorized domains. */
@@ -24,14 +32,17 @@ function resolveOrigin(request: CallableRequest): string {
   }
   return appUrl.value().replace(/\/$/, "");
 }
-import {
-  mailFromAddress,
-  mailFromName,
-  smtpHost,
-  smtpPass,
-  smtpPort,
-  smtpUser,
-} from "./mailConfig";
+
+function linkGenerationErrorMessage(err: unknown, origin: string): string {
+  const message = err instanceof Error ? err.message : String(err);
+  if (/TOO_MANY_ATTEMPTS/i.test(message)) {
+    return "Too many verification attempts. Please wait 15 minutes, then try again.";
+  }
+  if (/allowlisted|authorized|continue/i.test(message)) {
+    return `Could not create a verification link. Add "${new URL(origin).host}" in Firebase Console → Authentication → Authorized domains.`;
+  }
+  return "Could not create a verification link. Try again in a few minutes.";
+}
 
 function escapeHtml(value: string): string {
   return value
@@ -153,25 +164,20 @@ export const sendVerificationEmail = onCall(
       });
     } catch (err) {
       logger.error("Failed to generate email verification link", { err, continueUrl, origin });
-      const hint =
-        err instanceof Error && /allowlisted|authorized|continue/i.test(err.message)
-          ? ` Add "${new URL(origin).host}" to Firebase Console → Authentication → Authorized domains.`
-          : "";
-      throw new HttpsError(
-        "internal",
-        `Could not create a verification link. Try again in a few minutes.${hint}`
-      );
+      throw new HttpsError("internal", linkGenerationErrorMessage(err, origin));
     }
 
     const verifyUrl = brandedVerifyUrl(firebaseLink, origin);
     const fromName = mailFromName.value();
     const fromAddress = mailFromAddress.value();
     const port = Number(smtpPort.value());
+    const smtpPortNum = Number.isFinite(port) ? port : 587;
 
     const transporter = nodemailer.createTransport({
       host: smtpHost.value(),
-      port: Number.isFinite(port) ? port : 587,
-      secure: port === 465,
+      port: smtpPortNum,
+      secure: smtpPortNum === 465,
+      requireTLS: smtpPortNum === 587,
       auth: {
         user: smtpUser.value(),
         pass: smtpPass.value(),
