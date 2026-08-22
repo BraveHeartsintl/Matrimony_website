@@ -1,7 +1,6 @@
 import { mapFirebaseError } from "@/lib/firebase/errors";
-import { getFirebaseAuth, getFirebaseFunctions } from "@/lib/firebase/config";
-import { sendEmailVerification, type User } from "firebase/auth";
-import { httpsCallable } from "firebase/functions";
+import { getFirebaseAuth } from "@/lib/firebase/config";
+import { sendEmailVerification } from "firebase/auth";
 
 function verificationContinueUrl(): string {
   if (typeof window === "undefined") {
@@ -10,22 +9,14 @@ function verificationContinueUrl(): string {
   return `${window.location.origin}/onboarding/verify/`;
 }
 
-async function sendViaFirebaseAuth(user: User): Promise<{ alreadyVerified: boolean }> {
-  await sendEmailVerification(user, {
-    url: verificationContinueUrl(),
-    handleCodeInApp: false,
-  });
-  return { alreadyVerified: false };
-}
-
-function shouldFallbackToFirebaseAuth(error: unknown): boolean {
-  const code =
-    typeof error === "object" && error !== null && "code" in error
-      ? String((error as { code?: unknown }).code)
-      : undefined;
-  return code !== "functions/unauthenticated" && code !== "functions/failed-precondition";
-}
-
+/**
+ * Sends a Firebase Auth verification email from the browser.
+ * Uses one API call (identitytoolkit sendOobCode) — avoids the Cloud Function
+ * path that was burning quota when SMTP failed and then retrying via fallback.
+ *
+ * Branded SMTP email via sendVerificationEmail Cloud Function can be re-enabled
+ * once SMTP_PASS is set correctly in Firebase secrets.
+ */
 export async function sendAccountVerificationEmail(): Promise<{ alreadyVerified: boolean }> {
   const auth = getFirebaseAuth();
   const user = auth.currentUser;
@@ -40,24 +31,13 @@ export async function sendAccountVerificationEmail(): Promise<{ alreadyVerified:
   }
 
   try {
-    const sendVerificationEmail = httpsCallable<void, { alreadyVerified: boolean }>(
-      getFirebaseFunctions(),
-      "sendVerificationEmail"
-    );
-    const { data } = await sendVerificationEmail();
-    return { alreadyVerified: Boolean(data.alreadyVerified) };
+    await sendEmailVerification(user, {
+      url: verificationContinueUrl(),
+      handleCodeInApp: false,
+    });
+    return { alreadyVerified: false };
   } catch (error) {
-    if (!shouldFallbackToFirebaseAuth(error)) {
-      throw new Error(mapFirebaseError(error, "Failed to send verification email."));
-    }
-
-    try {
-      return await sendViaFirebaseAuth(user);
-    } catch (fallbackError) {
-      throw new Error(
-        mapFirebaseError(fallbackError, mapFirebaseError(error, "Failed to send verification email."))
-      );
-    }
+    throw new Error(mapFirebaseError(error, "Failed to send verification email."));
   }
 }
 

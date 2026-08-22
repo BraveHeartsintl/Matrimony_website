@@ -8,7 +8,8 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   "auth/wrong-password": "Invalid email or password",
   "auth/user-not-found": "Invalid email or password",
   "auth/weak-password": "Password must be at least 6 characters",
-  "auth/too-many-requests": "Too many attempts. Please try again later",
+  "auth/too-many-requests":
+    "Too many verification emails sent. Please wait 30–60 minutes, then try again.",
   "auth/invalid-email": "Please enter a valid email address",
   "auth/user-disabled": "This account has been disabled",
   "auth/network-request-failed": "Network error. Check your connection and try again.",
@@ -18,6 +19,8 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
     "Verification email is not set up yet. Deploy the sendVerificationEmail Cloud Function and SMTP settings.",
   "functions/unavailable": "Email service is temporarily unavailable. Please try again shortly.",
   "functions/unauthenticated": "You must be logged in to verify your email.",
+  "functions/resource-exhausted":
+    "Too many verification emails sent. Please wait 30–60 minutes, then try again.",
   "auth/invalid-phone-number": "Invalid phone number. Use international format (e.g. +91 98765 43210).",
   "auth/invalid-verification-code": "Invalid OTP. Please check the code and try again.",
   "auth/code-expired": "OTP expired. Request a new code.",

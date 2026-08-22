@@ -459,8 +459,9 @@ function OnboardingVerifyContent() {
                   {emailSent && (
                     <>
                       <p className="rounded-[6px] glass-subtle px-3 py-2 text-xs text-muted">
-                        We sent a message from UK Indian Matrimony. Open it and tap
-                        <span className="font-semibold text-foreground"> Verify email address</span>.
+                        Check your inbox for a verification email. Open it and tap the verify
+                        link, then return here and click
+                        <span className="font-semibold text-foreground"> I&apos;ve verified my email</span>.
                         If it is not in your inbox within a minute, check Spam and Promotions.
                       </p>
                       <Button variant="outline" onClick={() => void handleEmailConfirmed()}>

@@ -36,7 +36,7 @@ function resolveOrigin(request: CallableRequest): string {
 function linkGenerationErrorMessage(err: unknown, origin: string): string {
   const message = err instanceof Error ? err.message : String(err);
   if (/TOO_MANY_ATTEMPTS/i.test(message)) {
-    return "Too many verification attempts. Please wait 15 minutes, then try again.";
+    return "Too many verification emails sent. Please wait 30–60 minutes, then try again.";
   }
   if (/allowlisted|authorized|continue/i.test(message)) {
     return `Could not create a verification link. Add "${new URL(origin).host}" in Firebase Console → Authentication → Authorized domains.`;
@@ -164,7 +164,9 @@ export const sendVerificationEmail = onCall(
       });
     } catch (err) {
       logger.error("Failed to generate email verification link", { err, continueUrl, origin });
-      throw new HttpsError("internal", linkGenerationErrorMessage(err, origin));
+      const message = linkGenerationErrorMessage(err, origin);
+      const status = /TOO_MANY_ATTEMPTS/i.test(message) ? "resource-exhausted" : "internal";
+      throw new HttpsError(status, message);
     }
 
     const verifyUrl = brandedVerifyUrl(firebaseLink, origin);
