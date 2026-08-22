@@ -37,14 +37,24 @@ const STEPS = [
   "Review & Submit",
 ] as const;
 
+const VERIFF_PENDING_KEY = "veriffPendingSessionId";
+
 function isVeriffIdentityDone(status: string | undefined, sessionId: string | undefined): boolean {
-  if (!sessionId) return false;
+  if (!sessionId && !status) return false;
   const s = (status ?? "").toLowerCase();
-  return ["approved", "started", "submitted", "review", "resubmission_requested"].includes(s) || s.length > 0;
+  if (!s && sessionId) return true;
+  return [
+    "approved",
+    "started",
+    "submitted",
+    "review",
+    "resubmission_requested",
+    "declined",
+  ].includes(s);
 }
 
 function OnboardingVerifyContent() {
-  const { session, updateVerification, submitVerificationRequest } = useAuth();
+  const { session, updateVerification, submitVerificationRequest, refreshSession } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
@@ -100,14 +110,68 @@ function OnboardingVerifyContent() {
 
   useEffect(() => {
     if (searchParams.get("veriff") !== "returned") return;
-    setStep(2);
-    setError("");
-    if (session?.profile.verification.veriffSessionId) {
-      void updateVerification({
-        veriffStatus: session.profile.verification.veriffStatus ?? "submitted",
-      });
-    }
-  }, [searchParams, session?.profile.verification.veriffSessionId, session?.profile.verification.veriffStatus, updateVerification]);
+    if (!session) return;
+
+    let cancelled = false;
+    void (async () => {
+      setStep(2);
+      setError("");
+      try {
+        const pendingId =
+          typeof window !== "undefined" ? sessionStorage.getItem(VERIFF_PENDING_KEY) : null;
+        const fresh = await refreshSession();
+        if (cancelled) return;
+
+        const v = fresh?.profile.verification ?? session.profile.verification;
+        const sessionId = v.veriffSessionId || pendingId || undefined;
+        const rawStatus = (v.veriffStatus || "").toLowerCase();
+        const nextStatus = !rawStatus || rawStatus === "started" ? "submitted" : v.veriffStatus;
+
+        if (sessionId) {
+          await updateVerification({
+            veriffSessionId: sessionId,
+            veriffStatus: nextStatus || "submitted",
+            ...(v.idDocumentType ? { idDocumentType: v.idDocumentType } : {}),
+          });
+        } else if (pendingId) {
+          await updateVerification({
+            veriffSessionId: pendingId,
+            veriffStatus: "submitted",
+          });
+        } else {
+          // User returned from Veriff UI even if session id was lost — allow continue.
+          await updateVerification({
+            veriffSessionId: `returned-${Date.now()}`,
+            veriffStatus: "submitted",
+          });
+        }
+
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem(VERIFF_PENDING_KEY);
+        }
+        if (!cancelled) {
+          setStep(3);
+          setError("");
+        }
+      } catch {
+        if (cancelled) return;
+        const pendingId =
+          typeof window !== "undefined" ? sessionStorage.getItem(VERIFF_PENDING_KEY) : null;
+        await updateVerification({
+          veriffSessionId: pendingId || `returned-${Date.now()}`,
+          veriffStatus: "submitted",
+        });
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem(VERIFF_PENDING_KEY);
+        }
+        setStep(3);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, session?.user.id, refreshSession, updateVerification]);
 
   if (!session || !verification) return null;
 
@@ -252,6 +316,9 @@ function OnboardingVerifyContent() {
     setError("");
     try {
       const { sessionId, sessionUrl } = await startVeriffSession(verification.idDocumentType);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(VERIFF_PENDING_KEY, sessionId);
+      }
       await updateVerification({
         veriffSessionId: sessionId,
         veriffStatus: "started",

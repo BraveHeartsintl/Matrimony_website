@@ -200,15 +200,12 @@ export const createVeriffSession = onCall(
     const sessionId = payload.verification.id;
     const sessionUrl = payload.verification.url;
 
-    await db().collection("profiles").doc(uid).set(
-      {
-        "verification.veriffSessionId": sessionId,
-        "verification.veriffStatus": "started",
-        updatedAt: FieldValue.serverTimestamp(),
-        lastActiveAt: FieldValue.serverTimestamp(),
-      },
-      { merge: true }
-    );
+    await db().collection("profiles").doc(uid).update({
+      "verification.veriffSessionId": sessionId,
+      "verification.veriffStatus": "started",
+      updatedAt: FieldValue.serverTimestamp(),
+      lastActiveAt: FieldValue.serverTimestamp(),
+    });
 
     await db().collection("verificationRequests").doc(uid).set(
       {
@@ -293,20 +290,17 @@ export const veriffWebhook = onRequest(
 
     try {
       if (decision === "approved") {
-        await profileRef.set(
-          {
-            onboardingStatus: "verified",
-            verified: true,
-            "verification.veriffSessionId": verification?.id ?? null,
-            "verification.veriffStatus": "approved",
-            "verification.rejectionReason": null,
-            "verification.submittedAt": new Date().toISOString(),
-            ...(docType ? { "verification.idDocumentType": docType } : {}),
-            updatedAt: now,
-            lastActiveAt: now,
-          },
-          { merge: true }
-        );
+        await profileRef.update({
+          onboardingStatus: "verified",
+          verified: true,
+          "verification.veriffSessionId": verification?.id ?? null,
+          "verification.veriffStatus": "approved",
+          "verification.rejectionReason": null,
+          "verification.submittedAt": new Date().toISOString(),
+          ...(docType ? { "verification.idDocumentType": docType } : {}),
+          updatedAt: now,
+          lastActiveAt: now,
+        });
         await requestRef.set(
           {
             status: "approved",
@@ -319,18 +313,15 @@ export const veriffWebhook = onRequest(
           { merge: true }
         );
       } else if (decision === "declined") {
-        await profileRef.set(
-          {
-            onboardingStatus: "rejected",
-            verified: false,
-            "verification.veriffSessionId": verification?.id ?? null,
-            "verification.veriffStatus": "declined",
-            "verification.rejectionReason": reason ?? "Identity verification was declined.",
-            updatedAt: now,
-            lastActiveAt: now,
-          },
-          { merge: true }
-        );
+        await profileRef.update({
+          onboardingStatus: "rejected",
+          verified: false,
+          "verification.veriffSessionId": verification?.id ?? null,
+          "verification.veriffStatus": "declined",
+          "verification.rejectionReason": reason ?? "Identity verification was declined.",
+          updatedAt: now,
+          lastActiveAt: now,
+        });
         await requestRef.set(
           {
             status: "rejected",
@@ -344,19 +335,16 @@ export const veriffWebhook = onRequest(
           { merge: true }
         );
       } else if (decision === "resubmission_requested") {
-        await profileRef.set(
-          {
-            onboardingStatus: "profile_completed",
-            verified: false,
-            "verification.veriffSessionId": verification?.id ?? null,
-            "verification.veriffStatus": "resubmission_requested",
-            "verification.rejectionReason":
-              reason ?? "Please resubmit a clearer ID document and selfie.",
-            updatedAt: now,
-            lastActiveAt: now,
-          },
-          { merge: true }
-        );
+        await profileRef.update({
+          onboardingStatus: "profile_completed",
+          verified: false,
+          "verification.veriffSessionId": verification?.id ?? null,
+          "verification.veriffStatus": "resubmission_requested",
+          "verification.rejectionReason":
+            reason ?? "Please resubmit a clearer ID document and selfie.",
+          updatedAt: now,
+          lastActiveAt: now,
+        });
         await requestRef.set(
           {
             status: "pending",
@@ -370,16 +358,13 @@ export const veriffWebhook = onRequest(
         );
       } else {
         // review / expired / abandoned / started / submitted — keep pending
-        await profileRef.set(
-          {
-            onboardingStatus: "verification_pending",
-            "verification.veriffSessionId": verification?.id ?? null,
-            "verification.veriffStatus": decision,
-            updatedAt: now,
-            lastActiveAt: now,
-          },
-          { merge: true }
-        );
+        await profileRef.update({
+          onboardingStatus: "verification_pending",
+          "verification.veriffSessionId": verification?.id ?? null,
+          "verification.veriffStatus": decision,
+          updatedAt: now,
+          lastActiveAt: now,
+        });
         await requestRef.set(
           {
             status: "pending",

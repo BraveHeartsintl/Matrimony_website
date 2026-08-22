@@ -38,6 +38,7 @@ interface AuthContextType {
   updateVerification: (updates: Partial<VerificationData>) => Promise<void>;
   completeOnboardingProfile: (updates: Partial<Profile>) => Promise<void>;
   submitVerificationRequest: () => Promise<void>;
+  refreshSession: () => Promise<AuthSession | null>;
   simulateVerificationApproval: () => void;
   simulateVerificationRejection: (reason: string) => void;
 }
@@ -300,6 +301,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, [persistProfile]);
 
+  const refreshSession = useCallback(async () => {
+    const authUser = getFirebaseAuth().currentUser;
+    if (!authUser) return null;
+    const nextSession = await buildSession(
+      authUser.uid,
+      authUser.email ?? "",
+      authUser.displayName
+    );
+    setSession(nextSession);
+    sessionRef.current = nextSession;
+    return nextSession;
+  }, []);
+
   const simulateVerificationApproval = useCallback(() => {
     const current = sessionRef.current;
     if (!current) return;
@@ -330,6 +344,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updateVerification,
         completeOnboardingProfile,
         submitVerificationRequest,
+        refreshSession,
         simulateVerificationApproval,
         simulateVerificationRejection,
       }}

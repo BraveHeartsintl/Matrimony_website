@@ -30,6 +30,8 @@ function verificationToAdminPayload(
     employmentDocPreview: verification.employmentDocPreview ?? null,
     phoneVerified: verification.phoneVerified ?? false,
     emailVerified: verification.emailVerified ?? false,
+    veriffSessionId: verification.veriffSessionId ?? null,
+    veriffStatus: verification.veriffStatus ?? null,
     status: "pending",
     stage: submitted ? "submitted" : "in_progress",
     updatedAt: serverTimestamp(),
