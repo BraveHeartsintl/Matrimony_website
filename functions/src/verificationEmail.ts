@@ -1,9 +1,29 @@
 import { getAuth } from "firebase-admin/auth";
-import { HttpsError, onCall } from "firebase-functions/v2/https";
+import { HttpsError, onCall, type CallableRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import nodemailer from "nodemailer";
 
 import { appUrl } from "./planConfig";
+
+/** Must match Firebase Console → Authentication → Authorized domains. */
+const ALLOWED_ORIGINS = new Set([
+  "https://ukmatrimony.co.uk",
+  "https://www.ukmatrimony.co.uk",
+  "https://matrimony-website-alpha.vercel.app",
+  "http://localhost:3000",
+  "http://localhost:3001",
+]);
+
+function resolveOrigin(request: CallableRequest): string {
+  const headerOrigin = request.rawRequest?.headers?.origin;
+  if (typeof headerOrigin === "string") {
+    const normalized = headerOrigin.replace(/\/$/, "");
+    if (ALLOWED_ORIGINS.has(normalized)) {
+      return normalized;
+    }
+  }
+  return appUrl.value().replace(/\/$/, "");
+}
 import {
   mailFromAddress,
   mailFromName,
@@ -122,7 +142,7 @@ export const sendVerificationEmail = onCall(
       return { alreadyVerified: true as const };
     }
 
-    const origin = appUrl.value().replace(/\/$/, "");
+    const origin = resolveOrigin(request);
     const continueUrl = `${origin}/onboarding/verify/`;
 
     let firebaseLink: string;
@@ -132,8 +152,15 @@ export const sendVerificationEmail = onCall(
         handleCodeInApp: false,
       });
     } catch (err) {
-      logger.error("Failed to generate email verification link", err);
-      throw new HttpsError("internal", "Could not create a verification link. Try again in a few minutes.");
+      logger.error("Failed to generate email verification link", { err, continueUrl, origin });
+      const hint =
+        err instanceof Error && /allowlisted|authorized|continue/i.test(err.message)
+          ? ` Add "${new URL(origin).host}" to Firebase Console → Authentication → Authorized domains.`
+          : "";
+      throw new HttpsError(
+        "internal",
+        `Could not create a verification link. Try again in a few minutes.${hint}`
+      );
     }
 
     const verifyUrl = brandedVerifyUrl(firebaseLink, origin);
