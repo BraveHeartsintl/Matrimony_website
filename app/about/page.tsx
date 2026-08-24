@@ -27,7 +27,7 @@ const values = [
     icon: Shield,
     title: "Safety & Privacy First",
     description:
-      "Fully GDPR compliant with ICO registration, manual profile verification, and robust privacy controls — your data stays in the UK.",
+      "Fully GDPR compliant with ICO registration, manual profile verification, and robust privacy controls ",
   },
   {
     icon: Users,
@@ -39,7 +39,7 @@ const values = [
     icon: Target,
     title: "Purpose-Driven Matchmaking",
     description:
-      "Unlike casual dating apps, we focus exclusively on matrimony — helping you find a life partner with family involvement and cultural respect.",
+      "We focus exclusively on matrimony — helping you find a life partner with family involvement and cultural respect.",
   },
 ];
 
@@ -49,7 +49,7 @@ export default function AboutPage() {
       <Section variant="deepest" className="!py-24">
         <Container className="max-w-3xl text-center">
           <SectionLabel>About Us</SectionLabel>
-          <SplitHeadline primary="About UK Matrimony" muted="UK's Indian Matchmaking" />
+          <SplitHeadline primary="UK's Indian Matchmaking" muted="" />
           <p className="mt-6 text-lg text-muted">{SITE_TAGLINE} since 2020.</p>
         </Container>
       </Section>
@@ -59,9 +59,9 @@ export default function AboutPage() {
           <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
             <div>
               <SectionLabel>Our Mission</SectionLabel>
-              <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+              {/* <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
                 Our Mission
-              </h2>
+              </h2> */}
               <p className="mt-4 leading-relaxed text-muted">
                 UK Matrimony was founded with a clear mission: to provide a safe, respectful, and
                 effective platform where British Asian singles and their families can find meaningful,

@@ -20,7 +20,7 @@ export default function Testimonials() {
       <Container>
         <FadeIn>
           <SectionLabel>Success Stories</SectionLabel>
-          <SplitHeadline primary="Real Couples" muted="Real Weddings" />
+          <SplitHeadline primary="Two Hearts." muted="One Beautiful Journey." />
           <p className="mt-4 text-muted">
             Hear from UK's Indian couples who found their life partner through UK Matrimony
           </p>

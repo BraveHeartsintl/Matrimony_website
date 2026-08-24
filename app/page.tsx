@@ -7,7 +7,6 @@ import MatchStats from "@/components/home/MatchStats";
 import QuickStart from "@/components/home/QuickStart";
 import Testimonials from "@/components/home/Testimonials";
 import TrustBadges from "@/components/home/TrustBadges";
-import UKCoverage from "@/components/home/UKCoverage";
 import PublicLayout from "@/components/layout/PublicLayout";
 
 export default function HomePage() {
@@ -19,7 +18,6 @@ export default function HomePage() {
       <FeaturedProfiles />
       <MatchStats />
       <Communities />
-      <UKCoverage />
       <TrustBadges />
       <Testimonials />
       <CTA />

@@ -24,7 +24,7 @@ export default function QuickStart() {
                   {session ? "Continue Your Journey" : "Get Started Today"}
                 </p>
                 <h2 className="mt-3 font-display text-3xl font-bold text-foreground lg:text-4xl">
-                  {session ? "Find your next match" : "Find your Special Someone"}
+                  {session ? "Find your next match" : "Find your someone special"}
                 </h2>
                 <p className="mt-4 max-w-md text-muted">
                   {session

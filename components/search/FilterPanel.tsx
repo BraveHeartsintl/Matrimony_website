@@ -5,10 +5,10 @@ import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 import Toggle from "@/components/ui/Toggle";
 import {
+  COMMUNITIES,
   EDUCATION_LEVELS,
   GENDERS,
   MARITAL_STATUSES,
-  RELIGIONS,
   UK_LOCATIONS,
 } from "@/lib/constants";
 import type { SearchFilters } from "@/lib/search-filters";
@@ -100,7 +100,7 @@ export default function FilterPanel({
           onChange={(e) => update("religion", e.target.value)}
           options={[
             { value: "", label: "All Religions" },
-            ...RELIGIONS.map((r) => ({ value: r, label: r })),
+            ...COMMUNITIES.map((c) => ({ value: c.religion, label: c.religion })),
           ]}
         />
 

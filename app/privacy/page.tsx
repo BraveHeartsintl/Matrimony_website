@@ -27,7 +27,7 @@ const sections = [
   {
     title: "4. Your Rights (GDPR)",
     content:
-      "Under the UK GDPR, you have the right to access, rectify, erase, restrict processing, data portability, and object to processing of your personal data. You may exercise these rights by contacting us at privacy@ukmatrimony.co.uk.",
+      "Under the UK GDPR, you have the right to access, rectify, erase, restrict processing, data portability, and object to processing of your personal data. You may exercise these rights by contacting us at info@ukindiansmatrimony.co.uk",
   },
   {
     title: "5. Data Security",

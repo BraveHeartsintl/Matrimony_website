@@ -30,7 +30,7 @@ const ACCESS_MATRIX: Record<OnboardingFeature, OnboardingStatus[]> = {
   save_favorites: ["profile_completed", "verification_pending", "verified"],
   view_full_profile: ["profile_completed", "verification_pending", "verified"],
   view_contact_details: ["verified"],
-  direct_chat: ["profile_completed", "verification_pending", "verified"],
+  direct_chat: ["verified"],
   voice_video_call: ["verified"],
   verification_badge: ["verified"],
 };
@@ -90,7 +90,7 @@ export function getPhaseCtaMessage(status: OnboardingStatus): string | null {
     case "basic_registered":
       return "Complete your profile to unlock compatibility scores and send interests.";
     case "profile_completed":
-      return "Optional: verify your identity anytime to unlock contact details and your verified badge.";
+      return "Optional: verify your identity anytime to unlock messaging, contact details, and your verified badge.";
     case "verification_pending":
       return "Your verification is under review. We'll notify you once approved.";
     case "rejected":

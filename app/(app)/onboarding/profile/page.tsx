@@ -51,7 +51,6 @@ export default function OnboardingProfilePage() {
   }, [session, router]);
 
   const [form, setForm] = useState({
-    birthDay: String(profile?.birthDay ?? 15),
     birthMonth: String(profile?.birthMonth ?? 1),
     heightCm: String(profile?.heightCm || ""),
     maritalStatus: (profile?.maritalStatus ?? "never_married") as MaritalStatus,
@@ -117,10 +116,6 @@ export default function OnboardingProfilePage() {
       if (!form.education) return "Please select your highest education";
       if (!form.occupation.trim()) return "Please enter your occupation";
     }
-    if (step === 2) {
-      if (!form.fatherOccupation || !form.motherOccupation)
-        return "Please enter parent occupations";
-    }
     if (step === 3) {
       if (!form.diet) return "Please select food preference";
     }
@@ -147,7 +142,6 @@ export default function OnboardingProfilePage() {
 
     try {
       await completeOnboardingProfile({
-        birthDay: Number(form.birthDay),
         birthMonth: Number(form.birthMonth),
         heightCm: Number(form.heightCm),
         maritalStatus: form.maritalStatus,
@@ -223,16 +217,7 @@ export default function OnboardingProfilePage() {
         <div className="mt-8 space-y-5">
           {step === 0 && (
             <>
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Select
-                  label="Birth Day"
-                  value={form.birthDay}
-                  onChange={(e) => update("birthDay", e.target.value)}
-                  options={Array.from({ length: 31 }, (_, i) => ({
-                    value: String(i + 1),
-                    label: String(i + 1),
-                  }))}
-                />
+              <div className="grid gap-4 sm:grid-cols-2">
                 <Select
                   label="Birth Month"
                   value={form.birthMonth}
@@ -347,11 +332,13 @@ export default function OnboardingProfilePage() {
                 label="Father's Occupation"
                 value={form.fatherOccupation}
                 onChange={(e) => update("fatherOccupation", e.target.value)}
+                placeholder="NA"
               />
               <Input
                 label="Mother's Occupation"
                 value={form.motherOccupation}
                 onChange={(e) => update("motherOccupation", e.target.value)}
+                placeholder="NA"
               />
               <Select
                 label="Family Type"

@@ -19,7 +19,7 @@ import {
 import { calculateMatchScore } from "@/lib/matchmaking/calculateMatchScore";
 import { resolveProfileId } from "@/lib/firebase/services/search.service";
 import { recordProfileView } from "@/lib/firebase/services/profile.service";
-import { canAccess, getNextOnboardingRoute } from "@/lib/onboarding/access";
+import { canAccess, getNextOnboardingRoute, getOptionalVerificationRoute } from "@/lib/onboarding/access";
 import type { FullProfile } from "@/lib/types";
 import {
   formatBodyType,
@@ -104,6 +104,7 @@ export default function ProfileDetailView({ profile, interestId }: ProfileDetail
   const canViewContact = canAccess(status, "view_contact_details");
   const canChat = canAccess(status, "direct_chat");
   const nextRoute = getNextOnboardingRoute(status);
+  const verifyRoute = getOptionalVerificationRoute(status) ?? (status === "rejected" ? nextRoute : null);
 
   const matchResult = useMemo(
     () =>
@@ -117,8 +118,7 @@ export default function ProfileDetailView({ profile, interestId }: ProfileDetail
     relatedInterest && session && isInterestReceived(relatedInterest, session.user.id)
   );
   const canRespondToInterest = Boolean(isReceivedInterest && relatedInterest?.status === "pending");
-  const canMessage =
-    canChat && (!relatedInterest || relatedInterest.status === "accepted");
+  const canMessage = canChat;
 
   const handleApproveInterest = () => {
     if (!relatedInterest || statusBusy) return;
@@ -374,10 +374,14 @@ export default function ProfileDetailView({ profile, interestId }: ProfileDetail
                   Video Call
                 </Button>
               </>
+            ) : status === "verification_pending" ? (
+              <Button size="lg" variant="outline" disabled>
+                <MessageCircle className="h-4 w-4" />
+                Verification pending
+              </Button>
             ) : (
-              canSendInterest &&
-              nextRoute && (
-                <Link href="/onboarding/verify">
+              verifyRoute && (
+                <Link href={verifyRoute}>
                   <Button size="lg" variant="outline">
                     <MessageCircle className="h-4 w-4" />
                     Verify to message

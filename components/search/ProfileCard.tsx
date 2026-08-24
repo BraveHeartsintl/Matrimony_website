@@ -13,7 +13,7 @@ import { getDefaultProfilePhoto } from "@/lib/profile-photos";
 import type { MatchScoreResult } from "@/lib/matchmaking/calculateMatchScore";
 import type { OnboardingStatus, SearchProfile } from "@/lib/types";
 import { formatBodyType, formatMaritalStatus } from "@/lib/utils";
-import { Bookmark, Heart, MapPin, Ruler, ShieldCheck, Weight } from "lucide-react";
+import { Bookmark, Heart, MapPin, MessageCircle, Ruler, ShieldCheck, Weight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -39,6 +39,7 @@ export default function ProfileCard({
 
   const canSendInterest = canAccess(onboardingStatus, "send_interest");
   const canSaveFavorites = canAccess(onboardingStatus, "save_favorites");
+  const canMessage = canAccess(onboardingStatus, "direct_chat");
   const showMatchScore = canAccess(onboardingStatus, "ai_compatibility_score") && matchResult;
 
   const handleFavorite = async () => {
@@ -163,6 +164,14 @@ export default function ProfileCard({
                 ? "Interest Sent"
                 : "Send Interest"}
           </Button>
+          {canMessage && (
+            <Link href={`/messages?with=${encodeURIComponent(profile.id)}`} className="shrink-0">
+              <Button size="sm" variant="outline">
+                <MessageCircle className="h-4 w-4" />
+                Message
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </div>

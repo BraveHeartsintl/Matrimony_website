@@ -67,6 +67,8 @@ export default function MessagesClient() {
   const status = session?.profile.onboardingStatus ?? "basic_registered";
   const canChat = canAccess(status, "direct_chat");
   const nextRoute = getNextOnboardingRoute(status);
+  const verifyRoute = getOptionalVerificationRoute(status);
+  const unlockRoute = nextRoute ?? verifyRoute;
 
   const [profileLookup, setProfileLookup] = useState(
     () => new Map<string, { name: string; photo: string }>()
@@ -280,8 +282,8 @@ export default function MessagesClient() {
                 ? "Verify your identity to unlock direct messaging."
                 : "Your verification is pending. Messaging unlocks once approved."}
           </p>
-          {nextRoute && (
-            <Link href={nextRoute} className="mt-6">
+          {unlockRoute && (
+            <Link href={unlockRoute} className="mt-6">
               <Button>
                 <MessageCircle className="h-4 w-4" />
                 {status === "basic_registered" ? "Complete Profile" : "Verify Identity"}

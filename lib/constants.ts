@@ -31,7 +31,7 @@ export const DEFAULT_PROFILE_PHOTO_MALE = "/images/avatars/male.png";
 export const DEFAULT_PROFILE_PHOTO_FEMALE = "/images/avatars/female.png";
 
 export const SOCIAL_LINKS = {
-  email: "mailto:hello@ukmatrimony.co.uk",
+  email: "mailto:info@ukindiansmatrimony.co.uk",
   whatsapp: "https://wa.me/447000000000",
   facebook: "https://www.facebook.com/share/1AxHdaktzJ/?mibextid=wwXIfr",
   /** Official Instagram profile */
@@ -46,11 +46,6 @@ export const COMMUNITIES = [
     religion: "Hindu",
   },
   {
-    name: "Sikh Matrimony",
-    description: "Find your Anand Karaj partner within the UK Sikh community",
-    religion: "Sikh",
-  },
-  {
     name: "Muslim Matrimony",
     description: "Halal matchmaking for British Muslim singles",
     religion: "Muslim",
@@ -59,16 +54,6 @@ export const COMMUNITIES = [
     name: "Christian Matrimony",
     description: "Faith-centred matchmaking for UK Christians",
     religion: "Christian",
-  },
-  {
-    name: "Punjabi Matrimony",
-    description: "Cultural matchmaking for Punjabi families in Britain",
-    religion: "Sikh",
-  },
-  {
-    name: "Gujarati Matrimony",
-    description: "Community-focused matches for Gujarati Britons",
-    religion: "Hindu",
   },
 ] as const;
 
